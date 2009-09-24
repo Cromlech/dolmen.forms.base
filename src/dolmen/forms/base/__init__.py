@@ -2,8 +2,9 @@
 
 # direct z3cform imports
 from z3c.form.form import handleActionError
-from z3c.form.interfaces import IFormLayer, IFieldWidget
 from z3c.form.interfaces import DISPLAY_MODE, INPUT_MODE
+from z3c.form.interfaces import IFormLayer, IFieldWidget
+from z3c.form.interfaces import IForm, IAddForm, IEditForm, IDisplayForm
 
 # megrok.z3cform imports
 from megrok.z3cform.base import Field, Fields
