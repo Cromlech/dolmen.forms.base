@@ -21,7 +21,8 @@ tests_require = install_requires + [
 
 setup(name=name,
       version=version,
-      description="",
+      description=("Forms meta-package for Dolmen, "
+                   "using megrok.z3cform.base and z3c.form"),
       long_description = readme + '\n\n' + history,
       keywords='Dolmen Forms',
       author='Souheil Chelfouh',
