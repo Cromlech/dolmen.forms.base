@@ -11,3 +11,6 @@ from megrok.z3cform.base.utils import *
 from megrok.z3cform.base.components import *
 from megrok.z3cform.base.directives import *
 from megrok.z3cform.base.interfaces import *
+
+# Exposing package API
+from interfaces import IFieldUpdate
