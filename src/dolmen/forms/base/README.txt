@@ -64,7 +64,7 @@ identifier as a value::
 
 Values of the data dict can contain markers, to warn of a possible
 special case : the value is missing or there are no changes. In these
-two cases, the value assignation is skipped:
+two cases, the value assignation is skipped::
 
   >>> from dolmen.forms.base import NO_VALUE, NO_CHANGE
   >>> data = {u'name': NO_VALUE, u'weapon': NO_CHANGE}
