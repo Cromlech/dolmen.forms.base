@@ -7,12 +7,12 @@ readme = open(join('src', 'dolmen', 'forms', 'base', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
+    'grokcore.component',
     'megrok.layout',
     'setuptools',
     'zeam.form.base',
     'zeam.form.layout',
     'zeam.form.ztk',
-    'zope.component',
     'zope.configuration',
     'zope.event',
     'zope.interface',
@@ -21,6 +21,7 @@ install_requires = [
     ]
 
 tests_require = [
+    'zope.component',
     'zope.testing',
     ]
 

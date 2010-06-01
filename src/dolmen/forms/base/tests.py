@@ -3,15 +3,14 @@
 
 import unittest
 from zope.testing import doctest
-from zeam.form.ztk.testing import FunctionalLayer, setUp, tearDown
+from zeam.form.ztk.testing import FunctionalLayer
 
 
 def test_suite():
     """Testing suite.
     """
     readme = doctest.DocFileSuite(
-        'README.txt',
-        setUp=setUp, tearDown=tearDown,               
+        'README.txt',              
         optionflags=(doctest.ELLIPSIS + doctest.NORMALIZE_WHITESPACE))
     readme.layer = FunctionalLayer
     suite = unittest.TestSuite()

@@ -1,8 +1,21 @@
 Changelog
 =========
 
-0.1 - Unreleased
+1.0a1 (2010-06-02)
+------------------
+
+* Added a base Form model : `ApplicationForm`
+
+* ``dolmen.forms.base`` no longer uses ``z3c.form`` but is now based
+  on the ``zeam.form`` Form framework
+
+* Added several helpers functions, to extract changes Attributes and
+  notify events
+
+* Added tests
+
+
+0.1 (2009-10-25)
 ----------------
 
 * Initial release
-

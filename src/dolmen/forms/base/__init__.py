@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from zeam.form.base import Fields, Actions
-from zeam.form.base.markers import NO_VALUE, NO_CHANGE
+# Exposing limited zeam.form API
+from zeam.form.base import Fields, Action, Actions
+from zeam.form.base.markers import NO_VALUE, NO_CHANGE, NOTHING_DONE, DEFAULT
 from zeam.form.ztk.actions import CancelAction
 
 # Exposing package API
