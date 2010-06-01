@@ -1,16 +1,12 @@
-# direct z3cform imports
-from z3c.form import button, action, validator
-from z3c.form.form import extends, handleActionError
-from z3c.form.field import Field, Fields, FieldWidgets
-from z3c.form.interfaces import DISPLAY_MODE, INPUT_MODE
-from z3c.form.interfaces import IFormLayer, IFieldWidget
-from z3c.form.interfaces import IForm, IAddForm, IEditForm, IDisplayForm
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
-# megrok.z3cform imports
-from megrok.z3cform.base.utils import *
-from megrok.z3cform.base.components import *
-from megrok.z3cform.base.directives import *
-from megrok.z3cform.base.interfaces import *
+from zeam.form.base import Fields, Actions
+from zeam.form.base.markers import NO_VALUE, NO_CHANGE
+from zeam.form.ztk.actions import CancelAction
 
 # Exposing package API
-from interfaces import IFieldUpdate
+from dolmen.forms.base.models import ApplicationForm
+from dolmen.forms.base.interfaces import IFieldUpdate
+from dolmen.forms.base.utils import (
+    set_fields_data, notify_changes, apply_data_event)

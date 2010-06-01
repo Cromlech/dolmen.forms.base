@@ -14,7 +14,7 @@ class IFieldUpdate(Interface):
     field = schema.Object(
         required = True,
         title = u"The field that has been updated.",
-        schema = schema.interfaces.IField
+        schema = schema.interfaces.IField,
         )
 
     object = GlobalObject(

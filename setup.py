@@ -2,20 +2,25 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '0.1'
+version = '1.0a1'
 readme = open(join('src', 'dolmen', 'forms', 'base', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
+    'megrok.layout',
     'setuptools',
-    'z3c.form',
-    'zope.schema',
-    'zope.interface',
+    'zeam.form.base',
+    'zeam.form.layout',
+    'zeam.form.ztk',
+    'zope.component',
     'zope.configuration',
-    'megrok.z3cform.base'
+    'zope.event',
+    'zope.interface',
+    'zope.lifecycleevent',
+    'zope.schema',
     ]
 
-tests_require = install_requires + [
+tests_require = [
     'zope.testing',
     ]
 
