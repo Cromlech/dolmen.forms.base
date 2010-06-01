@@ -47,11 +47,20 @@ identifier as a value::
   >>> from dolmen.forms.base import Fields, set_fields_data
 
   >>> fields = Fields(ICaveman)
+  >>> for field in fields: print field
+  <TextLineSchemaField a name>
+  <ChoiceSchemaField a weapon>
+
   >>> data = {u'name': u'Grok', u'weapon': u'a club'}
 
   >>> changes = set_fields_data(fields, moshe, data)
   >>> print changes
   {<InterfaceClass __builtin__.ICaveman>: ['name', 'weapon']}
+
+  >>> moshe.name
+  u'Grok'
+  >>> moshe.weapon
+  u'a club'
 
 Values of the data dict can contain markers, to warn of a possible
 special case : the value is missing or there are no changes. In these
