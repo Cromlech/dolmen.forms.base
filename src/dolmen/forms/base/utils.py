@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from zeam.form.base.markers import NO_VALUE, NO_CHANGE
+from zeam.form.base.interfaces import IDataManager
+from zeam.form.base.datamanager import ObjectDataManager
 from zope.event import notify
 from zope.lifecycleevent import Attributes, ObjectModifiedEvent
 
@@ -12,18 +14,20 @@ def set_fields_data(fields, content, data):
     and the interface from where it's from.
     """
     changes = {}
-    for field_repr in fields:
+    if not IDataManager.providedBy(content):
+        content = ObjectDataManager(content)
 
+    for field_repr in fields:
         name = field_repr.identifier
         field = field_repr._field
         value = data.get(name)
-        
+
         if value is NO_VALUE or value is NO_CHANGE:
             continue
- 
-        field.set(content, value)
+
+        content.set(name, value)
         changes.setdefault(field.interface, []).append(name)
-            
+
     return changes
 
 
