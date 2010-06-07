@@ -50,5 +50,9 @@ def apply_data_event(fields, content, data, event=ObjectModifiedEvent):
     """ Updates the object with the data and sends an IObjectModifiedEvent
     """
     changes = set_fields_data(fields, content, data)
-    if changes: notify_changes(content, changes, event)
+    if changes:
+        if IDataManager.providedBy(content):
+            notify_changes(content.content, changes, event)
+        else:
+            notify_changes(content, changes, event)
     return changes
