@@ -176,4 +176,127 @@ add a value for the `name` attribute and call the adapters::
   Name updated on <Neanderthal object at ...> with `Manfred the Mighty`
   A text field has been updated
 
-It works.
+
+The form model
+==============
+
+``dolmen.forms.base`` provides a form baseclass defining several
+useful methods and overriding some default behavior from
+``zeam.form``.
+
+  >>> from zope.interface import implementedBy
+  >>> from dolmen.forms.base import ApplicationForm
+  
+The provided component, ``ApplicationForm``, inherits from the base
+``zeam.form`` components and implements some extra methods, allowing
+it to fit into your application, such as ``flash``, to emit messages
+to given sources. It's also layout aware::
+
+  >>> for interface in implementedBy(ApplicationForm):
+  ...     print interface
+  <InterfaceClass megrok.layout.interfaces.IPage>
+  <InterfaceClass zeam.form.base.interfaces.ISimpleForm>
+  <InterfaceClass zeam.form.base.interfaces.ISimpleFormCanvas>
+  <InterfaceClass zeam.form.base.interfaces.IGrokViewSupport>
+  <InterfaceClass zeam.form.base.interfaces.IFormData>
+  <InterfaceClass zope.publisher.interfaces.browser.IBrowserPage>
+  <InterfaceClass zope.browser.interfaces.IBrowserView>
+  <InterfaceClass zope.location.interfaces.ILocation>
+
+As ``zeam.form`` uses Chameleon as a template engine, it is import we
+are able to compute the current request locale, in order to get the
+right translation environment::
+
+  >>> from grokcore.component import Context
+  >>> from zope.publisher.browser import TestRequest
+
+  >>> item = Context()
+  >>> request = TestRequest()
+
+  >>> form = ApplicationForm(item, request)
+  >>> print form.i18nLanguage
+  None
+
+  >>> request = TestRequest(environ={'HTTP_ACCEPT_LANGUAGE': "en,fr"})
+  >>> form = ApplicationForm(item, request)
+  >>> print form.i18nLanguage
+  en
+
+Further more, the `ApplicationForm` overrides the ``extractData``
+method from the ``zeam.form`` Form in order to compute the interfaces
+invariants.
+
+
+Declaring the invariants
+------------------------
+
+  >>> from zope.schema import Password
+  >>> from zope.interface import invariant, Interface
+  >>> from zope.interface.exceptions import Invalid
+
+  >>> class IPasswords(Interface):
+  ...     passwd = Password(
+  ...         title=u"Password",
+  ...         description=u"Type the password.",
+  ...         required=True)
+  ...
+  ...     verify = Password(
+  ...         title=u"Password checking",
+  ...         description=u"Retype the password.",
+  ...         required=True)
+  ...
+  ...     @invariant
+  ...     def check_pass(data):
+  ...         if data.passwd != data.verify:
+  ...             raise Invalid(u"Mismatching passwords!")
+
+  >>> from zeam.form.base import Fields
+  >>> from grokcore.component import testing
+
+  >>> class MyForm(ApplicationForm):
+  ...     ignoreContent = True
+  ...     ignoreRequest = False
+  ...     fields = Fields(IPasswords)
+
+
+Default behavior
+----------------
+
+  >>> form = MyForm(item, request)
+  >>> form.update()
+  >>> form.updateForm()
+  >>> data, errors = form.extractData()
+
+  >>> print data
+  {'passwd': <Marker NO_VALUE>, 'verify': <Marker NO_VALUE>}
+
+  >>> print form.formError
+  None
+
+
+Errors computing
+----------------
+
+  >>> post = TestRequest(form = {'form.field.passwd': u'test',
+  ...                            'form.field.verify': u'fail'})
+  >>> form = MyForm(item, post)
+  >>> form.update()
+  >>> form.updateForm()
+  >>> data, errors = form.extractData()
+
+  >>> print data
+  {'passwd': u'test', 'verify': u'fail'}
+
+The returned error is a collection of Error components. Using the form
+prefix as an identifier, it logically wraps all the errors created by
+the invariants validation::
+
+  >>> print form.formError
+  <Errors for 'form'>
+
+  >>> for error in form.formError:
+  ...     print error.title
+  Mismatching passwords!
+
+  >>> form.errors.get(form.prefix) == form.formError 
+  True

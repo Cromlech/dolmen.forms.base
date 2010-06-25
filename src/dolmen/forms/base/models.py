@@ -19,7 +19,12 @@ class ApplicationForm(Form, UtilityView):
     def i18nLanguage(self):
         prefs = IUserPreferredLanguages(self.request, None)
         if prefs is not None:
-            return prefs.getPreferredLanguages()[0]
+            languages = prefs.getPreferredLanguages()
+            if languages:
+                try:
+                    return languages[0]
+                except IndexError:
+                    pass
         return None
 
     @property
