@@ -18,11 +18,13 @@ install_requires = [
     'zope.interface',
     'zope.lifecycleevent',
     'zope.schema',
+    'zope.i18n',
     ]
 
 tests_require = [
     'zope.component',
     'zope.testing',
+    'zope.publisher',
     ]
 
 setup(name=name,
