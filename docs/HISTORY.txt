@@ -1,6 +1,17 @@
 Changelog
 =========
 
+1.0a2 (2010-06-25)
+------------------
+
+* `ApplicationForm` now validates interfaces invariants.
+
+* `ApplicationForm` is now localized, since it provides a contextual
+  i18nLanguage attribute.
+
+* Added tests
+
+
 1.0a1 (2010-06-02)
 ------------------
 
