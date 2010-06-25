@@ -187,9 +187,9 @@ useful methods and overriding some default behavior from
   >>> from zope.interface import implementedBy
   >>> from dolmen.forms.base import ApplicationForm
   
-The provided component, ``ApplicationForm``, inherits from the base
+The provided component, `ApplicationForm`, inherits from the base
 ``zeam.form`` components and implements some extra methods, allowing
-it to fit into your application, such as ``flash``, to emit messages
+it to fit into your application, such as `flash`, to emit messages
 to given sources. It's also layout aware::
 
   >>> for interface in implementedBy(ApplicationForm):
