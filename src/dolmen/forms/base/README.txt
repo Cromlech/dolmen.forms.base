@@ -55,7 +55,7 @@ identifier as a value::
 
   >>> changes = set_fields_data(fields, moshe, data)
   >>> print changes
-  {<InterfaceClass __builtin__.ICaveman>: ['name', 'weapon']}
+  {<InterfaceClass __builtin__.ICaveman>: [u'weapon', u'name']}
 
   >>> moshe.name
   u'Grok'
@@ -89,7 +89,7 @@ We first generate a changes dict::
   >>> data = {u'name': u'Grok', u'weapon': u'a club'}
   >>> changes = set_fields_data(fields, moshe, data)
   >>> print changes
-  {<InterfaceClass __builtin__.ICaveman>: ['name', 'weapon']}
+  {<InterfaceClass __builtin__.ICaveman>: [u'weapon', u'name']}
 
 We can now set a logger for the IObjectModifiedEvent, in order to
 check if the changes are being broadcasted::
@@ -117,7 +117,7 @@ The logger must have been trigged. We can check its value::
 
   >>> for attrs in logger[0]:  
   ...     print attrs.interface, attrs.attributes
-  <InterfaceClass __builtin__.ICaveman> ('name', 'weapon')
+  <InterfaceClass __builtin__.ICaveman> (u'weapon', u'name')
 
 
 Field update event

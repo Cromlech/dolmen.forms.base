@@ -2,7 +2,7 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '1.0a2'
+version = '1.0b1'
 readme = open(join('src', 'dolmen', 'forms', 'base', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
@@ -10,9 +10,9 @@ install_requires = [
     'grokcore.component',
     'megrok.layout',
     'setuptools',
-    'zeam.form.base',
+    'zeam.form.base >= 1.0rc1',
+    'zeam.form.ztk >= 1.0rc1',
     'zeam.form.layout',
-    'zeam.form.ztk',
     'zope.configuration',
     'zope.event',
     'zope.interface',

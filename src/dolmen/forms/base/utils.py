@@ -17,16 +17,13 @@ def set_fields_data(fields, content, data):
     if not IDataManager.providedBy(content):
         content = ObjectDataManager(content)
 
-    for field_repr in fields:
-        name = field_repr.identifier
-        field = field_repr._field
-        value = data.get(name)
-
-        if value is NO_VALUE or value is NO_CHANGE:
+    for identifier, value in data.items():
+        field = fields.get(identifier)
+        if field is None or value is NO_VALUE or value is NO_CHANGE:
             continue
 
-        content.set(name, value)
-        changes.setdefault(field.interface, []).append(name)
+        content.set(identifier, value)
+        changes.setdefault(field._field.interface, []).append(identifier)
 
     return changes
 

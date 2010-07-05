@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.0b1 (2010-06-25)
+------------------
+
+* The package now uses the latest version of ``zeam.form.base``, that
+  separates the `extractData` from the `validateData`. It allows to
+  validate invariants in a cleaner way, without overriding generic
+  code.
+
+
 1.0a2 (2010-06-25)
 ------------------
 
