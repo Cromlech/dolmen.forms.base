@@ -33,7 +33,7 @@ def notify_changes(content, changes, event=ObjectModifiedEvent):
     the changes made on the content and the related interface.
     """
     assert event is not None
-    
+
     if changes:
         descriptions = []
         for interface, names in changes.items():

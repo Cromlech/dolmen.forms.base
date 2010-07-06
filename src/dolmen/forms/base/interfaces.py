@@ -12,12 +12,10 @@ class IFieldUpdate(Interface):
     treatments.
     """
     field = schema.Object(
-        required = True,
-        title = u"The field that has been updated.",
-        schema = schema.interfaces.IField,
-        )
+        required=True,
+        title=u"The field that has been updated.",
+        schema=schema.interfaces.IField)
 
     object = GlobalObject(
-        required = True,
-        title = u"The object concerned by the field update.",
-        )
+        required=True,
+        title=u"The object concerned by the field update.")

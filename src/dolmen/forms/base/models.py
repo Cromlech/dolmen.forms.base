@@ -4,9 +4,7 @@
 from grokcore.component import baseclass
 from megrok.layout.components import UtilityView
 from zeam.form.base.errors import Errors, Error
-from zeam.form.base.interfaces import ICollection, IModeMarker
-from zeam.form.base.markers import NOT_EXTRACTED
-from zeam.form.base.widgets import getWidgetExtractor
+from zeam.form.base.interfaces import ICollection
 from zeam.form.layout import Form
 from zeam.form.ztk.validation import InvariantsValidation
 from zope.i18n.interfaces import IUserPreferredLanguages
@@ -39,7 +37,7 @@ class ApplicationForm(Form, UtilityView):
         invalids = InvariantsValidation(fields).validate(data)
         if len(invalids):
             self.errors.append(Errors(
-                *[Error(invalid.message) for invalid in invalids],
+                *[Error(unicode(invalid)) for invalid in invalids],
                 identifier=self.prefix))
         if len(self.errors):
             return self.errors

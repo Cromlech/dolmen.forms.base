@@ -9,6 +9,12 @@ Changelog
   validate invariants in a cleaner way, without overriding generic
   code.
 
+* The DeprecationWarning in invariants validation is gone. It now uses
+  the representation of the exception and no longer the `message`
+  attribute.
+
+* The package now exposes the base ``zeam.form`` markers.
+
 
 1.0a2 (2010-06-25)
 ------------------

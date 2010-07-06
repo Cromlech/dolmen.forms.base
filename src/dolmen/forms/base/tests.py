@@ -10,7 +10,7 @@ def test_suite():
     """Testing suite.
     """
     readme = doctest.DocFileSuite(
-        'README.txt',              
+        'README.txt',
         optionflags=(doctest.ELLIPSIS + doctest.NORMALIZE_WHITESPACE))
     readme.layer = FunctionalLayer
     suite = unittest.TestSuite()
