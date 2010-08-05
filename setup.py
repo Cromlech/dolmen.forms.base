@@ -25,6 +25,8 @@ tests_require = [
     'zope.component',
     'zope.testing',
     'zope.publisher',
+    'zope.app.testing',
+    'zope.app.zcmlfiles',
     ]
 
 setup(name=name,

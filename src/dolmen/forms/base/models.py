@@ -8,6 +8,7 @@ from zeam.form.base.interfaces import ICollection
 from zeam.form.layout import Form
 from zeam.form.ztk.validation import InvariantsValidation
 from zope.i18n.interfaces import IUserPreferredLanguages
+from zope.schema import interfaces
 
 
 class ApplicationForm(Form, UtilityView):
@@ -34,7 +35,8 @@ class ApplicationForm(Form, UtilityView):
 
     def validateData(self, fields, data):
         # Invariants validation
-        invalids = InvariantsValidation(fields).validate(data)
+        schema_fields = [field for field in fields if hasattr(field, '_field')]
+        invalids = InvariantsValidation(schema_fields).validate(data)
         if len(invalids):
             self.errors.append(Errors(
                 *[Error(unicode(invalid)) for invalid in invalids],

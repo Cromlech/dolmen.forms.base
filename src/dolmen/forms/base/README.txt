@@ -300,3 +300,37 @@ the invariants validation::
 
   >>> form.errors.get(form.prefix) == form.formError 
   True
+
+
+Mixed Fields
+------------
+
+It's possible to declare fields in different ways. 
+
+ - via the Form class from zeam.form.base
+ - via zope.schemas
+
+Let's look if it's possible to use both in a form.
+
+  >>> from zeam.form.base import Field
+  >>> from dolmen.forms.base import Fields
+  >>> class MixedForm(ApplicationForm):
+  ...     ignoreContent = True
+  ...     ignoreRequest = False
+  ...     fields = Fields(IPasswords) + Field(u'Name')
+
+
+  >>> mixedform = MixedForm(item, post)
+  >>> mixedform.update()
+  >>> [x.title for x in mixedform.fields]
+  [u'Password', u'Password checking', u'Name']
+
+  >>> mixedform.updateForm()
+  >>> data, errors = mixedform.extractData()
+
+  >>> print form.formError
+  <Errors for 'form'>
+
+  >>> for error in form.formError:
+  ...     print error.title
+  Mismatching passwords!
