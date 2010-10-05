@@ -25,8 +25,7 @@ tests_require = [
     'zope.component',
     'zope.testing',
     'zope.publisher',
-    'zope.app.testing',
-    'zope.app.zcmlfiles',
+    'zeam.form.base [test]'
     ]
 
 setup(name=name,
