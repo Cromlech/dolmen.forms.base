@@ -305,12 +305,9 @@ the invariants validation::
 Mixed Fields
 ------------
 
-It's possible to declare fields in different ways. 
-
- - via the Form class from zeam.form.base
- - via zope.schemas
-
-Let's look if it's possible to use both in a form.
+There are two types of fields, one from ``zeam.form.base``, the other
+from ``zope.schema``. They are both useable in a form, separately or
+mixed::
 
   >>> from zeam.form.base import Field
   >>> from dolmen.forms.base import Fields
