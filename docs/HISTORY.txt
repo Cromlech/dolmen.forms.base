@@ -8,7 +8,11 @@ Changelog
   now. The changes have been made in the inline validation, to take
   care of both types.
 
-* ...
+* Now we are using formErrors from zeam.form.base.Form instead of our
+  own formError method.
+
+* Reflect changes in validateData it takes a new keyword-argument
+  errors
 
 
 1.0b1 (2010-06-25)

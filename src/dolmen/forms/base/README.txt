@@ -270,7 +270,7 @@ Default behavior
   >>> print data
   {'passwd': <Marker NO_VALUE>, 'verify': <Marker NO_VALUE>}
 
-  >>> print form.formError
+  >>> print form.formErrors
   None
 
 
@@ -291,14 +291,14 @@ The returned error is a collection of Error components. Using the form
 prefix as an identifier, it logically wraps all the errors created by
 the invariants validation::
 
-  >>> print form.formError
+  >>> print form.formErrors
   <Errors for 'form'>
 
-  >>> for error in form.formError:
+  >>> for error in form.formErrors:
   ...     print error.title
   Mismatching passwords!
 
-  >>> form.errors.get(form.prefix) == form.formError 
+  >>> form.errors.get(form.prefix) == form.formErrors 
   True
 
 
@@ -325,9 +325,9 @@ mixed::
   >>> mixedform.updateForm()
   >>> data, errors = mixedform.extractData()
 
-  >>> print form.formError
+  >>> print form.formErrors
   <Errors for 'form'>
 
-  >>> for error in form.formError:
+  >>> for error in form.formErrors:
   ...     print error.title
   Mismatching passwords!

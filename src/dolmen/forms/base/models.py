@@ -26,21 +26,14 @@ class ApplicationForm(Form, UtilityView):
                     pass
         return None
 
-    @property
-    def formError(self):
-        error = self.errors.get(self.prefix, None)
-        if error is None or ICollection.providedBy(error):
-            return error
-        return [error]
-
-    def validateData(self, fields, data):
+    def validateData(self, fields, data, errors):
         # Invariants validation
         schema_fields = [field for field in fields if hasattr(field, '_field')]
         invalids = InvariantsValidation(schema_fields).validate(data)
         if len(invalids):
-            self.errors.append(Errors(
+            errors.append(Errors(
                 *[Error(unicode(invalid)) for invalid in invalids],
                 identifier=self.prefix))
-        if len(self.errors):
-            return self.errors
-        return super(ApplicationForm, self).validateData(fields, data)
+        if len(errors):
+            return errors
+        return super(ApplicationForm, self).validateData(fields, data, errors)
