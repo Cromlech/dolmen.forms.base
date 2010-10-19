@@ -11,8 +11,12 @@ from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.schema import interfaces
 
 
+
+
 class ApplicationForm(Form, UtilityView):
     baseclass()
+
+    dataValidators = [InvariantsValidation]
 
     @property
     def i18nLanguage(self):
@@ -25,15 +29,3 @@ class ApplicationForm(Form, UtilityView):
                 except IndexError:
                     pass
         return None
-
-    def validateData(self, fields, data, errors):
-        # Invariants validation
-        schema_fields = [field for field in fields if hasattr(field, '_field')]
-        invalids = InvariantsValidation(schema_fields).validate(data)
-        if len(invalids):
-            errors.append(Errors(
-                *[Error(unicode(invalid)) for invalid in invalids],
-                identifier=self.prefix))
-        if len(errors):
-            return errors
-        return super(ApplicationForm, self).validateData(fields, data, errors)
