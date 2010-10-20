@@ -1,18 +1,20 @@
 Changelog
 =========
 
-1.0b2 (unreleased)
+1.0b2 (2010-10-20)
 ------------------
 
 * Both ``zeam.form`` and ``zope.schema`` Fields are useable in a Form,
   now. The changes have been made in the inline validation, to take
   care of both types.
 
-* Now we are using formErrors from zeam.form.base.Form instead of our
+* Now we are using formErrors from ``zeam.form.base`` Form instead of our
   own formError method.
 
-* Reflect changes in validateData it takes a new keyword-argument
-  errors
+* The `InvariantsValidation` is now declared thanks to the
+  ``dataValidators`` mechanism introduces by ``zeam.form.base`` 1.0.
+
+* The package is now tested under Grok 1.2.
 
 
 1.0b1 (2010-06-25)
