@@ -320,7 +320,6 @@ mixed::
   ...     ignoreRequest = False
   ...     fields = Fields(IPasswords) + Field(u'Name')
 
-
   >>> mixedform = MixedForm(item, post)
   >>> mixedform.update()
   >>> [x.title for x in mixedform.fields]

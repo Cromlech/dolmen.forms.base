@@ -18,7 +18,7 @@ def set_fields_data(fields, content, data):
         content = ObjectDataManager(content)
 
     for identifier, value in data.items():
-        field = fields.get(identifier)
+        field = fields.get(identifier, default=None)
         if field is None or value is NO_VALUE or value is NO_CHANGE:
             continue
 

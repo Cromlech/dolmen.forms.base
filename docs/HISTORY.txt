@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.0b3 (2010-10-27)
+------------------
+
+* Util method ``set_fields_data`` now makes sure that, even if a data
+  entry doesn't have a corresponding field, it doesn't raise an error,
+  as it was supposed to do.
+
+
 1.0b2 (2010-10-20)
 ------------------
 
