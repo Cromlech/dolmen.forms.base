@@ -1,15 +1,25 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Exposing limited zeam.form API
-from zeam.form.base import Fields, Action, Actions
-from zeam.form.base.markers import DISPLAY, INPUT, HIDDEN
-from zeam.form.base.markers import SUCCESS, FAILURE, DEFAULT
-from zeam.form.base.markers import NO_VALUE, NO_CHANGE, NOTHING_DONE
-from zeam.form.ztk.actions import CancelAction
+from zope.i18nmessageid import MessageFactory
+_ = MessageFactory('dolmen.forms.base')
+
+# Interfaces
+from dolmen.forms.base import interfaces, markers, errors
+
+# Exposing limited dolmen.forms API
+from dolmen.forms.base.actions import *
+from dolmen.forms.base.fields import *
+from dolmen.forms.base.forms import *
+from dolmen.forms.base.markers import *
+from dolmen.forms.base.widgets import *
+from dolmen.forms.base.datamanagers import *
+from dolmen.forms.base.interfaces import ActionError
 
 # Exposing package API
-from dolmen.forms.base.models import ApplicationForm
 from dolmen.forms.base.interfaces import IFieldUpdate
 from dolmen.forms.base.utils import (
     set_fields_data, notify_changes, apply_data_event)
+
+# All
+from grokcore.security import require
+from dolmen.view import request, context, name

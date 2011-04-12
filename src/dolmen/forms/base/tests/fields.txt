@@ -1,0 +1,106 @@
+zeam.form.base
+==============
+
+Fields represent input fields on the form.
+
+Field
+-----
+
+A field is a simple input on a form::
+
+   >>> from zeam.form.base.fields import Field
+   >>> field1 = Field(u'Age')
+   >>> field1
+   <Field Age>
+   >>> field1.title
+   u'Age'
+   >>> field1.description
+   u''
+
+Field value
+~~~~~~~~~~~
+
+A field dispose of a validate method to validate a value. If field is
+required, ``NO_VALUE`` should not be accepted as a valid value::
+
+   >>> from zeam.form.base.markers import NO_VALUE
+
+   >>> field1.required
+   False
+   >>> field1.validate(NO_VALUE)
+   >>> field1.validate(42)
+   >>> field1.required = True
+   >>> field1.validate(NO_VALUE)
+   u'Missing required value.'
+   >>> field1.validate(42)
+
+A field can provide a default value. A context (the form) is given if
+the default value is computed::
+
+   >>> class FormContext(object):
+   ...    value = 51
+
+   >>> field1.getDefaultValue(FormContext())
+   <Marker NO_VALUE>
+
+You can modify the defalut value of a field by setting defaultValue to
+be it or a callable. In case of a callable it will be called each a
+new default value is needed::
+
+   >>> field1.defaultValue = 42
+   >>> field1.getDefaultValue(FormContext())
+   42
+
+   >>> field1.defaultValue = lambda f: f.value * 2
+   >>> field1.getDefaultValue(FormContext())
+   102
+
+A Field implement IField, and is an IComponent::
+
+   >>> from zope.interface.verify import verifyObject
+   >>> from zeam.form.base import interfaces
+   >>> verifyObject(interfaces.IField, field1)
+   True
+   >>> interfaces.IField.extends(interfaces.IComponent)
+   True
+
+
+Fields
+------
+
+Fields is a collection component used to contain Field::
+
+   >>> from zeam.form.base.fields import Fields
+   >>> s1 = Fields(Field('Size'), field1)
+   >>> s1
+   <Fields>
+   >>> list(s1)
+   [<Field Size>, <Field Age>]
+
+They implements ``IFields`` and ``ICollection``::
+
+   >>> verifyObject(interfaces.IFields, s1)
+   True
+   >>> interfaces.IFields.extends(interfaces.ICollection)
+   True
+
+So it behave like a collection. You can add other Field, and Fields
+using the extend method (or constructor), but if you whish to add an
+another component it need to be a Field::
+
+   >>> from zeam.form.base.actions import Action, Actions
+
+   >>> s1.extend(Action("Apply"))
+   Traceback (most recent call last):
+      ...
+   TypeError: (u'Invalid type', <Action Apply>)
+
+   >>> s1.extend(Actions(Action("Apply")))
+   Traceback (most recent call last):
+      ...
+   TypeError: (u'Invalid type', <Action Apply>)
+
+   >>> s1.extend(42)
+   Traceback (most recent call last):
+      ...
+   TypeError: (u'Invalid type', 42)

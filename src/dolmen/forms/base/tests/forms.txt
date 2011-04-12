@@ -1,0 +1,336 @@
+zeam.form.base
+==============
+
+Forms are class, registered like views:
+
+   >>> from zeam.form.base.form import Form
+   >>> from zope.publisher.browser import TestRequest
+
+   >>> class Content(object):
+   ...     def __repr__(self):
+   ...         return '<%s object>' % self.__class__.__name__
+
+   >>> request = TestRequest()
+   >>> context = Content()
+
+   >>> form = Form(context, request)
+   >>> form
+   <zeam.form.base.form.Form object at ...>
+
+They implements ``IForm`` and ``ISimpleForm``, ``ISimpleForm`` extending
+``IForm`` and adding some form processing abilities:
+
+   >>> from zope.interface.verify import verifyObject
+   >>> from zeam.form.base import interfaces
+
+   >>> verifyObject(interfaces.IForm, form)
+   True
+
+   >>> verifyObject(interfaces.ISimpleForm, form)
+   True
+
+   >>> interfaces.ISimpleForm.isOrExtends(interfaces.IForm)
+   True
+
+The ``IForm`` extends the clearly defined Grok view component interface,
+``IGrokViewSupport``:
+
+   >>> for attr in list(interfaces.IGrokViewSupport): print attr
+   redirect
+   i18nLanguage
+   render
+   url
+   update
+   response
+
+The ISimpleForm interface extends also two main components interfaces.
+
+The ``IFormCanvas`` interface defines the very core of a form : its
+label and description, its fields and actions and the related methods:
+
+   >>> interfaces.ISimpleForm.isOrExtends(interfaces.IFormCanvas)
+   True
+
+   >>> print interfaces.IFormCanvas.__doc__
+   Definition of a form structure.
+      Form presentation : label, description
+      Form contents and actions : fields, actions and their related methods.
+
+The `IFormData` interface defines the elements involved in the form
+data processing::
+
+   >>> interfaces.ISimpleForm.isOrExtends(interfaces.IFormData)
+   True
+
+   >>> print interfaces.IFormData.__doc__
+   Form data processing facilities.
+
+   >>> for name, attr in sorted(interfaces.IFormData.namesAndDescriptions()):
+   ...     print "%s: %s" % (name, attr.getDoc())
+   dataManager: Data manager class used to access content.
+   errors: Iterable of the errors that occured during the form processing.
+   extractData: Returns the form data and errors for the given fields.
+   formErrors: Main errors that occurred during the form processing.
+   getContentData: Returns the content that will be used for the form processing.
+   setContentData: Sets the content that will be used as the form processing context.
+   status: Form status message.
+   validateData: Validates the form in a global way and returns a collection
+           of errors (if any occured) or None.
+
+
+Data manager
+------------
+
+A form (more precisely, the widgets) can access the content data via a data
+manager. A data manager will transparently allow you to access different
+kind of contents, such as dictionaries, data structures or directly
+attributes.
+
+Object data manager
+~~~~~~~~~~~~~~~~~~~
+
+   >>> from zeam.form.base.datamanager import ObjectDataManager
+
+   >>> class MyContent(Content):
+   ...    title = u'Content'
+   ...    value = 42
+   >>> mycontent = MyContent()
+
+   >>> manager = ObjectDataManager(mycontent)
+   >>> manager
+   <ObjectDataManager used for <MyContent object>>
+
+   >>> manager.getContent()
+   <MyContent object>
+
+It correctly implements its interface:
+
+   >>> verifyObject(interfaces.IDataManager, manager)
+   True
+
+And you can use it to access content value:
+
+   >>> manager.get('title')
+   u'Content'
+   >>> manager.get('value')
+   42
+
+Inexisting content value raises KeyError
+
+   >>> manager.get('foobar')
+   Traceback (most recent call last):
+     ...
+   KeyError: 'foobar'
+
+You can set values as well:
+
+   >>> manager.set('ready', True)
+   >>> mycontent.ready
+   True
+
+Dictionary data manager
+~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a data manager which is able to work on dictionaries as well:
+
+   >>> from zeam.form.base.datamanager import DictDataManager
+
+   >>> data = {'title': u'Content', 'value': 42}
+   >>> dict_manager = DictDataManager(data)
+   >>> dict_manager
+   <DictDataManager used for {'value': 42, 'title': u'Content'}>
+
+   >>> dict_manager.getContent()
+   {'value': 42, 'title': u'Content'}
+
+It correctly implements its interface:
+
+   >>> verifyObject(interfaces.IDataManager, dict_manager)
+   True
+
+And you can use it to access content value:
+
+   >>> dict_manager.get('title')
+   u'Content'
+   >>> dict_manager.get('value')
+   42
+
+Inexisting content value raises KeyError
+
+   >>> dict_manager.get('foobar')
+   Traceback (most recent call last):
+     ...
+   KeyError: 'foobar'
+
+You can set values as well:
+
+   >>> dict_manager.set('ready', True)
+   >>> data.get('ready')
+   True
+
+Using a data manager on a form
+------------------------------
+
+You can use a data manager on every FormData:
+
+   >>> from zeam.form.base.form import cloneFormData
+   >>> form_data = cloneFormData(form)
+
+By default you will get a data manager for the context:
+
+   >>> form_manager = form_data.getContentData()
+   >>> form_manager
+   <ObjectDataManager used for <Content object>>
+   >>> form_manager.content is context
+   True
+
+However you modify it and give directly a content:
+
+   >>> form_data.setContentData(mycontent)
+   >>> form_data.getContentData()
+   <ObjectDataManager used for <MyContent object>>
+   >>> form_data.getContent()
+   <MyContent object>
+
+Or directly a data manager:
+
+   >>> form_data.setContentData(dict_manager)
+   >>> form_data.getContentData() is dict_manager
+   True
+   >>> form_data.getContent()
+   {'ready': True, 'value': 42, 'title': u'Content'}
+
+Modes & extraction
+------------------
+
+Mode Markers
+~~~~~~~~~~~~
+
+Forms and Fields have a mode. This mode decides what widget you get
+and the behavior of the form extractor. Logically, some modes should
+not allow value extraction.
+
+Let's have a closer look at a ModeMarker that defines a component
+mode::
+
+  >>> from zeam.form.base.interfaces import IModeMarker
+  >>> list(IModeMarker)
+  ['extractable']
+
+The `extractable` attribute defines the ability of a mode to provide a
+valid value extraction::
+
+  >>> print IModeMarker['extractable'].__doc__
+  Boolean allowing or not the extraction of the data, for components in that mode.
+
+``zeam.form.base`` provides 4 base mode markers. Let's review them::
+
+  >>> from zeam.form.base import markers
+
+The `input` mode is, logically, extractable, as the form submission
+are based on it::
+
+  >>> IModeMarker.providedBy(markers.INPUT)
+  True
+  >>> markers.INPUT.extractable
+  True
+  >>> print markers.INPUT
+  input
+
+Accordingly, the `hidden` mode matches the `input` behavior::
+
+  >>> IModeMarker.providedBy(markers.HIDDEN)
+  True
+  >>> markers.HIDDEN.extractable
+  True
+  >>> print markers.HIDDEN
+  hidden
+
+At the contrary, the `display` mode will not be extractable, as it's
+used for presentation purpose only::
+
+  >>> IModeMarker.providedBy(markers.DISPLAY)
+  True
+  >>> markers.DISPLAY.extractable
+  False
+  >>> print markers.DISPLAY
+  display
+
+Extraction
+~~~~~~~~~~
+
+The extraction process will rely on the fields' mode or, if not defined
+locally, on the form's mode. Let's define a form with 2 fields::
+
+  >>> from zeam.form.base.fields import Field, Fields
+
+  >>> identifier = Field('identifier')
+  >>> identifier.defaultValue = 'new identifier'
+  >>> name = Field('name')
+  >>> mail = Field('mail')
+
+  >>> class MyForm(Form):
+  ...    fields = Fields(identifier, name, mail)
+
+Now, we create a request with some data, for the `name` field. We
+consider the `id` field immutable.
+
+  >>> request = TestRequest(form={"form.field.name": "myname"})
+  >>> context = Content()
+
+While extracting the data, the form will retrieve the values of all
+the "extractable" fields::
+
+  >>> form = MyForm(context, request)
+  >>> form.update()
+  >>> data, errors = form.extractData()
+
+  >>> data
+  {'mail': <Marker NO_VALUE>, 'identifier': <Marker NO_VALUE>, 'name': 'myname'}
+
+You can get the default value instead of the marker if available, None
+otherwise:
+
+  >>> data.getWithDefault('identifier')
+  'new identifier'
+  >>> data.getWithDefault('name', default='name default')
+  'myname'
+  >>> data.getWithDefault('mail', default='mail default')
+  'mail default'
+
+The `identifier` value is set to NO_VALUE, as the request was not
+containing any. As we consider the field immutable, we'll apply a
+simple display mode on it, allowing us to display the current value,
+without providing a way to edit it and without considering the field
+in the extraction process::
+
+  >>> form = MyForm(context, request)
+  >>> form.fields['identifier'].mode = markers.DISPLAY
+  >>> form.update()
+  >>> data, errors = form.extractData()
+  >>> data
+  {'mail': <Marker NO_VALUE>, 'name': 'myname'}
+
+The `identifier` field is not extracted, as planned.
+
+Usefull methods
+---------------
+
+A method on the form tells if the form have any required fields:
+
+  >>> form.haveRequiredFields()
+  False
+
+  >>> identifier.required = True
+  >>> form.haveRequiredFields()
+  True
+
+An another one gives a identifier that can be used in the HTML code to
+identify the form (computed from the prefix):
+
+  >>> form.htmlId()
+  'form'
+
+  >>> form.prefix = 'form.settings.network'
+  >>> form.htmlId()
+  'form-settings-network'

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from zeam.form.base.markers import NO_VALUE, NO_CHANGE
-from zeam.form.base.interfaces import IDataManager
-from zeam.form.base.datamanager import ObjectDataManager
+from dolmen.forms.base.markers import NO_VALUE, NO_CHANGE
+from dolmen.forms.base.interfaces import IDataManager
+from dolmen.forms.base.datamanagers import ObjectDataManager
 from zope.event import notify
 from zope.lifecycleevent import Attributes, ObjectModifiedEvent
 
@@ -53,3 +53,24 @@ def apply_data_event(fields, content, data, event=ObjectModifiedEvent):
         else:
             notify_changes(content, changes, event)
     return changes
+
+
+
+def extends(*forms, **opts):
+    # Extend a class with parents components
+    field_type = opts.get('fields', 'all')
+
+    def extendComponent(field_type):
+        factory = {'actions': Actions, 'fields': Fields}.get(field_type)
+        if factory is None:
+            raise ValueError(u"Invalid parameter fields to extends")
+        frame = sys._getframe(2)
+        f_locals = frame.f_locals
+        components = f_locals.setdefault(field_type, factory())
+        components.extend(*map(operator.attrgetter(field_type), forms))
+
+    if field_type == 'all':
+        extendComponent('actions')
+        extendComponent('fields')
+    else:
+        extendComponent(field_type)

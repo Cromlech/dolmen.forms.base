@@ -7,30 +7,29 @@ readme = open(join('src', 'dolmen', 'forms', 'base', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
+    'dolmen.view',
+    'dolmen.collection',
+    'cromlech.io',
+    'cromlech.browser',
     'grokcore.component',
-    'megrok.layout',
+    'grokcore.security',
     'setuptools',
-    'zeam.form.base >= 1.0',
-    'zeam.form.ztk >= 1.0',
-    'zeam.form.layout',
-    'zope.configuration',
     'zope.event',
     'zope.interface',
     'zope.lifecycleevent',
     'zope.schema',
     'zope.i18n',
+    'zope.i18nmessageid',
     ]
 
 tests_require = [
     'zope.component',
-    'zope.testing',
-    'zope.publisher',
-    'zeam.form.base [test]'
+    'cromlech.webob',
     ]
 
 setup(name=name,
       version=version,
-      description=("Form utilities for Dolmen and zeam.form"),
+      description=("Dolmen forms framework"),
       long_description = readme + '\n\n' + history,
       keywords='Dolmen Forms',
       author='Souheil Chelfouh',
