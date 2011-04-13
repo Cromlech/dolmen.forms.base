@@ -3,22 +3,22 @@ We are going to define a simple form with an action.
 
 Let's grok our example:
 
-  >>> from zeam.form.base.testing import grok
-  >>> grok('zeam.form.base.ftests.forms.simpleform')
+  >>> from dolmen.forms.base.testing import grok
+  >>> grok('dolmen.forms.base.ftests.forms.simpleform')
 
 We can now lookup our form by the name of its class:
 
-  >>> from zope.publisher.browser import TestRequest
+  >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
 
-  >>> from zeam.form.base.ftests.forms.simpleform import Context
+  >>> from dolmen.forms.base.ftests.forms.simpleform import Context
   >>> context = Context()
 
   >>> from zope import component
   >>> form = component.getMultiAdapter(
   ...     (context, request), name='change')
   >>> form
-  <zeam.form.base.ftests.forms.simpleform.Change object at ...>
+  <dolmen.forms.base.ftests.forms.simpleform.Change object at ...>
 
   >>> len(form.fields)
   0
@@ -71,7 +71,7 @@ Let's try to take a browser and submit that form:
 
 """
 
-from zeam.form import base
+from dolmen.forms import base
 from grokcore import component as grok
 
 

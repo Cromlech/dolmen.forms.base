@@ -4,22 +4,22 @@ with a decorator.
 
 Let's grok our example:
 
-  >>> from zeam.form.base.testing import grok
-  >>> grok('zeam.form.base.ftests.forms.inputform')
+  >>> from dolmen.forms.base.testing import grok
+  >>> grok('dolmen.forms.base.ftests.forms.inputform')
 
 We can now lookup our form by the name of its class:
 
-  >>> from zope.publisher.browser import TestRequest
+  >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
 
-  >>> from zeam.form.base.ftests.forms.inputform import Context
+  >>> from dolmen.forms.base.ftests.forms.inputform import Context
   >>> context = Context()
 
   >>> from zope import component
   >>> form = component.getMultiAdapter(
   ...     (context, request), name='registration')
   >>> form
-  <zeam.form.base.ftests.forms.inputform.Registration object at ...>
+  <dolmen.forms.base.ftests.forms.inputform.Registration object at ...>
 
   >>> len(form.fields)
   2
@@ -125,7 +125,7 @@ gone (as we successfully submit the form):
 """
 
 
-from zeam.form import base
+from dolmen.forms import base
 from grokcore import component as grok
 
 class Context(grok.Context):

@@ -8,6 +8,7 @@ history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
     'dolmen.view',
+    'dolmen.template',
     'dolmen.collection',
     'cromlech.io',
     'cromlech.browser',
@@ -24,7 +25,6 @@ install_requires = [
 
 tests_require = [
     'zope.component',
-    'cromlech.webob',
     ]
 
 setup(name=name,

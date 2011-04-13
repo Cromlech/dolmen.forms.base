@@ -62,9 +62,6 @@ class FieldsValues(dict):
                 return default
         return value
 
-    # BBB
-    getDefault = getWithDefault
-
 
 class FormData(Object):
     """This represent a submission of a form. It can be used to update
@@ -158,7 +155,7 @@ class FormData(Object):
         return (data, errors)
 
 
-class FormCanvas(View, FormData):
+class FormCanvas(FormData, View):
     """This represent a sumple form setup: setup some fields and
     actions, prepare widgets for it.
     """

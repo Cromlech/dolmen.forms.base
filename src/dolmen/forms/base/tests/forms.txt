@@ -1,27 +1,30 @@
-zeam.form.base
-==============
+dolmen.forms.base
+=================
 
 Forms are class, registered like views:
 
-   >>> from zeam.form.base.form import Form
-   >>> from zope.publisher.browser import TestRequest
+   >>> from dolmen.forms.base.forms import Form
+   >>> from cromlech.io.testing import TestRequest, TestResponse
 
    >>> class Content(object):
    ...     def __repr__(self):
    ...         return '<%s object>' % self.__class__.__name__
 
+   >>> class TestForm(Form):
+   ...     responseFactory = TestResponse
+
    >>> request = TestRequest()
    >>> context = Content()
 
-   >>> form = Form(context, request)
+   >>> form = TestForm(context, request)
    >>> form
-   <zeam.form.base.form.Form object at ...>
+   <TestForm object at ...>
 
 They implements ``IForm`` and ``ISimpleForm``, ``ISimpleForm`` extending
 ``IForm`` and adding some form processing abilities:
 
    >>> from zope.interface.verify import verifyObject
-   >>> from zeam.form.base import interfaces
+   >>> from dolmen.forms.base import interfaces
 
    >>> verifyObject(interfaces.IForm, form)
    True
@@ -32,16 +35,6 @@ They implements ``IForm`` and ``ISimpleForm``, ``ISimpleForm`` extending
    >>> interfaces.ISimpleForm.isOrExtends(interfaces.IForm)
    True
 
-The ``IForm`` extends the clearly defined Grok view component interface,
-``IGrokViewSupport``:
-
-   >>> for attr in list(interfaces.IGrokViewSupport): print attr
-   redirect
-   i18nLanguage
-   render
-   url
-   update
-   response
 
 The ISimpleForm interface extends also two main components interfaces.
 
@@ -89,7 +82,7 @@ attributes.
 Object data manager
 ~~~~~~~~~~~~~~~~~~~
 
-   >>> from zeam.form.base.datamanager import ObjectDataManager
+   >>> from dolmen.forms.base.datamanagers import ObjectDataManager
 
    >>> class MyContent(Content):
    ...    title = u'Content'
@@ -133,7 +126,7 @@ Dictionary data manager
 
 There is a data manager which is able to work on dictionaries as well:
 
-   >>> from zeam.form.base.datamanager import DictDataManager
+   >>> from dolmen.forms.base.datamanagers import DictDataManager
 
    >>> data = {'title': u'Content', 'value': 42}
    >>> dict_manager = DictDataManager(data)
@@ -173,7 +166,7 @@ Using a data manager on a form
 
 You can use a data manager on every FormData:
 
-   >>> from zeam.form.base.form import cloneFormData
+   >>> from dolmen.forms.base.forms import cloneFormData
    >>> form_data = cloneFormData(form)
 
 By default you will get a data manager for the context:
@@ -213,7 +206,7 @@ not allow value extraction.
 Let's have a closer look at a ModeMarker that defines a component
 mode::
 
-  >>> from zeam.form.base.interfaces import IModeMarker
+  >>> from dolmen.forms.base.interfaces import IModeMarker
   >>> list(IModeMarker)
   ['extractable']
 
@@ -223,9 +216,9 @@ valid value extraction::
   >>> print IModeMarker['extractable'].__doc__
   Boolean allowing or not the extraction of the data, for components in that mode.
 
-``zeam.form.base`` provides 4 base mode markers. Let's review them::
+``dolmen.forms.base`` provides 4 base mode markers. Let's review them::
 
-  >>> from zeam.form.base import markers
+  >>> from dolmen.forms.base import markers
 
 The `input` mode is, logically, extractable, as the form submission
 are based on it::
@@ -262,7 +255,7 @@ Extraction
 The extraction process will rely on the fields' mode or, if not defined
 locally, on the form's mode. Let's define a form with 2 fields::
 
-  >>> from zeam.form.base.fields import Field, Fields
+  >>> from dolmen.forms.base.fields import Field, Fields
 
   >>> identifier = Field('identifier')
   >>> identifier.defaultValue = 'new identifier'
@@ -270,6 +263,7 @@ locally, on the form's mode. Let's define a form with 2 fields::
   >>> mail = Field('mail')
 
   >>> class MyForm(Form):
+  ...    responseFactory = TestResponse
   ...    fields = Fields(identifier, name, mail)
 
 Now, we create a request with some data, for the `name` field. We

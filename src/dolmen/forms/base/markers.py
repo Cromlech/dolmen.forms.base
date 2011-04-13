@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from dolmen.forms.base.interfaces import IModeMarker
-from zope.interface import implements
+from dolmen.forms.base.interfaces import IModeMarker, IMarkersAPI
+from zope.interface import implements, moduleProvides
 
 
 class Marker(object):
@@ -52,3 +52,7 @@ def getValue(object, attr, default_object):
     if value is DEFAULT:
         value = getattr(default_object, attr)
     return value
+
+
+moduleProvides(IMarkersAPI)
+__all__ = list(IMarkersAPI)

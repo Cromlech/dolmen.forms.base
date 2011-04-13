@@ -1,5 +1,5 @@
-zeam.form.base
-==============
+dolmen.forms.base
+=================
 
 Fields represent input fields on the form.
 
@@ -8,7 +8,7 @@ Field
 
 A field is a simple input on a form::
 
-   >>> from zeam.form.base.fields import Field
+   >>> from dolmen.forms.base.fields import Field
    >>> field1 = Field(u'Age')
    >>> field1
    <Field Age>
@@ -23,14 +23,14 @@ Field value
 A field dispose of a validate method to validate a value. If field is
 required, ``NO_VALUE`` should not be accepted as a valid value::
 
-   >>> from zeam.form.base.markers import NO_VALUE
+   >>> from dolmen.forms.base import markers
 
    >>> field1.required
    False
-   >>> field1.validate(NO_VALUE)
+   >>> field1.validate(markers.NO_VALUE)
    >>> field1.validate(42)
    >>> field1.required = True
-   >>> field1.validate(NO_VALUE)
+   >>> field1.validate(markers.NO_VALUE)
    u'Missing required value.'
    >>> field1.validate(42)
 
@@ -58,7 +58,7 @@ new default value is needed::
 A Field implement IField, and is an IComponent::
 
    >>> from zope.interface.verify import verifyObject
-   >>> from zeam.form.base import interfaces
+   >>> from dolmen.forms.base import interfaces
    >>> verifyObject(interfaces.IField, field1)
    True
    >>> interfaces.IField.extends(interfaces.IComponent)
@@ -70,11 +70,11 @@ Fields
 
 Fields is a collection component used to contain Field::
 
-   >>> from zeam.form.base.fields import Fields
+   >>> from dolmen.forms.base.fields import Fields
    >>> s1 = Fields(Field('Size'), field1)
    >>> s1
    <Fields>
-   >>> list(s1)
+   >>> list(s1) 
    [<Field Size>, <Field Age>]
 
 They implements ``IFields`` and ``ICollection``::
@@ -88,7 +88,7 @@ So it behave like a collection. You can add other Field, and Fields
 using the extend method (or constructor), but if you whish to add an
 another component it need to be a Field::
 
-   >>> from zeam.form.base.actions import Action, Actions
+   >>> from dolmen.forms.base.actions import Action, Actions
 
    >>> s1.extend(Action("Apply"))
    Traceback (most recent call last):

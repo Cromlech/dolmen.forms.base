@@ -4,12 +4,12 @@ HTML using a render method.
 
 Let's grok our example:
 
-  >>> from zeam.form.base.testing import grok
-  >>> grok('zeam.form.base.ftests.widgets.widgetrender')
+  >>> from dolmen.forms.base.testing import grok
+  >>> grok('dolmen.forms.base.ftests.widgets.widgetrender')
 
 So now should be to lookup our widget:
 
-  >>> from zeam.form.base.ftests.widgets.widgetrender import MyField
+  >>> from dolmen.forms.base.ftests.widgets.widgetrender import MyField
   >>> field = MyField("Cool Test")
   >>> field
   <MyField Cool Test>
@@ -17,10 +17,10 @@ So now should be to lookup our widget:
   >>> from zope.publisher.browser import TestRequest
   >>> request = TestRequest()
 
-  >>> from zeam.form.base.form import Form
+  >>> from dolmen.forms.base.form import Form
   >>> form = Form(None, request)
 
-  >>> from zeam.form.base import interfaces
+  >>> from dolmen.forms.base import interfaces
   >>> from zope import component
   >>> widget = component.getMultiAdapter(
   ...     (field, form, request), interfaces.IWidget)
@@ -34,9 +34,9 @@ And we are able now to call its render method:
 
 """
 
-from zeam.form.base.fields import Field
-from zeam.form.base.widgets import Widget
-from zeam.form.base import interfaces
+from dolmen.forms.base.fields import Field
+from dolmen.forms.base.widgets import Widget
+from dolmen.forms.base import interfaces
 from zope.interface import Interface
 from grokcore import component as grok
 

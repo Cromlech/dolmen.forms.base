@@ -1,8 +1,9 @@
-zeam.form.base
-==============
+dolmen.forms.base
+=================
 
 Widgets are responsible to render component (like actions and fields)
 as HTML code for the user.
+
 
 Widget
 ------
@@ -10,19 +11,19 @@ Widget
 Widgets are multiadapters, which adapts the component they render, for
 a given form, and request. So we need all that:
 
-   >>> from zope.publisher.browser import TestRequest
+   >>> from cromlech.io.testing import TestRequest
    >>> request = TestRequest()
 
-   >>> from zeam.form.base.form import Form
+   >>> from dolmen.forms.base.forms import Form
    >>> form1 = Form(None, request)
 
-   >>> from zeam.form.base.actions import Action
+   >>> from dolmen.forms.base.actions import Action
    >>> action1 = Action(u"Do Something")
    >>> form1.actions += action1
 
 So now we can get a widget for an action for instance:
 
-   >>> from zeam.form.base import interfaces
+   >>> from dolmen.forms.base import interfaces
    >>> from zope import component
    >>> widget1 = component.getMultiAdapter(
    ...         (action1, form1, request), interfaces.IWidget, name='input')
@@ -62,13 +63,14 @@ Our widget implements IWidget, and IComponent:
    >>> interfaces.IWidget.extends(interfaces.IComponent)
    True
 
+
 Field widget
 ~~~~~~~~~~~~
 
 Like for actions, fields have widgets to be rendered. They are a bit
 more advanced:
 
-   >>> from zeam.form.base.fields import Field
+   >>> from dolmen.forms.base.fields import Field
    >>> field1 = Field(u"Title")
    >>> field1.description = u"Nice name for your field"
    >>> field1.required = True
@@ -134,7 +136,7 @@ via the widget:
 
    >>> widget2.error
 
-   >>> from zeam.form.base.errors import Error
+   >>> from dolmen.forms.base.errors import Error
    >>> form1.errors.append(Error('Not Happy', 'someone'))
    >>> widget2.error
    >>> form1.errors.append(Error('Missing value', 'title'))
@@ -144,9 +146,9 @@ via the widget:
 Widget are views that can be that can be renderered:
 
    >>> widget2.update()
-   >>> widget2.render() #doctest: +NORMALIZE_WHITESPACE
-   u'<input type="text" id="form-field-title" name="form.field.title"
-   class="field" value="" />'
+   >>> print widget2.render() #doctest: +NORMALIZE_WHITESPACE
+   <input type="text" id="form-field-title" name="form.field.title"
+   class="field" value="" />
 
 If field is read only then field widget is read only as well.
 
@@ -156,9 +158,10 @@ If field is read only then field widget is read only as well.
    >>> widget2.readonly
    True
    >>> widget2.update()
-   >>> widget2.render() #doctest: +NORMALIZE_WHITESPACE
-   u'<input type="text" id="form-field-title" name="form.field.title"
-   class="field" value="" readonly="readonly" />'
+   >>> print widget2.render() #doctest: +NORMALIZE_WHITESPACE
+   <input type="text" id="form-field-title" name="form.field.title"
+   class="field" value="" readonly="readonly" />
+
 
 Field widget value
 ~~~~~~~~~~~~~~~~~~
@@ -176,7 +179,7 @@ Our widget implement IFieldWidget, which extend the default widget interface:
    >>> verifyObject(interfaces.IFieldWidget, widget1)
    Traceback (most recent call last):
      ...
-   DoesNotImplement: An object does not implement interface <InterfaceClass zeam.form.base.interfaces.IFieldWidget>
+   DoesNotImplement: An object does not implement interface <InterfaceClass dolmen.forms.base.interfaces.IFieldWidget>
    >>> verifyObject(interfaces.IFieldWidget, widget2)
    True
    >>> interfaces.IFieldWidget.extends(interfaces.IWidget)
@@ -197,7 +200,7 @@ them:
    >>> list(form1.actions)
    [<Action Do Something>, <Action Do Nothing>]
 
-   >>> from zeam.form.base.widgets import Widgets
+   >>> from dolmen.forms.base.widgets import Widgets
    >>> widgets1 = Widgets(form1.actions, form=form1, request=request)
    >>> widgets1
    <Widgets>
@@ -255,6 +258,7 @@ But you can directly add an already created widget:
    >>> widgets2.keys()
    ['form.action.do-nothing']
 
+
 WidgetExtractor
 ---------------
 
@@ -278,7 +282,7 @@ request, like a Widget does:
    >>> e1 = component.getMultiAdapter(
    ...         (action1, form1, request), interfaces.IWidgetExtractor)
    >>> e1
-   <zeam.form.base.widgets.WidgetExtractor object at ...>
+   <dolmen.forms.base.widgets.WidgetExtractor object at ...>
 
 And you can extract the widget value, and errors from the request:
 

@@ -55,7 +55,6 @@ def apply_data_event(fields, content, data, event=ObjectModifiedEvent):
     return changes
 
 
-
 def extends(*forms, **opts):
     # Extend a class with parents components
     field_type = opts.get('fields', 'all')

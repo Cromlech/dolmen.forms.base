@@ -4,8 +4,6 @@ import sys
 
 from dolmen.forms.base import interfaces, markers, errors
 from dolmen.collection import Component, Collection
-
-
 from zope.interface import implements, alsoProvides, moduleProvides
 from zope import component
 
@@ -47,17 +45,18 @@ class Actions(Collection):
 
             value, error = extractor.extract()
             if value is not markers.NO_VALUE:
-                isPostOnly = getValue(action, 'postOnly', form)
+                isPostOnly = markers.getValue(action, 'postOnly', form)
                 if isPostOnly and request.method != 'POST':
                     form.errors.append(
-                        Error('This form was not submitted properly',
-                              form.prefix))
+                        errors.Error('This form was not submitted properly',
+                                     form.prefix))
                     return None, markers.FAILURE
                 try:
                     if action.validate(form):
                         return action, action(form)
                 except interfaces.ActionError, error:
-                    form.errors.append(Error(error.args[0], form.prefix))
+                    form.errors.append(errors.Error(
+                        error.args[0], form.prefix))
                     return action, markers.FAILURE
         return None, markers.NOTHING_DONE
 

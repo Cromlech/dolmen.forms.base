@@ -3,23 +3,23 @@ Test the extends directive
 
 Let's grok our example:
 
-  >>> from zeam.form.base.testing import grok
-  >>> grok('zeam.form.base.ftests.forms.extends')
+  >>> from dolmen.forms.base.testing import grok
+  >>> grok('dolmen.forms.base.ftests.forms.extends')
 
 We can look for the extended form, it will contains fields and action
 of the original one:
 
-  >>> from zope.publisher.browser import TestRequest
+  >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
 
-  >>> from zeam.form.base.ftests.forms.extends import Context
+  >>> from dolmen.forms.base.ftests.forms.extends import Context
   >>> context = Context()
 
   >>> from zope import component
   >>> form = component.getMultiAdapter(
   ...     (context, request), name='othernameform')
   >>> form
-  <zeam.form.base.ftests.forms.extends.OtherNameForm object at ...>
+  <dolmen.forms.base.ftests.forms.extends.OtherNameForm object at ...>
 
   >>> len(form.fields)
   1
@@ -35,7 +35,7 @@ of the original one:
 
 """
 
-from zeam.form import base
+from dolmen.forms import base
 from grokcore import component as grok
 
 

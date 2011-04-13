@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from dolmen.collection import Component, Collection
-from dolmen.forms.base import markers, interfaces
+from dolmen.forms.base import markers, interfaces, _
 from zope.interface import implements, moduleProvides
 from zope.i18nmessageid import MessageFactory
 
@@ -28,7 +28,7 @@ class Field(Component):
         return self.defaultValue
 
     def isEmpty(self, value):
-        return value is NO_VALUE
+        return value is markers.NO_VALUE
 
     def validate(self, value, context=None):
         if self.required and self.isEmpty(value):

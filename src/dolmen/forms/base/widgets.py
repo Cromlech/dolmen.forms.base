@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import os.path
 from grokcore import component as grok
+from dolmen.template import TALTemplate
 from dolmen.collection import Component, Collection
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.interfaces import IModeMarker
@@ -8,6 +10,10 @@ from dolmen.forms.base.markers import NO_VALUE, getValue
 from zope import component
 from zope.interface import Interface, moduleProvides
 from cromlech.browser.interfaces import ITemplate
+
+
+here = os.path.dirname(__file__)
+WIDGETS = os.path.join(here, 'widgets_templates')
 
 
 def widget_id(form, component):
@@ -149,11 +155,13 @@ class Widgets(Collection):
 # widgets
 
 class ActionWidget(Widget):
+    grok.name('input')
     grok.adapts(
         interfaces.IAction,
         interfaces.IFieldExtractionValueSetting,
         Interface)
-    grok.name('input')
+
+    template = TALTemplate(os.path.join(WIDGETS, 'action.pt'))
 
     def __init__(self, component, form, request):
         super(ActionWidget, self).__init__(component, form, request)
@@ -181,12 +189,11 @@ def getWidgetExtractor(field, form, request):
 
 
 class FieldWidget(Widget):
-    grok.implements(interfaces.IFieldWidget)
-    grok.adapts(
-        interfaces.IField,
-        interfaces.IFormData,
-        Interface)
     grok.name('input')
+    grok.implements(interfaces.IFieldWidget)
+    grok.adapts(interfaces.IField, interfaces.IFormData, Interface)
+
+    template = TALTemplate(os.path.join(WIDGETS, 'fieldwidget.pt'))
 
     def __init__(self, component, form, request):
         super(FieldWidget, self).__init__(component, form, request)
@@ -252,14 +259,17 @@ class FieldWidget(Widget):
 
 class DisplayFieldWidget(FieldWidget):
     grok.name('display')
+    template = TALTemplate(os.path.join(WIDGETS, 'display.pt'))
 
 
 class HiddenFieldWidget(FieldWidget):
     grok.name('hidden')
+    template = TALTemplate(os.path.join(WIDGETS, 'hidden.pt'))
 
 
 class ReadOnlyFieldWidget(FieldWidget):
     grok.name('readonly')
+    template = TALTemplate(os.path.join(WIDGETS, 'readonly.pt'))
 
 
 moduleProvides(interfaces.IWidgetsAPI)
