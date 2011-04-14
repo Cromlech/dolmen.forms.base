@@ -1,7 +1,7 @@
 dolmen.forms.base
 =================
 
-Forms are class, registered like views:
+Forms are class, registered like views::
 
    >>> from dolmen.forms.base.forms import Form
    >>> from cromlech.io.testing import TestRequest, TestResponse
@@ -21,7 +21,7 @@ Forms are class, registered like views:
    <TestForm object at ...>
 
 They implements ``IForm`` and ``ISimpleForm``, ``ISimpleForm`` extending
-``IForm`` and adding some form processing abilities:
+``IForm`` and adding some form processing abilities::
 
    >>> from zope.interface.verify import verifyObject
    >>> from dolmen.forms.base import interfaces
@@ -39,7 +39,7 @@ They implements ``IForm`` and ``ISimpleForm``, ``ISimpleForm`` extending
 The ISimpleForm interface extends also two main components interfaces.
 
 The ``IFormCanvas`` interface defines the very core of a form : its
-label and description, its fields and actions and the related methods:
+label and description, its fields and actions and the related methods::
 
    >>> interfaces.ISimpleForm.isOrExtends(interfaces.IFormCanvas)
    True
@@ -96,12 +96,12 @@ Object data manager
    >>> manager.getContent()
    <MyContent object>
 
-It correctly implements its interface:
+It correctly implements its interface::
 
    >>> verifyObject(interfaces.IDataManager, manager)
    True
 
-And you can use it to access content value:
+And you can use it to access content value::
 
    >>> manager.get('title')
    u'Content'
@@ -115,7 +115,7 @@ Inexisting content value raises KeyError
      ...
    KeyError: 'foobar'
 
-You can set values as well:
+You can set values as well::
 
    >>> manager.set('ready', True)
    >>> mycontent.ready
@@ -124,7 +124,7 @@ You can set values as well:
 Dictionary data manager
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-There is a data manager which is able to work on dictionaries as well:
+There is a data manager which is able to work on dictionaries as well::
 
    >>> from dolmen.forms.base.datamanagers import DictDataManager
 
@@ -136,12 +136,12 @@ There is a data manager which is able to work on dictionaries as well:
    >>> dict_manager.getContent()
    {'value': 42, 'title': u'Content'}
 
-It correctly implements its interface:
+It correctly implements its interface::
 
    >>> verifyObject(interfaces.IDataManager, dict_manager)
    True
 
-And you can use it to access content value:
+And you can use it to access content value::
 
    >>> dict_manager.get('title')
    u'Content'
@@ -155,7 +155,7 @@ Inexisting content value raises KeyError
      ...
    KeyError: 'foobar'
 
-You can set values as well:
+You can set values as well::
 
    >>> dict_manager.set('ready', True)
    >>> data.get('ready')
@@ -164,12 +164,12 @@ You can set values as well:
 Using a data manager on a form
 ------------------------------
 
-You can use a data manager on every FormData:
+You can use a data manager on every FormData::
 
    >>> from dolmen.forms.base.forms import cloneFormData
    >>> form_data = cloneFormData(form)
 
-By default you will get a data manager for the context:
+By default you will get a data manager for the context::
 
    >>> form_manager = form_data.getContentData()
    >>> form_manager
@@ -177,7 +177,7 @@ By default you will get a data manager for the context:
    >>> form_manager.content is context
    True
 
-However you modify it and give directly a content:
+However you modify it and give directly a content::
 
    >>> form_data.setContentData(mycontent)
    >>> form_data.getContentData()
@@ -185,7 +185,7 @@ However you modify it and give directly a content:
    >>> form_data.getContent()
    <MyContent object>
 
-Or directly a data manager:
+Or directly a data manager::
 
    >>> form_data.setContentData(dict_manager)
    >>> form_data.getContentData() is dict_manager
@@ -283,7 +283,7 @@ the "extractable" fields::
   {'mail': <Marker NO_VALUE>, 'identifier': <Marker NO_VALUE>, 'name': 'myname'}
 
 You can get the default value instead of the marker if available, None
-otherwise:
+otherwise::
 
   >>> data.getWithDefault('identifier')
   'new identifier'
@@ -310,7 +310,7 @@ The `identifier` field is not extracted, as planned.
 Usefull methods
 ---------------
 
-A method on the form tells if the form have any required fields:
+A method on the form tells if the form have any required fields::
 
   >>> form.haveRequiredFields()
   False
@@ -319,8 +319,8 @@ A method on the form tells if the form have any required fields:
   >>> form.haveRequiredFields()
   True
 
-An another one gives a identifier that can be used in the HTML code to
-identify the form (computed from the prefix):
+And another one gives a identifier that can be used in the HTML code to
+identify the form (computed from the prefix)::
 
   >>> form.htmlId()
   'form'

@@ -43,7 +43,7 @@ the default value is computed::
    >>> field1.getDefaultValue(FormContext())
    <Marker NO_VALUE>
 
-You can modify the defalut value of a field by setting defaultValue to
+You can modify the default value of a field by setting defaultValue to
 be it or a callable. In case of a callable it will be called each a
 new default value is needed::
 
