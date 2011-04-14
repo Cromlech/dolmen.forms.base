@@ -9,18 +9,16 @@ Let's grok our example:
 
 So now should be to lookup our widget:
 
-  >>> from dolmen.forms.base.ftests.widgets.widgettemplate import MyField
   >>> field = MyField("Cool Template Test")
   >>> field
   <MyField Cool Template Test>
 
-  >>> from zope.publisher.browser import TestRequest
+  >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
 
-  >>> from dolmen.forms.base.form import Form
+  >>> from dolmen.forms.base.forms import Form
   >>> form = Form(None, request)
 
-  >>> from dolmen.forms.base import interfaces
   >>> from zope import component
   >>> widget = component.getMultiAdapter(
   ...     (field, form, request), interfaces.IWidget)
