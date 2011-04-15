@@ -1,12 +1,12 @@
 """
 We are going to define a simple form with an action.
 
-Let's grok our example:
+Let's grok our example::
 
   >>> from dolmen.forms.base.testing import grok
   >>> grok('dolmen.forms.base.ftests.forms.simpleform')
 
-We can now lookup our form by the name of its class:
+We can now lookup our form by the name of its class::
 
   >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
@@ -28,7 +28,7 @@ We can now lookup our form by the name of its class:
   >>> len(form.actions)
   1
 
-And we can render it:
+And we can render it::
 
   >>> print form()
   <html>
@@ -44,7 +44,7 @@ And we can render it:
         <div class="actions">
            <div class="action">
               <input type="submit" id="form-action-change-me"
-                     name="form.action.change-me" 
+                     name="form.action.change-me"
                      value="Change Me"
                      class="action" />
            </div>
@@ -57,7 +57,7 @@ And we can render it:
 Integration tests
 -----------------
 
-Let's try to take a browser and submit that form:
+Let's try to take a browser and submit that form::
 
   >>> app = makeApplication("change")
   >>> from infrae.testbrowser.browser import Browser

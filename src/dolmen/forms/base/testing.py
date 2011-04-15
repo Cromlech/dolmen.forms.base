@@ -2,7 +2,6 @@
 
 from zope.configuration.config import ConfigurationMachine
 from grokcore.component import zcml
-from dolmen.view.testing import grok as view_grok
 
 
 def grok(module_name):

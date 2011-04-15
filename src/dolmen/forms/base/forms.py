@@ -2,7 +2,6 @@
 
 import operator
 import os.path
-import sys
 
 from cromlech.browser.interfaces import IHTTPRenderer
 from dolmen.template import TALTemplate
@@ -19,7 +18,7 @@ from dolmen.forms.base import _
 from dolmen.location import absolute_url
 
 from grokcore import component as grok
-from zope import component, i18n, interface
+from zope import i18n, interface
 
 
 _marker = object()
@@ -163,16 +162,16 @@ class FormData(Object):
 default_form_template = TALTemplate(os.path.join(os.path.dirname(__file__),
                                    "default_templates",
                                     "formtemplate.pt", ))
-                                    
+
 
 class FormRenderer(object):
     """Renderer"""
     grok.baseclass()
-    
+
     grok.implements(IHTTPRenderer)
-    
+
     responseFactory = None  # subclass shall provide this
-    
+
     def update(self, *args, **kwargs):
         self.response = self.responseFactory()
 
@@ -184,7 +183,6 @@ class FormRenderer(object):
         if self.template is None:
             raise NotImplementedError("Template is not defined.")
         return self.template.render(self)
-
 
 
 class FormCanvas(FormData, FormRenderer):
@@ -199,12 +197,12 @@ class FormCanvas(FormData, FormRenderer):
 
     actions = Actions()
     fields = Fields()
-    
+
     __view_name__ = ''
-    
+
     @property
     def action_url(self):
-        return "%s/%s"%(absolute_url(self.context, self.request),
+        return "%s/%s" % (absolute_url(self.context, self.request),
                         self.__view_name__)
 
     def __init__(self, context, request):
@@ -237,7 +235,7 @@ class StandaloneForm(View):
     """This is a base for a standalone form, process the form.
     """
     grok.baseclass()
-    
+
     template = default_form_template
 
     def updateActions(self):
@@ -271,7 +269,6 @@ class Form(FormCanvas, StandaloneForm):
     """
     grok.baseclass()
     grok.implements(interfaces.ISimpleForm)
-    
 
 
 interface.moduleProvides(interfaces.IFormComponents)

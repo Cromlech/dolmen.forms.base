@@ -12,6 +12,7 @@ from zope.component import getMultiAdapter
 from zope.interface import Interface, directlyProvides
 from zope.location import Location
 
+
 class WSGIApplication(object):
 
     def __init__(self, formname):
@@ -54,7 +55,7 @@ def suiteFromPackage(name):
         test = doctest.DocTestSuite(dottedname,
             optionflags=optionflags,
             extraglobs=dict
-                (makeApplication=FunctionalLayer.makeApplication),                                    )
+                (makeApplication=FunctionalLayer.makeApplication), )
         test.layer = FunctionalLayer
         suite.addTest(test)
     return suite

@@ -69,7 +69,7 @@ class IFormData(IFieldExtractionValueSetting):
     """
     dataManager = Attribute(u"Data manager class used to access content.")
     status = Attribute(u"Form status message.")
-    
+
     errors = Attribute(
         u"Iterable of the errors that occured during the form processing.")
     formErrors = Attribute(
@@ -217,7 +217,7 @@ class IFormCanvas(IPrefixable, IFieldExtractionValueSetting, IHTTPRenderer):
 
     actions = Attribute(u"Form actions")
     fields = Attribute(u"Form fields")
-    
+
     action_url = Attribute(u"Url for form submission")
 
     def htmlId():
@@ -335,7 +335,7 @@ class IFormComponents(Interface):
 
 
 class IDolmenFormsBaseAPI(
-    IActionsAPI, IFieldsAPI, IWidgetsAPI, IDirectivesAPI, 
+    IActionsAPI, IFieldsAPI, IWidgetsAPI, IDirectivesAPI,
     IDataManagersAPI, IMarkersAPI, IFormComponents):
     """Base form API.
     """

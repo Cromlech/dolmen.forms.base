@@ -2,12 +2,12 @@
 We define here a simple form with two fields and one action registered
 with a decorator.
 
-Let's grok our example:
+Let's grok our example::
 
   >>> from dolmen.forms.base.testing import grok
   >>> grok('dolmen.forms.base.ftests.forms.inputform')
 
-We can now lookup our form by the name of its class:
+We can now lookup our form by the name of its class::
 
   >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
@@ -39,7 +39,7 @@ Empty submission
 ~~~~~~~~~~~~~~~~
 
 We are going just to submit the form without giving any required
-information, and we should get an error:
+information, and we should get an error::
 
   >>> browser.open('http://localhost/registration')
   200
@@ -59,7 +59,7 @@ information, and we should get an error:
 Valid submission
 ~~~~~~~~~~~~~~~~
 
-Let's get our control for fields and filled them, and submit the form:
+Let's get our control for fields and filled them, and submit the form::
 
   >>> browser.open('http://localhost/registration')
   200
@@ -80,7 +80,7 @@ Let's get our control for fields and filled them, and submit the form:
   True
 
 Our action says that you can ignore the request if it succeed (and it
-is the case here):
+is the case here)::
 
   >>> form = browser.get_form(id='form')
   >>> form.get_control('form.field.name').value
@@ -92,7 +92,7 @@ Incomplete submission
 ~~~~~~~~~~~~~~~~~~~~~
 
 In case of an incomplete submission, fields should keep the value they
-got for that submission:
+got for that submission::
 
   >>> browser.open('http://localhost/registration')
   200
@@ -101,7 +101,7 @@ got for that submission:
   >>> job.name, job.type
   ('form.field.job', 'text')
   >>> job.value = 'Designer'
-  
+
   >>> form.get_control('form.action.register').click()
   200
   >>> 'Missing required value' in browser.contents
@@ -115,7 +115,7 @@ got for that submission:
   'Designer'
 
 And so now we can finish to submit the form, and form values should be
-gone (as we successfully submit the form):
+gone (as we successfully submit the form)::
 
   >>> form.get_control('form.field.name').value = 'Wim Boucqueart'
   >>> form.get_control('form.action.register').click()
@@ -138,13 +138,13 @@ gone (as we successfully submit the form):
 from dolmen.forms import base
 from grokcore import component as grok
 from zope.interface import Interface
-from cromlech.io.interfaces import IRequest
 from cromlech.webob.response import Response
+
 
 class Registration(base.Form):
 
     grok.context(Interface)
-    
+
     responseFactory = Response
 
     label = u"My form"
@@ -152,7 +152,6 @@ class Registration(base.Form):
     fields = base.Fields(base.Field("Name"), base.Field("Job"))
     fields['name'].description = 'Name of the candidate'
     fields['name'].required = True
-
 
     @base.action(u"Register")
     def register(self):

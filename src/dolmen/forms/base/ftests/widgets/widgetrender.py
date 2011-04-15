@@ -31,7 +31,7 @@ And we are able now to call its render method::
 
   >>> print widget.render()
   <p>Too complicated widget for Cool Test</p>
-  
+
 Note that defining a template or a render method is mandatory ::
 
   >>> field2 = AnotherField("Bad Test")
@@ -42,8 +42,8 @@ Note that defining a template or a render method is mandatory ::
   >>> print widget.render()
   Traceback (most recent call last):
   ...
-  ComponentLookupError: ((<NoRenderWidget Bad Test>, 
-           <cromlech.io.testing.TestRequest object at 0x...>), 
+  ComponentLookupError: ((<NoRenderWidget Bad Test>,
+           <cromlech.io.testing.TestRequest object at 0x...>),
            <InterfaceClass cromlech.browser.interfaces.ITemplate>, u'')
 
 """
@@ -68,10 +68,12 @@ class MyWidget(Widget):
     def render(self):
         return u"<p>Too complicated widget for %s</p>" % (
             self.component.title)
-            
+
+
 class AnotherField(Field):
     """A custom field.
     """
+
 
 class NoRenderWidget(Widget):
     """Custom widget to render my field

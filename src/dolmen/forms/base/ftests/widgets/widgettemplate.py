@@ -52,10 +52,11 @@ class MyWidget(Widget):
     """
     grok.adapts(MyField, interfaces.IFormCanvas, Interface)
 
+
 # TODO we shall provide a simpler decorator in the future
 @grok.adapter(MyWidget, Interface)
 @grok.implementer(ITemplate)
 def mywidget_template(view, request):
-    return TALTemplate(filename = os.path.join(os.path.dirname(__file__),
+    return TALTemplate(filename=os.path.join(os.path.dirname(__file__),
                                     "widgettemplate_templates",
                                     "mywidget.pt", ))
