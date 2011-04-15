@@ -5,9 +5,6 @@
   <include package="grokcore.component" file="meta.zcml" />
   <include package="dolmen.view" file="meta.zcml" />
 
-  <!-- Grok da grokkers -->
-  <grok:grok package=".meta" />
-
   <!-- Grok this package -->
   <grok:grok package=".form_templates" />
   <grok:grok package=".widgets" />
