@@ -3,7 +3,6 @@
 from dolmen.collection import Component, Collection
 from dolmen.forms.base import markers, interfaces, _
 from zope.interface import implements, moduleProvides
-from zope.i18nmessageid import MessageFactory
 
 
 class Field(Component):

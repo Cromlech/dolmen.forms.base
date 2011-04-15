@@ -2,7 +2,36 @@
 
 import doctest
 import unittest
+import dolmen.forms.base
+import cromlech.webob.request
 from pkg_resources import resource_listdir
+from zope.component.testlayer import ZCMLFileLayer
+
+
+
+class WSGIApplication(object):
+
+    def __init__(self, formname):
+        self.formname = formname
+
+    @webob.dec.wsgify(RequestClass=cromlech.webob.request.Request)
+    def __call__(self, req):
+        context = object()
+        form = getMultiAdapter((context, req), Interface, self.formname)
+        return form()
+
+
+class BrowserLayer(ZCMLFileLayer):
+
+    def testSetUp(self):
+        ZCMLFileLayer.testSetUp(self)
+        self.application = WSGIApplication
+
+    def makeApplication(self, formname):
+        return self.application(formname)
+
+
+FunctionalLayer = BrowserLayer(dolmen.forms.base)
 
 
 def suiteFromPackage(name):
