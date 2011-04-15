@@ -25,6 +25,7 @@ install_requires = [
 
 tests_require = [
     'zope.component',
+    'cromlech.webob',
     ]
 
 setup(name=name,
