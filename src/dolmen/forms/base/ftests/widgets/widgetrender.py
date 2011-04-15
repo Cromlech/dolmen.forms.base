@@ -14,10 +14,10 @@ So now should be to lookup our widget:
   >>> field
   <MyField Cool Test>
 
-  >>> from zope.publisher.browser import TestRequest
+  >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
 
-  >>> from dolmen.forms.base.form import Form
+  >>> from dolmen.forms.base.forms import Form
   >>> form = Form(None, request)
 
   >>> from dolmen.forms.base import interfaces

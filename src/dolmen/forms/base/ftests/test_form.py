@@ -3,9 +3,10 @@
 import doctest
 import unittest
 import dolmen.forms.base
+import webob.dec
 import cromlech.webob.request
 from pkg_resources import resource_listdir
-from zope.component.testlayer import ZCMLFileLayer
+from zope.component.testlayer import LayerBase
 
 
 
@@ -21,10 +22,10 @@ class WSGIApplication(object):
         return form()
 
 
-class BrowserLayer(ZCMLFileLayer):
+class BrowserLayer(LayerBase):
 
     def testSetUp(self):
-        ZCMLFileLayer.testSetUp(self)
+        LayerBase.testSetUp(self)
         self.application = WSGIApplication
 
     def makeApplication(self, formname):

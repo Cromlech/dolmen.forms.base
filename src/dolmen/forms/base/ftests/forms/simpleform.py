@@ -52,11 +52,10 @@ Integration tests
 
 Let's try to take a browser and submit that form:
 
-  >>> root = getRootFolder()
-  >>> root['test_content'] = context
-
-  >>> from zope.testbrowser.testing import Browser
-  >>> browser = Browser()
+  >>> app = makeApplication("monform")
+  >>> from infrae.testbrowser.browser import Browser
+  >>> browser = Browser(app)
+  >>> browser.options.handle_errors = False
   >>> browser.handleErrors = False
 
   >>> browser.open('http://localhost/test_content/change')
@@ -71,6 +70,7 @@ Let's try to take a browser and submit that form:
 
 """
 
+from cromlech.webob.response import Response
 from dolmen.forms import base
 from grokcore import component as grok
 
@@ -86,6 +86,7 @@ class ChangeAction(base.Action):
 
 
 class Change(base.Form):
+    responseFactory = Response
 
     label = u"My form"
     description = u"The description of my form"
