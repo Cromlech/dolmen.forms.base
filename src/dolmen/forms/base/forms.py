@@ -15,6 +15,7 @@ from dolmen.forms.base.fields import Fields
 from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
 from dolmen.forms.base.interfaces import ICollection
+from dolmen.forms.base import _
 from dolmen.location import absolute_url
 
 from grokcore import component as grok
@@ -170,8 +171,10 @@ class FormRenderer(object):
     
     grok.implements(IHTTPRenderer)
     
+    responseFactory = None  # subclass shall provide this
+    
     def update(self, *args, **kwargs):
-        self.action_url()
+        self.response = self.responseFactory()
 
     def render(self, *args, **kwargs):
         """This is the default render method.
@@ -197,10 +200,12 @@ class FormCanvas(FormData, FormRenderer):
     actions = Actions()
     fields = Fields()
     
+    __view_name__ = ''
+    
     @property
     def action_url(self):
         return "%s/%s"%(absolute_url(self.context, self.request),
-                        self.__name__)
+                        self.__view_name__)
 
     def __init__(self, context, request):
         super(FormCanvas, self).__init__(context, request)
@@ -232,6 +237,8 @@ class StandaloneForm(View):
     """This is a base for a standalone form, process the form.
     """
     grok.baseclass()
+    
+    template = default_form_template
 
     def updateActions(self):
         return None, None
@@ -264,6 +271,7 @@ class Form(FormCanvas, StandaloneForm):
     """
     grok.baseclass()
     grok.implements(interfaces.ISimpleForm)
+    
 
 
 interface.moduleProvides(interfaces.IFormComponents)

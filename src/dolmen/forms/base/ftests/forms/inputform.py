@@ -12,8 +12,8 @@ We can now lookup our form by the name of its class:
   >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
 
-  >>> from dolmen.forms.base.ftests.forms.inputform import Context
-  >>> context = Context()
+  >>> from zope.location import Location
+  >>> context = Location()
 
   >>> from zope import component
   >>> form = component.getMultiAdapter(
@@ -29,11 +29,10 @@ We can now lookup our form by the name of its class:
 Integration tests
 -----------------
 
-  >>> root = getRootFolder()
-  >>> root['content'] = context
 
-  >>> from zope.testbrowser.testing import Browser
-  >>> browser = Browser()
+  >>> app = makeApplication("registration")
+  >>> from infrae.testbrowser.browser import Browser
+  >>> browser = Browser(app)
   >>> browser.handleErrors = False
 
 Empty submission
@@ -42,12 +41,15 @@ Empty submission
 We are going just to submit the form without giving any required
 information, and we should get an error:
 
-  >>> browser.open('http://localhost/content/registration')
-  >>> action = browser.getControl('Register')
-  >>> action
-  <SubmitControl name='form.action.register' type='submit'>
+  >>> browser.open('http://localhost/registration')
+  200
+  >>> form = browser.get_form(id='form')
+  >>> action = form.get_control('form.action.register')
+  >>> action.name, action.type
+  ('form.action.register', 'submit')
 
   >>> action.click()
+  200
 
   >>> 'Missing required value' in browser.contents
   True
@@ -59,17 +61,20 @@ Valid submission
 
 Let's get our control for fields and filled them, and submit the form:
 
-  >>> browser.open('http://localhost/content/registration')
-  >>> name = browser.getControl('Name')
-  >>> name
-  <Control name='form.field.name' type='text'>
+  >>> browser.open('http://localhost/registration')
+  200
+  >>> form = browser.get_form(id='form')
+  >>> name = form.get_control('form.field.name')
+  >>> name.name, name.type
+  ('form.field.name', 'text')
   >>> name.value = 'Sylvain Viollon'
-  >>> job = browser.getControl('Job')
-  >>> job
-  <Control name='form.field.job' type='text'>
+  >>> job = form.get_control('form.field.job')
+  >>> job.name, job.type
+  ('form.field.job', 'text')
   >>> job.value = 'Developer'
 
-  >>> browser.getControl('Register').click()
+  >>> form.get_control('form.action.register').click()
+  200
 
   >>> 'Registered Sylvain Viollon as Developer' in browser.contents
   True
@@ -77,9 +82,10 @@ Let's get our control for fields and filled them, and submit the form:
 Our action says that you can ignore the request if it succeed (and it
 is the case here):
 
-  >>> browser.getControl('Name').value
+  >>> form = browser.get_form(id='form')
+  >>> form.get_control('form.field.name').value
   ''
-  >>> browser.getControl('Job').value
+  >>> form.get_control('form.field.job').value
   ''
 
 Incomplete submission
@@ -88,37 +94,41 @@ Incomplete submission
 In case of an incomplete submission, fields should keep the value they
 got for that submission:
 
-  >>> browser.open('http://localhost/content/registration')
-  >>> job = browser.getControl('Job')
-  >>> job
-  <Control name='form.field.job' type='text'>
+  >>> browser.open('http://localhost/registration')
+  200
+  >>> form = browser.get_form(id='form')
+  >>> job = form.get_control('form.field.job')
+  >>> job.name, job.type
+  ('form.field.job', 'text')
   >>> job.value = 'Designer'
-
-  >>> browser.getControl('Register').click()
-
+  
+  >>> form.get_control('form.action.register').click()
+  200
   >>> 'Missing required value' in browser.contents
   True
   >>> 'Registered' in browser.contents
   False
 
-  >>> new_job = browser.getControl('Job')
+  >>> form = browser.get_form(id='form')
+  >>> new_job = form.get_control('form.field.job')
   >>> new_job.value
   'Designer'
 
 And so now we can finish to submit the form, and form values should be
 gone (as we successfully submit the form):
 
-  >>> browser.getControl('Name').value = 'Wim Boucqueart'
-  >>> browser.getControl('Register').click()
-
+  >>> form.get_control('form.field.name').value = 'Wim Boucqueart'
+  >>> form.get_control('form.action.register').click()
+  200
   >>> 'Missing required value' in browser.contents
   False
   >>> 'Registered Wim Boucqueart as Designer' in browser.contents
   True
 
-  >>> browser.getControl('Name').value
+  >>> form = browser.get_form(id='form')
+  >>> form.get_control('form.field.name').value
   ''
-  >>> browser.getControl('Job').value
+  >>> form.get_control('form.field.job').value
   ''
 
 
@@ -127,18 +137,22 @@ gone (as we successfully submit the form):
 
 from dolmen.forms import base
 from grokcore import component as grok
-
-class Context(grok.Context):
-    pass
-
+from zope.interface import Interface
+from cromlech.io.interfaces import IRequest
+from cromlech.webob.response import Response
 
 class Registration(base.Form):
+
+    grok.context(Interface)
+    
+    responseFactory = Response
 
     label = u"My form"
     description = u"The description of my form"
     fields = base.Fields(base.Field("Name"), base.Field("Job"))
     fields['name'].description = 'Name of the candidate'
     fields['name'].required = True
+
 
     @base.action(u"Register")
     def register(self):

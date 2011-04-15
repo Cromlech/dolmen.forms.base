@@ -11,8 +11,11 @@ We can now lookup our form by the name of its class:
   >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
 
-  >>> from dolmen.forms.base.ftests.forms.simpleform import Context
-  >>> context = Context()
+  >>> from zope.location import Location
+  >>> context = Location()
+  >>> from zope.interface import directlyProvides
+  >>> from cromlech.io.interfaces import IPublicationRoot
+  >>> directlyProvides(context, IPublicationRoot)
 
   >>> from zope import component
   >>> form = component.getMultiAdapter(
@@ -32,14 +35,18 @@ And we can render it:
     <head>
     </head>
     <body>
-      <form action="http://127.0.0.1" method="post"
-            enctype="multipart/form-data">
+      <form action="http://localhost/change"
+            method="post"
+            enctype="multipart/form-data"
+            id="form">
         <h1>My form</h1>
         <p>The description of my form</p>
         <div class="actions">
            <div class="action">
               <input type="submit" id="form-action-change-me"
-                     name="form.action.change-me" value="Change Me" class="action" />
+                     name="form.action.change-me" 
+                     value="Change Me"
+                     class="action" />
            </div>
         </div>
       </form>
@@ -52,19 +59,21 @@ Integration tests
 
 Let's try to take a browser and submit that form:
 
-  >>> app = makeApplication("monform")
+  >>> app = makeApplication("change")
   >>> from infrae.testbrowser.browser import Browser
   >>> browser = Browser(app)
   >>> browser.options.handle_errors = False
   >>> browser.handleErrors = False
 
-  >>> browser.open('http://localhost/test_content/change')
-  >>> action = browser.getControl('Change Me')
-  >>> action
-  <SubmitControl name='form.action.change-me' type='submit'>
+  >>> browser.open('http://localhost/change')
+  200
+  >>> form = browser.get_form(id='form')
+  >>> action = form.get_control('form.action.change-me')
+  >>> action.name, action.type
+  ('form.action.change-me', 'submit')
 
   >>> action.click()
-
+  200
   >>> 'I completely changed everything' in browser.contents
   True
 
@@ -73,10 +82,7 @@ Let's try to take a browser and submit that form:
 from cromlech.webob.response import Response
 from dolmen.forms import base
 from grokcore import component as grok
-
-
-class Context(grok.Context):
-    pass
+from zope.interface import Interface
 
 
 class ChangeAction(base.Action):
@@ -86,6 +92,8 @@ class ChangeAction(base.Action):
 
 
 class Change(base.Form):
+    grok.context(Interface)
+
     responseFactory = Response
 
     label = u"My form"

@@ -14,7 +14,7 @@ def test_suite():
 
     suite = unittest.TestSuite()
     for filename in ['components.txt', 'actions.txt', 'fields.txt',
-                     'forms.txt', 'widgets.txt', ]: #'../README.txt']:
+                     'forms.txt', 'widgets.txt', '../README.txt']:
         test = doctest.DocFileSuite(
             filename,
             setUp=setUp,

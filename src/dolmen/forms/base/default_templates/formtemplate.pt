@@ -3,7 +3,9 @@
   </head>
   <body>
 
-    <form action="." tal:attributes="action view.action_url" method="post"
+    <form action="." tal:attributes="action view.action_url;
+                                     id view.htmlId()" 
+          method="post"
           enctype="multipart/form-data">
 
       <h1 tal:condition="view.label"

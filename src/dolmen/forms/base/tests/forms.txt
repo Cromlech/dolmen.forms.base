@@ -5,8 +5,11 @@ Forms are class, registered like views::
 
    >>> from dolmen.forms.base.forms import Form
    >>> from cromlech.io.testing import TestRequest, TestResponse
-
+   >>> from zope.interface import implements
+   >>> from zope.location.interfaces import ILocation
    >>> class Content(object):
+   ...     implements(ILocation)
+   ...     __parent__ = None
    ...     def __repr__(self):
    ...         return '<%s object>' % self.__class__.__name__
 
@@ -16,6 +19,10 @@ Forms are class, registered like views::
    >>> request = TestRequest()
    >>> context = Content()
 
+   >>> from cromlech.io.interfaces import IPublicationRoot
+   >>> from zope.interface import directlyProvides
+   >>> directlyProvides(context, IPublicationRoot)
+  
    >>> form = TestForm(context, request)
    >>> form
    <TestForm object at ...>
@@ -271,6 +278,7 @@ consider the `id` field immutable.
 
   >>> request = TestRequest(form={"form.field.name": "myname"})
   >>> context = Content()
+  >>> directlyProvides(context, IPublicationRoot)
 
 While extracting the data, the form will retrieve the values of all
 the "extractable" fields::

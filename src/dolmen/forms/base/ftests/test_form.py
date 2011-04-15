@@ -4,11 +4,13 @@ import doctest
 import unittest
 import dolmen.forms.base
 import webob.dec
+from cromlech.io.interfaces import IPublicationRoot
 import cromlech.webob.request
 from pkg_resources import resource_listdir
 from zope.component.testlayer import LayerBase
-
-
+from zope.component import getMultiAdapter
+from zope.interface import Interface, directlyProvides
+from zope.location import Location
 
 class WSGIApplication(object):
 
@@ -17,7 +19,8 @@ class WSGIApplication(object):
 
     @webob.dec.wsgify(RequestClass=cromlech.webob.request.Request)
     def __call__(self, req):
-        context = object()
+        context = Location()
+        directlyProvides(context, IPublicationRoot)
         form = getMultiAdapter((context, req), Interface, self.formname)
         return form()
 
@@ -48,7 +51,11 @@ def suiteFromPackage(name):
             continue
 
         dottedname = 'dolmen.forms.base.ftests.%s.%s' % (name, filename[:-3])
-        test = doctest.DocTestSuite(dottedname, optionflags=optionflags)
+        test = doctest.DocTestSuite(dottedname,
+            optionflags=optionflags,
+            extraglobs=dict
+                (makeApplication=FunctionalLayer.makeApplication),                                    )
+        test.layer = FunctionalLayer
         suite.addTest(test)
     return suite
 
