@@ -32,10 +32,12 @@ And we are able now to call its render method:
 
 
 """
-
+import os.path
+from cromlech.browser import ITemplate
 from dolmen.forms.base.fields import Field
 from dolmen.forms.base.widgets import Widget
 from dolmen.forms.base import interfaces
+from dolmen.template import TALTemplate
 from zope.interface import Interface
 from grokcore import component as grok
 
@@ -49,3 +51,11 @@ class MyWidget(Widget):
     """Custom widget to render my field.
     """
     grok.adapts(MyField, interfaces.IFormCanvas, Interface)
+
+# TODO we shall provide a simpler decorator in the future
+@grok.adapter(MyWidget, Interface)
+@grok.implementer(ITemplate)
+def mywidget_template(view, request):
+    return TALTemplate(filename = os.path.join(os.path.dirname(__file__),
+                                    "widgettemplate_templates",
+                                    "mywidget.pt", ))
