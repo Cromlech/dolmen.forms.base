@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import operator
+import os.path
 import sys
 
+from cromlech.browser.interfaces import IHTTPRenderer
+from dolmen.template import TALTemplate
 from dolmen.view import View
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.actions import Actions
@@ -12,6 +15,7 @@ from dolmen.forms.base.fields import Fields
 from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
 from dolmen.forms.base.interfaces import ICollection
+from dolmen.location import absolute_url
 
 from grokcore import component as grok
 from zope import component, i18n, interface
@@ -155,8 +159,33 @@ class FormData(Object):
         return (data, errors)
 
 
-class FormCanvas(FormData, View):
-    """This represent a sumple form setup: setup some fields and
+default_form_template = TALTemplate(os.path.join(os.path.dirname(__file__),
+                                   "default_templates",
+                                    "formtemplate.pt", ))
+                                    
+
+class FormRenderer(object):
+    """Renderer"""
+    grok.baseclass()
+    
+    grok.implements(IHTTPRenderer)
+    
+    def update(self, *args, **kwargs):
+        self.action_url()
+
+    def render(self, *args, **kwargs):
+        """This is the default render method.
+        Not providing a template will make it fails.
+        Override this method, if needed (eg: return a string)
+        """
+        if self.template is None:
+            raise NotImplementedError("Template is not defined.")
+        return self.template.render(self)
+
+
+
+class FormCanvas(FormData, FormRenderer):
+    """This represent a simple form setup: setup some fields and
     actions, prepare widgets for it.
     """
     grok.baseclass()
@@ -167,6 +196,11 @@ class FormCanvas(FormData, View):
 
     actions = Actions()
     fields = Fields()
+    
+    @property
+    def action_url(self):
+        return "%s/%s"%(absolute_url(self.context, self.request),
+                        self.__name__)
 
     def __init__(self, context, request):
         super(FormCanvas, self).__init__(context, request)

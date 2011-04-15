@@ -7,6 +7,7 @@ readme = open(join('src', 'dolmen', 'forms', 'base', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
+    'dolmen.location',
     'dolmen.view',
     'dolmen.template',
     'dolmen.collection',

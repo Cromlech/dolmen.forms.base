@@ -3,7 +3,7 @@
 from zope import schema
 from zope.interface import Interface, Attribute
 from zope.configuration.fields import GlobalObject
-from cromlech.browser.interfaces import IView
+from cromlech.browser.interfaces import IHTTPRenderer, IView
 from dolmen.collection import (
     ICollection, IComponent, IComponentFactory, IMutableCollection)
 
@@ -207,7 +207,7 @@ class IWidgets(ICollection):
     """
 
 
-class IFormCanvas(IPrefixable, IFieldExtractionValueSetting, IView):
+class IFormCanvas(IPrefixable, IFieldExtractionValueSetting, IHTTPRenderer):
     """Definition of a form structure.
     Form presentation : label, description
     Form contents and actions : fields, actions and their related methods.
@@ -217,6 +217,8 @@ class IFormCanvas(IPrefixable, IFieldExtractionValueSetting, IView):
 
     actions = Attribute(u"Form actions")
     fields = Attribute(u"Form fields")
+    
+    action_url = Attribute(u"Url for form submission")
 
     def htmlId():
         """Return an identifier that can be used in the HTML code to
