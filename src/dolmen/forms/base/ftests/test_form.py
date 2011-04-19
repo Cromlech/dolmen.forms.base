@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import cromlech.webob.request
 import doctest
-import unittest
 import dolmen.forms.base
+import unittest
 import webob.dec
 from cromlech.io.interfaces import IPublicationRoot
-import cromlech.webob.request
 from pkg_resources import resource_listdir
-from zope.component.testlayer import LayerBase
 from zope.component import getMultiAdapter
+from zope.component.testlayer import LayerBase
 from zope.interface import Interface, directlyProvides
 from zope.location import Location
 
