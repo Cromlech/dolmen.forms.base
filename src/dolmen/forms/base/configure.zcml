@@ -9,6 +9,7 @@
   <grok:grok package=".form_templates" />
   <grok:grok package=".widgets" />
 
+  <include package="zope.i18n" file="meta.zcml" />
   <i18n:registerTranslations directory="i18n" />
 
 </configure>
