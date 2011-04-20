@@ -2,7 +2,7 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '1.0b3'
+version = '2.0a1dev'
 readme = open(join('src', 'dolmen', 'forms', 'base', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
@@ -10,12 +10,13 @@ install_requires = [
     'dolmen.location',
     'dolmen.view',
     'dolmen.template',
-    'dolmen.collection',
-    'cromlech.io',
+    'dolmen.collection >= 0.2',
     'cromlech.browser',
     'grokcore.component',
     'grokcore.security',
     'setuptools',
+    'zope.component',
+    'zope.configuration',
     'zope.event',
     'zope.interface',
     'zope.lifecycleevent',
@@ -25,9 +26,11 @@ install_requires = [
     ]
 
 tests_require = [
+    'WebOb',
+    'cromlech.io',
     'cromlech.webob',
     'infrae.testbrowser',
-    'zope.component',
+    'zope.location',
     ]
 
 setup(name=name,
@@ -35,10 +38,10 @@ setup(name=name,
       description=("Dolmen forms framework"),
       long_description = readme + '\n\n' + history,
       keywords='Dolmen Forms',
-      author='Souheil Chelfouh',
-      author_email='trollfot@gmail.com',
+      author='The Dolmen Team',
+      author_email='dolmen@list.dolmen-project.org',
       url='',
-      license='GPL',
+      license='BSD',
       package_dir={'': 'src'},
       packages=find_packages('src', exclude=['ez_setup']),
       namespace_packages=['dolmen', 'dolmen.forms'],
