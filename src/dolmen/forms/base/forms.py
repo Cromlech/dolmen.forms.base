@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import operator
-import os.path
+from os import path
 
 from cromlech.browser.interfaces import IHTTPRenderer
 from dolmen.template import TALTemplate
@@ -20,6 +20,9 @@ from dolmen.location import absolute_url
 from grokcore import component as grok
 from zope import i18n, interface
 
+
+PATH = path.join(path.dirname(__file__), 'default_templates')
+default_template = TALTemplate(path.join(PATH, "formtemplate.pt"))
 
 _marker = object()
 
@@ -159,17 +162,12 @@ class FormData(Object):
         return (data, errors)
 
 
-default_form_template = TALTemplate(os.path.join(os.path.dirname(__file__),
-                                   "default_templates",
-                                    "formtemplate.pt", ))
-
-
 class FormRenderer(object):
-    """Renderer"""
-    grok.baseclass()
-
+    """Renderer
+    """
     grok.implements(IHTTPRenderer)
 
+    template = default_template
     responseFactory = None  # subclass shall provide this
 
     def update(self, *args, **kwargs):
@@ -235,8 +233,7 @@ class StandaloneForm(View):
     """This is a base for a standalone form, process the form.
     """
     grok.baseclass()
-
-    template = default_form_template
+    template = default_template
 
     def updateActions(self):
         return None, None
