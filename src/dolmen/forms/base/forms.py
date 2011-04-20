@@ -3,7 +3,7 @@
 import operator
 from os import path
 
-from cromlech.browser.interfaces import IHTTPRenderer
+from cromlech.browser.interfaces import IRenderer
 from dolmen.template import TALTemplate
 from dolmen.view import View
 from dolmen.forms.base import interfaces
@@ -162,33 +162,12 @@ class FormData(Object):
         return (data, errors)
 
 
-class FormRenderer(object):
-    """Renderer
-    """
-    grok.implements(IHTTPRenderer)
-
-    template = default_template
-    responseFactory = None  # subclass shall provide this
-
-    def update(self, *args, **kwargs):
-        self.response = self.responseFactory()
-
-    def render(self, *args, **kwargs):
-        """This is the default render method.
-        Not providing a template will make it fails.
-        Override this method, if needed (eg: return a string)
-        """
-        if self.template is None:
-            raise NotImplementedError("Template is not defined.")
-        return self.template.render(self)
-
-
-class FormCanvas(FormData, FormRenderer):
+class FormCanvas(FormData):
     """This represent a simple form setup: setup some fields and
     actions, prepare widgets for it.
     """
     grok.baseclass()
-    grok.implements(interfaces.ISimpleFormCanvas)
+    grok.implements(IRenderer, interfaces.ISimpleFormCanvas)
 
     label = u''
     description = u''
@@ -197,16 +176,20 @@ class FormCanvas(FormData, FormRenderer):
     fields = Fields()
 
     __view_name__ = ''
+    template = default_template
 
     @property
     def action_url(self):
-        return "%s/%s" % (absolute_url(self.context, self.request),
-                        self.__view_name__)
+        return "%s/%s" % (
+            absolute_url(self.context, self.request), self.__view_name__)
 
     def __init__(self, context, request):
         super(FormCanvas, self).__init__(context, request)
         self.actionWidgets = Widgets(form=self, request=self.request)
         self.fieldWidgets = Widgets(form=self, request=self.request)
+
+    def update(self, *args, **kwargs):
+        pass
 
     def extractData(self, fields=None):
         if fields is None:
@@ -227,6 +210,15 @@ class FormCanvas(FormData, FormRenderer):
 
         self.fieldWidgets.update()
         self.actionWidgets.update()
+
+    def render(self, *args, **kwargs):
+        """This is the default render method.
+        Not providing a template will make it fails.
+        Override this method, if needed (eg: return a string)
+        """
+        if self.template is None:
+            raise NotImplementedError("Template is not defined.")
+        return self.template.render(self)
 
 
 class StandaloneForm(View):
@@ -266,6 +258,10 @@ class Form(FormCanvas, StandaloneForm):
     """
     grok.baseclass()
     grok.implements(interfaces.ISimpleForm)
+
+    def update(self, *args, **kwargs):
+        FormCanvas.update(self, *args, **kwargs)
+        StandaloneForm.update(self, *args, **kwargs)
 
 
 interface.moduleProvides(interfaces.IFormComponents)
