@@ -191,6 +191,13 @@ class FormCanvas(FormData):
     def update(self, *args, **kwargs):
         pass
 
+    def namespace(self):
+        namespace = {}
+        namespace['context'] = self.context
+        namespace['request'] = self.request
+        namespace['view'] = self
+        return namespace
+
     def extractData(self, fields=None):
         if fields is None:
             fields = self.fields
