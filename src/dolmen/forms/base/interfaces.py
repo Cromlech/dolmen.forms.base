@@ -330,6 +330,7 @@ class IMarkersAPI(Interface):
 
 
 class IFormComponents(Interface):
+    FormCanvas = Attribute(u"The base structure of a Form.")
     FormData = Attribute(u"A configuration object to render fields as widgets")
     Form = Attribute(u"A basic and simple Form")
 
