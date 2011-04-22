@@ -9,7 +9,6 @@ readme = open(join('src', 'dolmen', 'forms', 'base', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
-    'dolmen.location',
     'dolmen.view',
     'dolmen.template',
     'dolmen.collection >= 0.2',
@@ -33,6 +32,7 @@ tests_require = [
     'cromlech.webob',
     'infrae.testbrowser',
     'zope.location',
+    'dolmen.location',
     ]
 
 setup(name=name,
