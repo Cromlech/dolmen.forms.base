@@ -3,9 +3,11 @@
 import operator
 from os import path
 
-from cromlech.browser.interfaces import IRenderer
+from cromlech.browser.interfaces import IRenderer, IURLResolver
+
 from dolmen.template import TALTemplate
 from dolmen.view import View
+from dolmen.forms.base import _
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.actions import Actions
 from dolmen.forms.base.datamanagers import ObjectDataManager
@@ -14,11 +16,10 @@ from dolmen.forms.base.fields import Fields
 from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
 from dolmen.forms.base.interfaces import ICollection
-from dolmen.forms.base import _
-from dolmen.location import absolute_url
 
 from grokcore import component as grok
 from zope import i18n, interface
+from zope.component import queryMultiAdapter
 
 
 PATH = path.join(path.dirname(__file__), 'default_templates')
@@ -180,8 +181,11 @@ class FormCanvas(FormData):
 
     @property
     def action_url(self):
-        return "%s/%s" % (
-            absolute_url(self.context, self.request), self.__view_name__)
+        url = queryMultiAdapter((self.context, self.request),
+                                IURLResolver, name='absolute')
+        if url is not None:
+            return u"%s/%s" % (url, self.__view_name__)
+        return u""
 
     def __init__(self, context, request):
         super(FormCanvas, self).__init__(context, request)
