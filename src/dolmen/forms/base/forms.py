@@ -191,6 +191,7 @@ class FormCanvas(FormData):
         super(FormCanvas, self).__init__(context, request)
         self.actionWidgets = Widgets(form=self, request=self.request)
         self.fieldWidgets = Widgets(form=self, request=self.request)
+        self._updated = False
 
     def update(self, *args, **kwargs):
         pass
@@ -245,8 +246,10 @@ class StandaloneForm(View):
         pass
 
     def updateForm(self):
-        self.updateActions()
-        self.updateWidgets()
+        if self._updated is False:
+            self.updateActions()
+            self.updateWidgets()
+            self._updated = True
 
     def __call__(self):
         self.update()
