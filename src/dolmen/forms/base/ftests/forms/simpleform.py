@@ -30,28 +30,30 @@ We can now lookup our form by the name of its class::
 
 And we can render it::
 
-  >>> print form()
-  <html>
-    <head>
-    </head>
-    <body>
-      <form action="http://localhost/change"
-            method="post"
-            enctype="multipart/form-data"
-            id="form">
-        <h1>My form</h1>
-        <p>The description of my form</p>
-        <div class="actions">
-           <div class="action">
-              <input type="submit" id="form-action-change-me"
-                     name="form.action.change-me"
-                     value="Change Me"
-                     class="action" />
-           </div>
-        </div>
-      </form>
-    </body>
-  </html>
+  >>> from cromlech.browser.testing import XMLDiff
+  >>> print XMLDiff(form(), '''
+  ... <html>
+  ...   <head>
+  ...   </head>
+  ...   <body>
+  ...     <form action="http://localhost/change"
+  ...           method="post"
+  ...           enctype="multipart/form-data"
+  ...           id="form">
+  ...       <h1>My form</h1>
+  ...       <p>The description of my form</p>
+  ...       <div class="actions">
+  ...          <div class="action">
+  ...             <input type="submit" id="form-action-change-me"
+  ...                    name="form.action.change-me"
+  ...                    value="Change Me"
+  ...                    class="action" />
+  ...          </div>
+  ...       </div>
+  ...     </form>
+  ...   </body>
+  ... </html>''')
+  None
 
 
 Integration tests

@@ -176,7 +176,7 @@ class FormCanvas(FormData):
     actions = Actions()
     fields = Fields()
 
-    __view_name__ = ''
+    __component_name__ = ''
     template = default_template
 
     @property
@@ -184,7 +184,7 @@ class FormCanvas(FormData):
         url = queryMultiAdapter((self.context, self.request),
                                 IURLResolver, name='absolute')
         if url is not None:
-            return u"%s/%s" % (url, self.__view_name__)
+            return u"%s/%s" % (url, self.__component_name__)
         return u""
 
     def __init__(self, context, request):
