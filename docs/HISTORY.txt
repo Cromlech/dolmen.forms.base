@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.0a1 (2011-05-10)
+--------------------
+
+* we are now working with cromlech stack
+* forked and migrated zeam.form
+ 
+
 1.0b3 (2010-10-27)
 ------------------
 
