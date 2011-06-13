@@ -41,7 +41,7 @@ class Fields(Collection):
 
     type = interfaces.IField
     factory = interfaces.IFieldFactory
-    behavior = IGNORE()
+    behavior = IGNORE
 
 
 moduleProvides(interfaces.IFieldsAPI)

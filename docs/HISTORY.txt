@@ -1,8 +1,14 @@
 Changelog
 =========
 
+2.0a2 (2011-06-13)
+------------------
+
+* Added the IGNORE behavior to the Fields collection.
+
+
 2.0a1 (2011-05-10)
---------------------
+------------------
 
 * we are now working with cromlech stack
 * forked and migrated zeam.form
