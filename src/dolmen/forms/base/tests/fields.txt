@@ -84,6 +84,16 @@ They implements ``IFields`` and ``ICollection``::
    >>> interfaces.IFields.extends(interfaces.ICollection)
    True
 
+Fields can be defined more than once. However, only the first occurence
+is kept::
+
+   >>> size1 = Field('Size')
+   >>> size2 = Field('Size')
+   >>> fields = Fields(size1, field1, size2)
+   >>> fields['size'] is size1
+   True
+
+
 So it behave like a collection. You can add other Field, and Fields
 using the extend method (or constructor), but if you whish to add an
 another component it need to be a Field::

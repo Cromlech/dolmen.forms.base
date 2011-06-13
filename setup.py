@@ -11,7 +11,7 @@ history = open(join('docs', 'HISTORY.txt')).read()
 install_requires = [
     'dolmen.view',
     'dolmen.template',
-    'dolmen.collection >= 0.2',
+    'dolmen.collection >= 0.3',
     'cromlech.browser',
     'grokcore.component',
     'grokcore.security',

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from dolmen.collection import Component, Collection
+from dolmen.collection.components import IGNORE
 from dolmen.forms.base import markers, interfaces, _
 from zope.interface import implements, moduleProvides
 
@@ -40,6 +41,7 @@ class Fields(Collection):
 
     type = interfaces.IField
     factory = interfaces.IFieldFactory
+    behavior = IGNORE()
 
 
 moduleProvides(interfaces.IFieldsAPI)
