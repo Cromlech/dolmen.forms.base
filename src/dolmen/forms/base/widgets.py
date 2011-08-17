@@ -82,7 +82,7 @@ class WidgetExtractor(grok.MultiAdapter):
         self.request = request
 
     def extract(self):
-        # default behaviour is NO_VALUE means value not even mentionned
+        # default behaviour is NO_VALUE means value not even mentionned
         value = self.request.form.get(self.identifier, NO_VALUE)
         return (value, None)
 
