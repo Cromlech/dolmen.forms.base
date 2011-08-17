@@ -28,7 +28,8 @@ class Field(Component):
         return self.defaultValue
 
     def isEmpty(self, value):
-        return value is markers.NO_VALUE
+        return (value is markers.NO_VALUE or
+                (hasattr(value, '__len__') and not len(value)))
 
     def validate(self, value, context=None):
         if self.required and self.isEmpty(value):
