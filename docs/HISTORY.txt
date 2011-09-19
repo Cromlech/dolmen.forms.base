@@ -1,10 +1,16 @@
 Changelog
 =========
 
-2.0a3 (2011-09-19)
+2.0a4 (2011-09-19)
 ------------------
 
 * Validators are now form-aware.
+
+
+2.0a3 (2011-08-17)
+------------------
+
+* NO_VALUE only if data not present, empty data does not mean no value
 
 
 2.0a2 (2011-06-13)
