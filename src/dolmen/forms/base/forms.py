@@ -63,7 +63,7 @@ class FieldsValues(dict):
         self.fields = fields
 
     def getWithDefault(self, key, default=None):
-        value = super(FieldsValues, self).get(key, default)
+        value = super(FieldsValues, self).get(key, NO_VALUE)
         if value is NO_VALUE:
             value = self.fields[key].getDefaultValue(self.form)
             if value is NO_VALUE:
