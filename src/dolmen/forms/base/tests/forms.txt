@@ -301,6 +301,7 @@ otherwise::
   >>> data.getWithDefault('mail', default='mail default')
   'mail default'
 
+
 The `identifier` value is set to NO_VALUE, as the request was not
 containing any. As we consider the field immutable, we'll apply a
 simple display mode on it, allowing us to display the current value,
@@ -315,6 +316,15 @@ in the extraction process::
   {'mail': <Marker NO_VALUE>, 'name': 'myname'}
 
 The `identifier` field is not extracted, as planned.
+
+
+Note that if the field does not exist in form, we raise attribute error::
+
+  >>> data.getWithDefault('not_a_field')
+  Traceback (most recent call last):
+  ...
+  KeyError: 'not_a_field'
+
 
 Usefull methods
 ---------------
