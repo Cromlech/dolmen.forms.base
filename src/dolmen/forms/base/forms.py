@@ -3,7 +3,7 @@
 import operator
 from os import path
 
-from cromlech.browser.interfaces import IRenderer, IURLResolver
+from cromlech.browser import IRenderer, IURLResolver, negotiate
 
 from dolmen.template import TALTemplate
 from dolmen.view import View
@@ -18,7 +18,7 @@ from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
 from dolmen.forms.base.interfaces import ICollection
 
 from grokcore import component as grok
-from zope import i18n, interface
+from zope import interface
 from zope.component import queryMultiAdapter
 
 
@@ -193,6 +193,10 @@ class FormCanvas(FormData):
         self.fieldWidgets = Widgets(form=self, request=self.request)
         self._updated = False
 
+    @property
+    def target_language(self):
+        return negotiate(self.request)
+
     def update(self, *args, **kwargs):
         pass
 
@@ -230,7 +234,7 @@ class FormCanvas(FormData):
         """
         if self.template is None:
             raise NotImplementedError("Template is not defined.")
-        return self.template.render(self)
+        return self.template.render(self, target_language=self.target_language)
 
 
 class StandaloneForm(View):
@@ -257,13 +261,9 @@ class StandaloneForm(View):
             # A redirect was triggered somewhere in update().  Don't
             # continue processing the form
             return
-
-        if self.i18nLanguage is None:
-            self.i18nLanguage = i18n.negotiate(self.request)
         self.updateForm()
         if self.response.status_int in (302, 303):
             return
-
         return self.render()
 
 
