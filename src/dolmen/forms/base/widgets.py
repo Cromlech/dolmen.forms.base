@@ -7,9 +7,9 @@ from dolmen.collection import Component, Collection
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.interfaces import IModeMarker
 from dolmen.forms.base.markers import NO_VALUE, getValue
-from zope import component
+from zope.component import getMultiAdapter, queryMultiAdapter
 from zope.interface import Interface, moduleProvides
-from cromlech.browser.interfaces import ITemplate
+from cromlech.browser import ITemplate, negotiate
 
 
 here = os.path.dirname(__file__)
@@ -50,21 +50,21 @@ class Widget(Component, grok.MultiAdapter):
         return 'field'
 
     def namespace(self):
-        namespace = {'widget': self,
-                     'request': self.request}
-        if self.form.i18nLanguage is not None:
-            # i18n support for Chameleon
-            namespace['target_language'] = self.form.i18nLanguage
+        namespace = {'widget': self, 'request': self.request}
         return namespace
+
+    @property
+    def target_language(self):
+        return negotiate(self.request)
 
     def update(self):
         pass
 
     def render(self):
-        if self.template is not None:
-            return self.template.render(self)
-        template = component.getMultiAdapter((self, self.request), ITemplate)
-        return template.render(self)
+        template = getattr(self, 'template', None)
+        if template is None:
+            template = getMultiAdapter((self, self.request), ITemplate)
+        return template.render(self, target_language=self.target_language)
 
 
 class WidgetExtractor(grok.MultiAdapter):
@@ -110,7 +110,7 @@ def createWidget(field, form, request):
     if not field.available(form):
         return None
     mode = str(getValue(field, 'mode', form))
-    return component.getMultiAdapter(
+    return getMultiAdapter(
         (field, form, request), interfaces.IWidget, name=mode)
 
 
@@ -179,12 +179,11 @@ def getWidgetExtractor(field, form, request):
         field.mode.extractable is False):
         return None
 
-    extractor = component.queryMultiAdapter(
+    extractor = queryMultiAdapter(
         (field, form, request), interfaces.IWidgetExtractor, name=mode)
     if extractor is not None:
         return extractor
-    return component.getMultiAdapter(
-        (field, form, request), interfaces.IWidgetExtractor)
+    return getMultiAdapter((field, form, request), interfaces.IWidgetExtractor)
 
 
 class FieldWidget(Widget):
