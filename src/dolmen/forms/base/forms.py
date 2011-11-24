@@ -3,7 +3,8 @@
 import operator
 from os import path
 
-from cromlech.browser import IRenderer, IURLResolver, negotiate
+from cromlech.browser.interfaces import IRenderer, IURLResolver
+from cromlech.i18n import ILanguage
 
 from dolmen.template import TALTemplate
 from dolmen.view import View
@@ -195,7 +196,7 @@ class FormCanvas(FormData):
 
     @property
     def target_language(self):
-        return negotiate(self.request)
+        return ILanguage(self.request)
 
     def update(self, *args, **kwargs):
         pass

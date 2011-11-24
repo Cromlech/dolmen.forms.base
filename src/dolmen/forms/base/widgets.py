@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import os.path
-from grokcore import component as grok
-from dolmen.template import TALTemplate
+from cromlech.browser import ITemplate
+from cromlech.i18n import ILanguage
 from dolmen.collection import Component, Collection
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.interfaces import IModeMarker
 from dolmen.forms.base.markers import NO_VALUE, getValue
+from dolmen.template import TALTemplate
+from grokcore import component as grok
 from zope.component import getMultiAdapter, queryMultiAdapter
 from zope.interface import Interface, moduleProvides
-from cromlech.browser import ITemplate, negotiate
 
 
 here = os.path.dirname(__file__)
@@ -55,7 +56,7 @@ class Widget(Component, grok.MultiAdapter):
 
     @property
     def target_language(self):
-        return negotiate(self.request)
+        return ILanguage(self.request)
 
     def update(self):
         pass
