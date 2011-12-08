@@ -1,0 +1,29 @@
+
+cgi.FieldStorage may raise TypeErro as we compute len as it is considered
+valid only on multipart content or form.
+
+For this isEmpty is resistant to TypeError on len.
+
+Let's have a FieldStorage::
+
+  >>> from cgi import FieldStorage
+  >>> from StringIO import StringIO
+
+  >>> f = FieldStorage(fp=StringIO('hello'),
+  ...                  headers={'content-type':'text/plain'})
+
+If we use len on it::
+
+  >>> len(f)
+  Traceback (most recent call last):
+  ...
+  TypeError: not indexable
+
+use it in a Field::
+
+  >>> from dolmen.forms.base.fields import Field
+  >>> field = Field(title=u'Dummy', identifier='dummy')
+  >>> field.isEmpty(f)
+  False
+
+ 

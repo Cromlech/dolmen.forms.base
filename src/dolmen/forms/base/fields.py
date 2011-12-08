@@ -6,6 +6,17 @@ from dolmen.forms.base import markers, interfaces, _
 from zope.interface import implements, moduleProvides
 
 
+def test_len(value):
+    """TypeError resistant test on len != 0
+    """
+    if hasattr(value, '__len__'):
+        try:
+            return bool(len(value))
+        except TypeError:
+            return True  # considered as not having a __len__
+    return True
+
+
 class Field(Component):
     implements(interfaces.IField)
 
@@ -28,8 +39,7 @@ class Field(Component):
         return self.defaultValue
 
     def isEmpty(self, value):
-        return (value is markers.NO_VALUE or
-                (hasattr(value, '__len__') and not len(value)))
+        return (value is markers.NO_VALUE or not test_len(value))
 
     def validate(self, value, context=None):
         if self.required and self.isEmpty(value):
