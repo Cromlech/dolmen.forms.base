@@ -18,7 +18,8 @@ from dolmen.forms.base.interfaces import ActionError
 # Exposing package API
 from dolmen.forms.base.interfaces import IFieldUpdate
 from dolmen.forms.base.utils import (
-    extends, set_fields_data, notify_changes, apply_data_event)
+    extends, set_fields_data, notify_changes, apply_data_event,
+    form_layout_renderer)
 
 # All
 from grokcore.security import require

@@ -13,6 +13,8 @@ Changelog
 * Updated tests to use the latest changes (split) in the ``cromlech.io``
   and ``cromlech.browser`` package.
 
+* Added an utility function to query the layout of a form.
+
 
 2.0b1 (2011-11-24)
 ------------------
