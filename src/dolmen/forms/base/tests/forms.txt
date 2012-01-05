@@ -4,7 +4,7 @@ dolmen.forms.base
 Forms are class, registered like views::
 
    >>> from dolmen.forms.base.forms import Form
-   >>> from cromlech.io.testing import TestRequest, TestResponse
+   >>> from cromlech.browser.testing import TestHTTPRequest, TestHTTPResponse
    >>> from zope.interface import implements
    >>> from zope.location.interfaces import ILocation
 
@@ -15,15 +15,15 @@ Forms are class, registered like views::
    ...         return '<%s object>' % self.__class__.__name__
 
    >>> class TestForm(Form):
-   ...     responseFactory = TestResponse
+   ...     responseFactory = TestHTTPResponse
 
-   >>> request = TestRequest()
+   >>> request = TestHTTPRequest()
    >>> context = Content()
 
    >>> from cromlech.io.interfaces import IPublicationRoot
    >>> from zope.interface import directlyProvides
    >>> directlyProvides(context, IPublicationRoot)
-  
+
    >>> form = TestForm(context, request)
    >>> form
    <TestForm object at ...>
@@ -271,13 +271,13 @@ locally, on the form's mode. Let's define a form with 2 fields::
   >>> mail = Field('mail')
 
   >>> class MyForm(Form):
-  ...    responseFactory = TestResponse
+  ...    responseFactory = TestHTTPResponse
   ...    fields = Fields(identifier, name, mail)
 
 Now, we create a request with some data, for the `name` field. We
 consider the `id` field immutable.
 
-  >>> request = TestRequest(form={"form.field.name": "myname"})
+  >>> request = TestHTTPRequest(form={"form.field.name": "myname"})
   >>> context = Content()
   >>> directlyProvides(context, IPublicationRoot)
 

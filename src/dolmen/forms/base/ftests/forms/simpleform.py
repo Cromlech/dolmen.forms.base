@@ -8,8 +8,8 @@ Let's grok our example::
 
 We can now lookup our form by the name of its class::
 
-  >>> from cromlech.io.testing import TestRequest
-  >>> request = TestRequest()
+  >>> from cromlech.browser.testing import TestHTTPRequest
+  >>> request = TestHTTPRequest()
 
   >>> from zope.location import Location
   >>> context = Location()
@@ -31,7 +31,8 @@ We can now lookup our form by the name of its class::
 And we can render it::
 
   >>> from cromlech.browser.testing import XMLDiff
-  >>> print XMLDiff(form(), '''
+  >>> response = form()
+  >>> print XMLDiff(response.body, '''
   ... <html>
   ...   <head>
   ...   </head>

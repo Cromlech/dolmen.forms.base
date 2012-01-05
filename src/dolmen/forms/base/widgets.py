@@ -56,7 +56,7 @@ class Widget(Component, grok.MultiAdapter):
 
     @property
     def target_language(self):
-        return ILanguage(self.request)
+        return ILanguage(self.request, None)
 
     def update(self):
         pass

@@ -4,6 +4,8 @@ import operator
 from os import path
 
 from cromlech.browser.interfaces import IRenderer, IURLResolver
+from cromlech.browser.exceptions import HTTPRedirect
+from cromlech.browser.utils import redirect_exception_response
 from cromlech.i18n import ILanguage
 
 from dolmen.template import TALTemplate
@@ -196,7 +198,7 @@ class FormCanvas(FormData):
 
     @property
     def target_language(self):
-        return ILanguage(self.request)
+        return ILanguage(self.request, None)
 
     def update(self, *args, **kwargs):
         pass
@@ -256,16 +258,16 @@ class StandaloneForm(View):
             self.updateWidgets()
             self._updated = True
 
-    def __call__(self):
-        self.update()
-        if self.response.status_int in (302, 303):
-            # A redirect was triggered somewhere in update().  Don't
-            # continue processing the form
-            return
-        self.updateForm()
-        if self.response.status_int in (302, 303):
-            return
-        return self.render()
+    def __call__(self, *args, **kwargs):
+        try:
+            self.update(*args, **kwargs)
+            self.updateForm()
+            result = self.render(*args, **kwargs)
+            self.response = self.responseFactory()
+            self.response.write(result or u'')
+            return self.response
+        except HTTPRedirect, exc:
+            return redirect_exception_response(self.responseFactory, exc)
 
 
 class Form(FormCanvas, StandaloneForm):

@@ -1,6 +1,19 @@
 Changelog
 =========
 
+2.0b2 (2012-01-06)
+------------------
+
+* `StandaloneForm` and `Form` do now have a proper `__call__` method,
+  returning an ``IResponse`` object.
+
+* Added a redirection exception handling in the `__call__` method of the
+  `IHTTPRenderer` forms.
+
+* Updated tests to use the latest changes (split) in the ``cromlech.io``
+  and ``cromlech.browser`` package.
+
+
 2.0b1 (2011-11-24)
 ------------------
 

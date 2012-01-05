@@ -4,16 +4,16 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '2.0b1'
+version = '2.0b2'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
-    'cromlech.browser',
+    'cromlech.browser >= 0.3a2',
     'cromlech.i18n',
     'dolmen.collection >= 0.3',
     'dolmen.template',
-    'dolmen.view',
+    'dolmen.view >= 0.3a1',
     'grokcore.component',
     'grokcore.security',
     'setuptools',
@@ -28,9 +28,11 @@ install_requires = [
     ]
 
 tests_require = [
+    'BeautifulSoup',
     'WebOb',
-    'cromlech.io',
+    'cromlech.io >= 0.2a1',
     'cromlech.webob',
+    'dolmen.location',
     'infrae.testbrowser',
     'zope.location',
     ]

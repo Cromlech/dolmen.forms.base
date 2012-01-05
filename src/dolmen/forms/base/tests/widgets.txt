@@ -11,8 +11,8 @@ Widget
 Widgets are multiadapters, which adapts the component they render, for
 a given form, and request. So we need all that::
 
-   >>> from cromlech.io.testing import TestRequest
-   >>> request = TestRequest()
+   >>> from cromlech.browser.testing import TestHTTPRequest
+   >>> request = TestHTTPRequest()
 
    >>> from dolmen.forms.base.forms import Form
    >>> form1 = Form(None, request)
@@ -298,7 +298,7 @@ And you can extract the widget value, and errors from the request::
 
 But our request was empty here. Let's try with a non-empty one::
 
-   >>> submitted_request = TestRequest(
+   >>> submitted_request = TestHTTPRequest(
    ...         form={'form.action.do-something': u'Do Something',
    ...                'otherfield': 42})
    >>> e2 = component.getMultiAdapter(
