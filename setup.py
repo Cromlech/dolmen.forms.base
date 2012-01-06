@@ -13,7 +13,7 @@ install_requires = [
     'cromlech.i18n',
     'dolmen.collection >= 0.3',
     'dolmen.template',
-    'dolmen.view >= 0.3a1',
+    'dolmen.view >= 0.3a2',
     'grokcore.component',
     'grokcore.security',
     'setuptools',

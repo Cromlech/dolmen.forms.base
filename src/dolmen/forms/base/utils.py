@@ -95,7 +95,7 @@ def form_layout_renderer(name=""):
         try:
             form.update(*args, **kwargs)
             form.updateForm()
-            layout = query_view_layout(form.request, form, name)
+            layout = query_view_layout(form, name=name)
             return layout(form.render(*args, **kwargs), view=form)
         except HTTPRedirect, exc:
             return redirect_exception_response(form.responseFactory, exc)
