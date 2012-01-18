@@ -19,7 +19,7 @@ An action is callable with a submission to be execuded::
    >>> from cromlech.browser.testing import TestHTTPRequest
    >>> request = TestHTTPRequest(method='POST')
 
-   >>> from dolmen.forms.base.forms import FormData
+   >>> from dolmen.forms.base import FormData
    >>> submission = FormData(object(), request)
 
    >>> action1(submission)
@@ -62,7 +62,7 @@ actions to be processed and the widgets to be rendered::
 
 You have an helper function to clone them::
 
-   >>> from dolmen.forms.base.forms import cloneFormData
+   >>> from dolmen.forms.base import cloneFormData
    >>> first_clone = cloneFormData(submission)
    >>> submission.parent is None
    True
@@ -338,7 +338,7 @@ will create an action that will executed the method, and register in
 the Actions list located on the form class::
 
    >>> from dolmen.forms.base.actions import action
-   >>> from dolmen.forms.base.forms import Form
+   >>> from dolmen.forms.base import Form
 
    >>> class MyForm(Form):
    ...   @action(u"Change")

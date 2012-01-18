@@ -4,16 +4,16 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '2.0b2'
+version = '2.0'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
-    'cromlech.browser >= 0.3a2',
+    'cromlech.browser >= 0.4',
     'cromlech.i18n',
     'dolmen.collection >= 0.3',
     'dolmen.template',
-    'dolmen.view >= 0.3a2',
+    'dolmen.view >= 0.4',
     'grokcore.component',
     'grokcore.security',
     'setuptools',

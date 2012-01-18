@@ -263,9 +263,7 @@ class StandaloneForm(View):
             self.update(*args, **kwargs)
             self.updateForm()
             result = self.render(*args, **kwargs)
-            self.response = self.responseFactory()
-            self.response.write(result or u'')
-            return self.response
+            return self.make_response(result, *args, **kwargs)
         except HTTPRedirect, exc:
             return redirect_exception_response(self.responseFactory, exc)
 

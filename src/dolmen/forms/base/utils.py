@@ -85,18 +85,3 @@ def extends(*forms, **opts):
         extendComponent('fields')
     else:
         extendComponent(field_type)
-
-
-def form_layout_renderer(name=""):
-    """Factory allowing to generate a form method able to embed a form's
-    rendering inside the layout with the given name.
-    """
-    def form_layout_call(form, *args, **kwargs):
-        try:
-            form.update(*args, **kwargs)
-            form.updateForm()
-            layout = query_view_layout(form, name=name)
-            return layout(form.render(*args, **kwargs), view=form)
-        except HTTPRedirect, exc:
-            return redirect_exception_response(form.responseFactory, exc)
-    return form_layout_call

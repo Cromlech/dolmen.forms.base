@@ -16,7 +16,7 @@ So now should be to lookup our widget:
   >>> from cromlech.io.testing import TestRequest
   >>> request = TestRequest()
 
-  >>> from dolmen.forms.base.forms import Form
+  >>> from dolmen.forms.base import Form
   >>> form = Form(None, request)
 
   >>> from zope import component

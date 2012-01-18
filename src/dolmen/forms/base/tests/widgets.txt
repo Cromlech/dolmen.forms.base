@@ -14,7 +14,7 @@ a given form, and request. So we need all that::
    >>> from cromlech.browser.testing import TestHTTPRequest
    >>> request = TestHTTPRequest()
 
-   >>> from dolmen.forms.base.forms import Form
+   >>> from dolmen.forms.base import Form
    >>> form1 = Form(None, request)
 
    >>> from dolmen.forms.base.actions import Action

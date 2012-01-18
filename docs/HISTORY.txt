@@ -1,6 +1,21 @@
 Changelog
 =========
 
+2.0 (2012-01-17)
+----------------
+
+* The ``__call__`` method is now aware of the new `make_response` method
+  inherited from the `View` component. This makes it much easier to have
+  a layout and to override the response behavior. However, as a result,
+  the `layout_form_renderer` util function is gone. Read the changelog
+  from ``dolmen.view`` for more information.
+
+* the module `forms` has been renamed `components` to unify the naming
+  through all the ``dolmen`` namespace. The API is exposed normally, and
+  packages using the previously exposed API should be see any difference.
+  If you imported directly from `forms`, please change your code accordingly.
+
+
 2.0b2 (2012-01-06)
 ------------------
 
