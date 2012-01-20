@@ -86,6 +86,7 @@ class FormData(Object):
     dataManager = ObjectDataManager
     dataValidators = []
     postOnly = True
+    formMethod = 'post'
     i18nLanguage = None
 
     ignoreRequest = False

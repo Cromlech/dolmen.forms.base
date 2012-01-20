@@ -1,6 +1,15 @@
 Changelog
 =========
 
+2.1 (2012-01-20)
+----------------
+
+* test on postOnly
+
+* added formMethod so you can use Get insead of post
+
+* widgets now have a visible property to know if we shall display label
+
 2.0 (2012-01-17)
 ----------------
 

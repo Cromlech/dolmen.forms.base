@@ -46,7 +46,6 @@ class Field(Component):
             return _(u"Missing required value.")
         return None
 
-
 class Fields(Collection):
     implements(interfaces.IFields)
 

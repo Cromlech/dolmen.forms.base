@@ -4,8 +4,8 @@
   <body>
 
     <form action="." tal:attributes="action view.action_url;
-                                     id view.htmlId()" 
-          method="post"
+                                     id view.htmlId();
+                                     method view.formMethod" 
           enctype="multipart/form-data">
 
       <h1 tal:condition="view.label"
@@ -31,12 +31,14 @@
         <div class="field" tal:repeat="widget view.fieldWidgets">
           <label class="field-label" for="#"
                  tal:attributes="for widget.htmlId()"
-                 tal:content="widget.title">
+                 tal:content="widget.title"
+                 tal:condition="widget.visible">
             Label
           </label>
           <span class="field-required"
                 i18n:translate=""
-                tal:condition="widget.required">(required)</span>
+                tal:condition="widget.required and widget.visible"
+                >(required)</span>
           <br />
           <tal:description tal:condition="widget.description">
             <span class="field-description"

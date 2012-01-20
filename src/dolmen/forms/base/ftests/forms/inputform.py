@@ -22,9 +22,10 @@ We can now lookup our form by the name of its class::
   <dolmen.forms.base.ftests.forms.inputform.Registration object at ...>
 
   >>> len(form.fields)
-  2
+  3
   >>> len(form.actions)
   1
+
 
 Integration tests
 -----------------
@@ -34,6 +35,33 @@ Integration tests
   >>> from infrae.testbrowser.browser import Browser
   >>> browser = Browser(app)
   >>> browser.handleErrors = False
+
+
+Hidden field
+~~~~~~~~~~~~~
+
+assert hidden field won't show::
+
+  >>> browser.open('http://localhost/registration')
+  200
+  >>> form = browser.get_form(id='form')
+  >>> secret = form.get_control('form.field.secret')
+  >>> print secret  #doctest: +NORMALIZE_WHITESPACE
+  <input id="form-field-secret" name="form.field.secret"
+  class="field" type="hidden" value=""/>
+
+and as no label::
+
+   >>> 'Secret' in str(form)
+   False
+
+while other fields have theirs::
+
+   >>> 'Name' in str(form)
+   True
+   >>> 'Job' in str(form)
+   True
+
 
 Empty submission
 ~~~~~~~~~~~~~~~~
@@ -131,11 +159,46 @@ gone (as we successfully submit the form)::
   >>> form.get_control('form.field.job').value
   ''
 
+Using Get
+~~~~~~~~~~
+
+Because postOnly is True on our registration form, it won't accept GET
+requests::
+
+  >>> browser.open('http://localhost/registration?' +
+  ...              'form.field.name=Jack&form.field.job=Sparrow&' +
+  ...              'form.field.secret=&form.action.register=')
+  200
+  >>> 'This form was not submitted properly' in browser.contents
+  True
+  >>> 'Registered' in browser.contents
+  False
+
+But you can build a form that use get as our search form::
+
+  >>> app = makeApplication("search")
+  >>> from infrae.testbrowser.browser import Browser
+  >>> browser = Browser(app)
+  >>> browser.handleErrors = False
+  >>> browser.open('http://localhost/search')
+  200
+  >>> form = browser.get_form(id='form')
+  >>> form.method
+  'GET'
+
+and get requests succeeds::
+
+  >>> browser.open('http://localhost/search?' +
+  ...              'form.field.query=Spam&form.action.search=')
+  200
+  >>> 'Searched for Spam' in browser.contents
+  True
 
 """
 
 
 from dolmen.forms import base
+from dolmen.forms.base import markers
 from grokcore import component as grok
 from zope.interface import Interface
 from cromlech.webob.response import Response
@@ -149,9 +212,11 @@ class Registration(base.Form):
 
     label = u"My form"
     description = u"The description of my form"
-    fields = base.Fields(base.Field("Name"), base.Field("Job"))
+    fields = base.Fields(
+                base.Field("Name"), base.Field("Job"), base.Field("Secret"))
     fields['name'].description = 'Name of the candidate'
     fields['name'].required = True
+    fields['secret'].mode = markers.HIDDEN
 
     @base.action(u"Register")
     def register(self):
@@ -161,3 +226,23 @@ class Registration(base.Form):
         # In case of success we don't keep request value in the form
         self.ignoreRequest = True
         self.status = u"Registered %(name)s as %(job)s" % data
+
+
+class Search(base.Form):
+
+    grok.context(Interface)
+
+    responseFactory = Response
+    label = u"Search form"
+
+    fields = base.Fields(
+                base.Field("Query"))
+    postOnly = False
+    formMethod = 'GET'
+
+    @base.action(u"Search")
+    def search(self):
+        data, errors = self.extractData()
+        if errors:
+            return
+        self.status = u"Searched for %(query)s" % data

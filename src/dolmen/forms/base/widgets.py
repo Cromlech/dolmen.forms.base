@@ -6,7 +6,7 @@ from cromlech.i18n import ILanguage
 from dolmen.collection import Component, Collection
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.interfaces import IModeMarker
-from dolmen.forms.base.markers import NO_VALUE, getValue
+from dolmen.forms.base.markers import NO_VALUE, HIDDEN, getValue
 from dolmen.template import TALTemplate
 from grokcore import component as grok
 from zope.component import getMultiAdapter, queryMultiAdapter
@@ -49,6 +49,10 @@ class Widget(Component, grok.MultiAdapter):
 
     def htmlClass(self):
         return 'field'
+
+    @property
+    def visible(self):
+        return self.component.mode != HIDDEN
 
     def namespace(self):
         namespace = {'widget': self, 'request': self.request}

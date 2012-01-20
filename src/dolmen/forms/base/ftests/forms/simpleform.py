@@ -38,9 +38,9 @@ And we can render it::
   ...   </head>
   ...   <body>
   ...     <form action="http://localhost/change"
-  ...           method="post"
   ...           enctype="multipart/form-data"
-  ...           id="form">
+  ...           id="form"
+  ...           method="post">
   ...       <h1>My form</h1>
   ...       <p>The description of my form</p>
   ...       <div class="actions">
