@@ -47,7 +47,7 @@ class SuccessMarker(Marker):
         self.code = code  # used to cook a response
         self.url = url  # used for a redirection info.
     
-    def __non_zero__(self):
+    def __nonzero__(self):
         return bool(self.success)
 
 

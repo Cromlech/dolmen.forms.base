@@ -439,3 +439,15 @@ Wrong redirect
    Traceback (most recent call last):
    ...
    KeyError: 404
+
+
+SuccessMarker autopsy
+~~~~~~~~~~~~~~~~~~~~~
+
+  >>> from dolmen.forms.base import SuccessMarker
+  >>> from dolmen.forms.base import SUCCESS, FAILURE, NOTHING_DONE
+  >>> from dolmen.forms.base.interfaces import ISuccessMarker
+
+  >>> assert ISuccessMarker.providedBy(SUCCESS) and bool(SUCCESS)
+  >>> assert ISuccessMarker.providedBy(FAILURE) and not bool(FAILURE)
+  >>> assert ISuccessMarker.providedBy(NOTHING_DONE) and bool(NOTHING_DONE)
