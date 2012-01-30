@@ -367,3 +367,75 @@ This is like a regular action, but run the method when you call it::
    <Marker SUCCESS>
    >>> f3.status
    u'Just kidding'
+
+
+Joining a redirection info to a result
+--------------------------------------
+
+   >>> from dolmen.forms.base import SuccessMarker
+
+   >>> class MyRedirectionForm(Form):
+   ...   @action(u"Redirect")
+   ...   def redirect(self):
+   ...       self.status = u"Done it!"
+   ...       return SuccessMarker('REDIRECT', True, '/test')
+   ...
+   ...   @action(u"TempRedirect")
+   ...   def redirect(self):
+   ...       self.status = u"This is not here !"
+   ...       return SuccessMarker('REDIRECT', True, '/test', code=307)
+
+
+Base redirect
+~~~~~~~~~~~~~
+
+   >>> request = TestHTTPRequest(
+   ...     method='POST',
+   ...     form={'form.action.redirect': True})
+
+   >>> form = MyRedirectionForm(object(), request)
+   >>> form.updateForm()
+   Traceback (most recent call last):
+   ...
+   HTTPFound
+
+   >>> try:
+   ...   form.updateForm()
+   ... except Exception, e:
+   ...   print e.code, e.location
+   302 /test
+
+
+Custom redirect
+~~~~~~~~~~~~~~~
+
+   >>> request = TestHTTPRequest(
+   ...     method='POST',
+   ...     form={'form.action.tempredirect': True})
+
+   >>> form = MyRedirectionForm(object(), request)
+   >>> form.updateForm()
+   Traceback (most recent call last):
+   ...
+   HTTPTemporaryRedirect
+
+
+Wrong redirect
+~~~~~~~~~~~~~~
+
+   >>> class MyUselessForm(Form):
+   ...
+   ...   @action(u"Redirect")
+   ...   def redirect(self):
+   ...       self.status = u"This is not here !"
+   ...       return SuccessMarker('THIS_WILL_FAIL', False, '/test', code=404)
+
+   >>> request = TestHTTPRequest(
+   ...     method='POST',
+   ...     form={'form.action.redirect': True})
+
+   >>> form = MyUselessForm(object(), request)
+   >>> form.updateForm()
+   Traceback (most recent call last):
+   ...
+   KeyError: 404

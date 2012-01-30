@@ -17,6 +17,22 @@ class IModeMarker(Interface):
         u" for components in that mode.")
 
 
+class ISuccessMarker(Interface):
+    """This interface identifies a form action result marker.
+    Please note that 'code' and 'url' can be overlooked by the form.
+    They are merey 'recommandations' from the action. To enforce a
+    redirection in the action and possibly skip the form treatment,
+    a HTTPRediction error can be raised instead.
+    """
+    success = Attribute(u"Boolean result of the form action.")
+    code = Attribute(u"The redirection or response code recommanded.")
+    url = Attribute(u"The URL to use for the recommanded redirection.")
+
+    def __non_zero__():
+        """The marker must be able to resolve itself into a boolean.
+        """
+
+
 class IPrefixable(Interface):
     """An object with a prefix.
     """
@@ -316,13 +332,17 @@ class IDataManagersAPI(Interface):
 
 
 class IMarkersAPI(Interface):
+    Marker = Attribute(u"Base class for forms markers.")
+    ModeMarker = Attribute(u"Base class for form modes markers.")
+    SuccessMarker = Attribute(u"Base class form action result markers.")
+    
     DEFAULT = Attribute(u"Use the default value.")
     NO_VALUE = Attribute(u"No value to use.")
     NO_CHANGE = Attribute(u"No modifications.")
 
-    DISPLAY = Attribute(u"Mode Marker to get display widgets")
-    INPUT = Attribute(u"Mode Marker to get input widgets")
-    HIDDEN = Attribute(u"Mode Marker to get hidden widgets")
+    DISPLAY = Attribute(u"Mode Marker to get display widgets.")
+    INPUT = Attribute(u"Mode Marker to get input widgets.")
+    HIDDEN = Attribute(u"Mode Marker to get hidden widgets.")
 
     SUCCESS = Attribute(u"Action return : action was successful.")
     FAILURE = Attribute(u"Action return : a failure occured.")

@@ -4,7 +4,7 @@ import operator
 from os import path
 
 from cromlech.browser.interfaces import IRenderer, IURLResolver
-from cromlech.browser.exceptions import HTTPRedirect
+from cromlech.browser.exceptions import HTTPRedirect, REDIRECTIONS
 from cromlech.browser.utils import redirect_exception_response
 from cromlech.i18n import ILanguage
 
@@ -18,7 +18,7 @@ from dolmen.forms.base.errors import Errors, Error
 from dolmen.forms.base.fields import Fields
 from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
-from dolmen.forms.base.interfaces import ICollection
+from dolmen.forms.base.interfaces import ICollection, ISuccessMarker
 
 from grokcore import component as grok
 from zope import interface
@@ -45,7 +45,6 @@ def cloneFormData(original, content=_marker, prefix=None):
     clone = FormData(original.context, original.request, content)
     clone.ignoreRequest = original.ignoreRequest
     clone.ignoreContent = original.ignoreContent
-    clone.i18nLanguage = original.i18nLanguage
     clone.postOnly = original.postOnly
     clone.mode = original.mode
     clone.parent = original
@@ -87,7 +86,6 @@ class FormData(Object):
     dataValidators = []
     postOnly = True
     formMethod = 'post'
-    i18nLanguage = None
 
     ignoreRequest = False
     ignoreContent = True
@@ -222,7 +220,12 @@ class FormCanvas(FormData):
             [False] + map(operator.attrgetter('required'), self.fields))
 
     def updateActions(self):
-        return self.actions.process(self, self.request)
+        action, result = self.actions.process(self, self.request)
+        if ISuccessMarker.providedBy(result) and result.url is not None:
+            code = result.code or 302
+            exception = REDIRECTIONS[code]
+            raise exception(result.url)
+        return action, result
 
     def updateWidgets(self):
         self.fieldWidgets.extend(self.fields)

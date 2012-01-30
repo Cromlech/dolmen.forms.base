@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from dolmen.forms.base.interfaces import IModeMarker, IMarkersAPI
+from dolmen.forms.base.interfaces import IMarkersAPI
+from dolmen.forms.base.interfaces import IModeMarker, ISuccessMarker
 from zope.interface import implements, moduleProvides
 
 
@@ -30,13 +31,35 @@ class ModeMarker(Marker):
         self.extractable = extractable
 
 
+class SuccessMarker(Marker):
+    """A marker defining an action result. It can be True or False,
+    meaning Success or Failure.
+    """
+    implements(ISuccessMarker)
+    
+    def __init__(self, name, success, url=None, code=None):
+        Marker.__init__(self, name)
+        self.success = success
+
+        if url is not None and code is None:
+            code = 302  # Default to a HTTPFound.
+            
+        self.code = code  # used to cook a response
+        self.url = url  # used for a redirection info.
+    
+    def __non_zero__(self):
+        return bool(self.success)
+
+
 # Data extraction markers
-SUCCESS = Marker('SUCCESS')
-FAILURE = Marker('FAILURE')
 DEFAULT = Marker('DEFAULT')
 NO_VALUE = Marker('NO_VALUE')
 NO_CHANGE = Marker('NO_CHANGE')
-NOTHING_DONE = Marker('NOTHING_DONE')
+
+# Action result markers
+SUCCESS = SuccessMarker('SUCCESS', True)
+FAILURE = SuccessMarker('FAILURE', False)
+NOTHING_DONE = SuccessMarker('NOTHING_DONE', True)
 
 # Mode markers
 DISPLAY = ModeMarker('DISPLAY', extractable=False)

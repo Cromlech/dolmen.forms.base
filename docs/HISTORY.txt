@@ -1,6 +1,22 @@
 Changelog
 =========
 
+2.2 (2012-01-30)
+----------------
+
+* Added a new marker functionality : the SuccessMarker. A success marker
+  is the marker returned by an action in case of failure or success.
+  This marker holds information regarding a possible redirection. The
+  proper redirection handling has been added to `updateForm` to ensure that
+  the correct exception is raised.
+
+  Please note that this change is backward compatible and doesn't imply
+  any change in existing code. Furthermore, the http redirection exception
+  can be raised directly in the action code, but this marker mechanism
+  helps to identify what kind of result has been issued and, if `updateForm`
+  is overriden, this info can be used to trigger handlers, logging...
+
+
 2.1 (2012-01-20)
 ----------------
 
@@ -9,6 +25,7 @@ Changelog
 * added formMethod so you can use Get insead of post
 
 * widgets now have a visible property to know if we shall display label
+
 
 2.0 (2012-01-17)
 ----------------
