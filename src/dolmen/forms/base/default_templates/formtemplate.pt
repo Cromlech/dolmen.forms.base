@@ -5,8 +5,8 @@
 
     <form action="." tal:attributes="action view.action_url;
                                      id view.htmlId();
-                                     method view.formMethod" 
-          enctype="multipart/form-data">
+                                     method view.formMethod;
+                                     enctype view.enctype">
 
       <h1 tal:condition="view.label"
           tal:content="view.label">Label</h1>
