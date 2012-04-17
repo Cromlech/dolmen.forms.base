@@ -9,7 +9,7 @@ readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
-    'cromlech.browser >= 0.4',
+    'cromlech.browser >= 0.4.2',
     'cromlech.i18n',
     'dolmen.collection >= 0.3',
     'dolmen.template',

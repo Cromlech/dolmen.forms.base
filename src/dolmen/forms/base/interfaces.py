@@ -3,7 +3,7 @@
 from zope import schema
 from zope.interface import Interface, Attribute
 from zope.configuration.fields import GlobalObject
-from cromlech.browser.interfaces import IRenderer, IView
+from cromlech.browser.interfaces import IRenderer, IView, IForm
 from dolmen.collection import (
     ICollection, IComponent, IComponentFactory, IMutableCollection)
 
@@ -80,7 +80,7 @@ class IDataManager(Interface):
         """
 
 
-class IFormData(IFieldExtractionValueSetting):
+class IFormData(IFieldExtractionValueSetting, IForm):
     """Form data processing facilities.
     """
     dataManager = Attribute(u"Data manager class used to access content.")
@@ -335,7 +335,7 @@ class IMarkersAPI(Interface):
     Marker = Attribute(u"Base class for forms markers.")
     ModeMarker = Attribute(u"Base class for form modes markers.")
     SuccessMarker = Attribute(u"Base class form action result markers.")
-    
+
     DEFAULT = Attribute(u"Use the default value.")
     NO_VALUE = Attribute(u"No value to use.")
     NO_CHANGE = Attribute(u"No modifications.")

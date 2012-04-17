@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.3 (2012-04-17)
+----------------
+
+* IFormData now implements cromlech.browser.IForm
+
 2.2 (2012-01-30)
 ----------------
 
