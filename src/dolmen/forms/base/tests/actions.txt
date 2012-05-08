@@ -70,8 +70,12 @@ You have an helper function to clone them::
    False
    >>> verifyObject(interfaces.IFormData, first_clone)
    True
+   >>> first_clone.formMethod
+   'post'
    >>> first_clone.postOnly
    True
+   >>> first_clone.enctype
+   'multipart/form-data'
 
 Settings are cloned as well::
 
@@ -79,6 +83,8 @@ Settings are cloned as well::
    >>> first_clone.ignoreContent = False
    >>> first_clone.mode = 'carambar'
    >>> first_clone.prefix = 'form.advanced'
+   >>> first_clone.formMethod = 'get'
+   >>> first_clone.enctype = 'application/x-www-form-urlencoded'
    >>> first_clone.postOnly = False
    >>> first_clone.parent is submission
    True
@@ -98,8 +104,12 @@ However you can specify a different prefix::
    'carambar'
    >>> second_clone.prefix
    'form.clone'
+   >>> first_clone.formMethod
+   'get'
    >>> second_clone.postOnly
    False
+   >>> first_clone.enctype
+   'application/x-www-form-urlencoded'
    >>> verifyObject(interfaces.IFormData, second_clone)
    True
 

@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.3 (2012-05-09)
+2.4 (2012-05-09)
 ----------------
 
 * ``dolmen.forms.base`` now uses ``cromlech.browser >= 0.5`` definitions.
@@ -9,6 +9,12 @@ Changelog
   including ``dolmen.location``.
 
 * Dependency on ``grokcore.security`` has been removed.
+
+
+2.3 (2012-04-17)
+----------------
+
+* IFormData now implements cromlech.browser.IForm
 
 
 2.2 (2012-01-30)

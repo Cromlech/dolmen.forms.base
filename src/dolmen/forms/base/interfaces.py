@@ -3,7 +3,7 @@
 from zope import schema
 from zope.interface import Interface, Attribute
 from zope.configuration.fields import GlobalObject
-from cromlech.browser.interfaces import IRenderable, IView
+from cromlech.browser.interfaces import IRenderable, IView, IForm
 from dolmen.collection import (
     ICollection, IComponent, IComponentFactory, IMutableCollection)
 
@@ -80,7 +80,7 @@ class IDataManager(Interface):
         """
 
 
-class IFormData(IFieldExtractionValueSetting):
+class IFormData(IFieldExtractionValueSetting, IForm):
     """Form data processing facilities.
     """
     dataManager = Attribute(u"Data manager class used to access content.")

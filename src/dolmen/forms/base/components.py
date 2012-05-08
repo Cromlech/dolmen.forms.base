@@ -46,6 +46,8 @@ def cloneFormData(original, content=_marker, prefix=None):
     clone.ignoreRequest = original.ignoreRequest
     clone.ignoreContent = original.ignoreContent
     clone.postOnly = original.postOnly
+    clone.formMethod = original.formMethod
+    clone.enctype = original.enctype
     clone.mode = original.mode
     clone.parent = original
     if prefix is None:
@@ -86,6 +88,7 @@ class FormData(Object):
     dataValidators = []
     postOnly = True
     formMethod = 'post'
+    enctype = 'multipart/form-data'
 
     ignoreRequest = False
     ignoreContent = True
