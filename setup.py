@@ -1,21 +1,20 @@
-# -*- coding: utf-8 -*-
+1# -*- coding: utf-8 -*-
 
 from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '2.2'
+version = '2.3'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
-    'cromlech.browser >= 0.4',
+    'cromlech.browser >= 0.5',
     'cromlech.i18n',
     'dolmen.collection >= 0.3',
     'dolmen.template',
-    'dolmen.view >= 0.4',
+    'dolmen.view >= 0.6',
     'grokcore.component',
-    'grokcore.security',
     'setuptools',
     'zope.component',
     'zope.configuration',
@@ -28,11 +27,10 @@ install_requires = [
     ]
 
 tests_require = [
-    'BeautifulSoup',
+    'cromlech.browser [test]',
     'WebOb',
-    'cromlech.io >= 0.2a1',
-    'cromlech.webob',
-    'dolmen.location',
+    'cromlech.webob >= 0.6',
+    'dolmen.location >= 0.2',
     'infrae.testbrowser',
     'zope.location',
     ]

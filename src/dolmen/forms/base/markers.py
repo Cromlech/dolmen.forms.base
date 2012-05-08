@@ -36,17 +36,17 @@ class SuccessMarker(Marker):
     meaning Success or Failure.
     """
     implements(ISuccessMarker)
-    
+
     def __init__(self, name, success, url=None, code=None):
         Marker.__init__(self, name)
         self.success = success
 
         if url is not None and code is None:
             code = 302  # Default to a HTTPFound.
-            
+
         self.code = code  # used to cook a response
         self.url = url  # used for a redirection info.
-    
+
     def __nonzero__(self):
         return bool(self.success)
 

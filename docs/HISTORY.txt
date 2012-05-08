@@ -1,6 +1,16 @@
 Changelog
 =========
 
+2.3 (2012-05-09)
+----------------
+
+* ``dolmen.forms.base`` now uses ``cromlech.browser >= 0.5`` definitions.
+  Changes have been made to use all the packages of that same batch,
+  including ``dolmen.location``.
+
+* Dependency on ``grokcore.security`` has been removed.
+
+
 2.2 (2012-01-30)
 ----------------
 

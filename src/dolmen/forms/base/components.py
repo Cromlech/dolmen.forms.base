@@ -3,7 +3,7 @@
 import operator
 from os import path
 
-from cromlech.browser.interfaces import IRenderer, IURLResolver
+from cromlech.browser.interfaces import IRenderable, IURL
 from cromlech.browser.exceptions import HTTPRedirect, REDIRECTIONS
 from cromlech.browser.utils import redirect_exception_response
 from cromlech.i18n import ILanguage
@@ -170,7 +170,7 @@ class FormCanvas(FormData):
     actions, prepare widgets for it.
     """
     grok.baseclass()
-    grok.implements(IRenderer, interfaces.ISimpleFormCanvas)
+    grok.implements(IRenderable, interfaces.ISimpleFormCanvas)
 
     label = u''
     description = u''
@@ -183,8 +183,7 @@ class FormCanvas(FormData):
 
     @property
     def action_url(self):
-        url = queryMultiAdapter((self.context, self.request),
-                                IURLResolver, name='absolute')
+        url = queryMultiAdapter((self.context, self.request), IURL)
         if url is not None:
             return u"%s/%s" % (url, self.__component_name__)
         return u""
@@ -241,7 +240,8 @@ class FormCanvas(FormData):
         """
         if self.template is None:
             raise NotImplementedError("Template is not defined.")
-        return self.template.render(self, target_language=self.target_language)
+        return self.template.render(
+            self, target_language=self.target_language, **self.namespace())
 
 
 class StandaloneForm(View):

@@ -69,7 +69,8 @@ class Widget(Component, grok.MultiAdapter):
         template = getattr(self, 'template', None)
         if template is None:
             template = getMultiAdapter((self, self.request), ITemplate)
-        return template.render(self, target_language=self.target_language)
+        return template.render(
+            self, target_language=self.target_language, **self.namespace())
 
 
 class WidgetExtractor(grok.MultiAdapter):

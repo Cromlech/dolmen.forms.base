@@ -9,7 +9,7 @@ Let's grok our example:
 We can look for the extended form, it will contains fields and action
 of the original one:
 
-  >>> from cromlech.io.testing import TestRequest
+  >>> from cromlech.browser.testing import TestRequest
   >>> request = TestRequest()
 
   >>> from dolmen.forms.base.ftests.forms.extends import Context

@@ -2,19 +2,11 @@
 
 import sys
 import operator
-
-from cromlech.browser import ILayout
-from cromlech.browser.exceptions import HTTPRedirect
-from cromlech.browser.utils import redirect_exception_response
-
-from dolmen.view import query_view_layout
 from dolmen.forms.base.actions import Actions
 from dolmen.forms.base.datamanagers import ObjectDataManager
 from dolmen.forms.base.fields import Fields
 from dolmen.forms.base.interfaces import IDataManager
 from dolmen.forms.base.markers import NO_VALUE, NO_CHANGE
-
-from zope.component import queryMultiAdapter
 from zope.event import notify
 from zope.lifecycleevent import Attributes, ObjectModifiedEvent
 

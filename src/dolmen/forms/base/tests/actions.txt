@@ -16,8 +16,8 @@ An action represent a single action of a form::
 
 An action is callable with a submission to be execuded::
 
-   >>> from cromlech.browser.testing import TestHTTPRequest
-   >>> request = TestHTTPRequest(method='POST')
+   >>> from cromlech.browser.testing import TestRequest
+   >>> request = TestRequest(method='POST')
 
    >>> from dolmen.forms.base import FormData
    >>> submission = FormData(object(), request)
@@ -150,7 +150,7 @@ data in the request, nothing is done::
 With the corresponding input in the request the action is executed,
 and succeed::
 
-   >>> nice_request = TestHTTPRequest(
+   >>> nice_request = TestRequest(
    ...     form={'form.action.%s' % nice_action.identifier:
    ...           nice_action.title}, method='POST')
    >>> nice_form = FormData(object(), nice_request)
@@ -174,7 +174,7 @@ which doesn't validate unless there is a key 'valid' in the request::
 
 And a test submission for it, which validate the action::
 
-   >>> working_request = TestHTTPRequest(
+   >>> working_request = TestRequest(
    ...          method='POST',
    ...          form={'form.action.%s' % validated_action.identifier:
    ...                 validated_action.title, 'valid': True})
@@ -193,7 +193,7 @@ The action works::
 However if the validation fail, the actions list still works and
 doesn't report any error::
 
-   >>> wrong_request = TestHTTPRequest(
+   >>> wrong_request = TestRequest(
    ...          method = 'POST',
    ...          POST={'form.action.%s' % validated_action.identifier:
    ...                 validated_action.title})
@@ -221,7 +221,7 @@ action like that::
 
 Errors can be read from the submission::
 
-   >>> failing_request = TestHTTPRequest(
+   >>> failing_request = TestRequest(
    ...          method='POST',
    ...          form={'form.action.%s' % failing_action.identifier:
    ...                 failing_action.title})
@@ -280,7 +280,7 @@ identifier instead of a custom identifier.
 By default, actions only work in the request was a POST request. If it
 was not a POST request, a main error will be created reporting this incident::
 
-   >>> get_request = TestHTTPRequest(
+   >>> get_request = TestRequest(
    ...          method='GET',
    ...          form={'form.action.%s' % nice_action.identifier:
    ...                nice_action.title})
@@ -389,7 +389,7 @@ Joining a redirection info to a result
 Base redirect
 ~~~~~~~~~~~~~
 
-   >>> request = TestHTTPRequest(
+   >>> request = TestRequest(
    ...     method='POST',
    ...     form={'form.action.redirect': True})
 
@@ -409,7 +409,7 @@ Base redirect
 Custom redirect
 ~~~~~~~~~~~~~~~
 
-   >>> request = TestHTTPRequest(
+   >>> request = TestRequest(
    ...     method='POST',
    ...     form={'form.action.tempredirect': True})
 
@@ -430,7 +430,7 @@ Wrong redirect
    ...       self.status = u"This is not here !"
    ...       return SuccessMarker('THIS_WILL_FAIL', False, '/test', code=404)
 
-   >>> request = TestHTTPRequest(
+   >>> request = TestRequest(
    ...     method='POST',
    ...     form={'form.action.redirect': True})
 

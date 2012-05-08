@@ -8,13 +8,13 @@ Let's grok our example::
 
 We can now lookup our form by the name of its class::
 
-  >>> from cromlech.browser.testing import TestHTTPRequest
-  >>> request = TestHTTPRequest()
+  >>> from cromlech.browser.testing import TestRequest
+  >>> request = TestRequest()
 
   >>> from zope.location import Location
   >>> context = Location()
   >>> from zope.interface import directlyProvides
-  >>> from cromlech.io.interfaces import IPublicationRoot
+  >>> from cromlech.browser.interfaces import IPublicationRoot
   >>> directlyProvides(context, IPublicationRoot)
 
   >>> from zope import component

@@ -13,7 +13,7 @@ So now should be to lookup our widget:
   >>> field
   <MyField Cool Template Test>
 
-  >>> from cromlech.io.testing import TestRequest
+  >>> from cromlech.browser.testing import TestRequest
   >>> request = TestRequest()
 
   >>> from dolmen.forms.base import Form

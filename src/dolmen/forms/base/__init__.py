@@ -22,5 +22,4 @@ from dolmen.forms.base.utils import (
     extends, set_fields_data, notify_changes, apply_data_event)
 
 # All
-from grokcore.security import require
 from dolmen.view import request, context, name

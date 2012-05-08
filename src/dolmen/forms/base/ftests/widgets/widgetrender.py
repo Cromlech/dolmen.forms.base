@@ -14,7 +14,7 @@ So now should be to lookup our widget::
   >>> field
   <MyField Cool Test>
 
-  >>> from cromlech.io.testing import TestRequest
+  >>> from cromlech.browser.testing import TestRequest
   >>> request = TestRequest()
 
   >>> from dolmen.forms.base import Form
@@ -43,7 +43,7 @@ Note that defining a template or a render method is mandatory ::
   Traceback (most recent call last):
   ...
   ComponentLookupError: ((<NoRenderWidget Bad Test>,
-           <cromlech.io.testing.TestRequest object at 0x...>),
+           <cromlech.browser.testing.TestRequest object at 0x...>),
            <InterfaceClass cromlech.browser.interfaces.ITemplate>, u'')
 
 """

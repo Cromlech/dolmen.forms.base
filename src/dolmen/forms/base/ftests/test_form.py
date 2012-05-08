@@ -5,7 +5,7 @@ import doctest
 import dolmen.forms.base
 import unittest
 import webob.dec
-from cromlech.io.interfaces import IPublicationRoot
+from cromlech.browser.interfaces import IPublicationRoot
 from pkg_resources import resource_listdir
 from zope.component import getMultiAdapter
 from zope.component.testlayer import LayerBase
