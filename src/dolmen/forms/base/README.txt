@@ -20,7 +20,7 @@ We create our test model::
 
   >>> from zope.schema import TextLine, Choice
   >>> from zope.interface import Interface, implements
-  
+
   >>> class ICaveman(Interface):
   ...    name = TextLine(title=u'a name')
   ...    weapon = Choice(title=u'a weapon',
@@ -31,7 +31,7 @@ We create our test model::
   ...    def __init__(self):
   ...       self.name = u"no name"
   ...       self.weapon = u"none"
-  
+
   >>> moshe = Neanderthal()
   >>> moshe.name
   u'no name'
@@ -43,13 +43,13 @@ fields list, extracted thanks to the `Fields` collection, the content
 and the data dictionnary. The result of this call is a dictionnary,
 with the interface in which the field is defined and the field
 identifier as a value::
- 
+
   >>> from dolmen.forms.base import Fields, set_fields_data
 
   >>> fields = Fields(ICaveman)
   >>> for field in fields: print field
-  <TextLineSchemaField a name>
-  <ChoiceSchemaField a weapon>
+  <TextLineField a name>
+  <ChoiceField a weapon>
 
   >>> data = {u'name': u'Grok', u'weapon': u'a club'}
 
@@ -96,6 +96,8 @@ check if the changes are being broadcasted::
 
   >>> from zope.component import adapter, provideHandler
   >>> from zope.lifecycleevent import IObjectModifiedEvent
+  >>> from zope.event import subscribers
+
 
   >>> logger = []
 
@@ -115,7 +117,7 @@ The logger must have been trigged. We can check its value::
   >>> logger
   [(<zope.lifecycleevent.Attributes object at ...>,)]
 
-  >>> for attrs in logger[0]:  
+  >>> for attrs in logger[0]:
   ...     print attrs.interface, attrs.attributes
   <InterfaceClass __builtin__.ICaveman> (u'weapon', u'name')
 
@@ -161,7 +163,7 @@ register them::
   >>> provideAdapter(updated_textfield, name="updatetext")
 
 Now, we develop the small scenarii : we instanciate a Content,
-add a value for the `name` attribute and call the adapters:: 
+add a value for the `name` attribute and call the adapters::
 
   >>> manfred = Neanderthal()
   >>> manfred.name = u"Manfred the Mighty"
@@ -186,7 +188,7 @@ useful methods and overriding some default behavior from
 
   >>> from zope.interface import implementedBy
   >>> from dolmen.forms.base import ApplicationForm
-  
+
 The provided component, `ApplicationForm`, inherits from the base
 ``zeam.form`` components and implements some extra methods, allowing
 it to fit into your application, such as `flash`, to emit messages
@@ -302,7 +304,7 @@ the invariants validation::
   ...     print error.title
   Mismatching passwords!
 
-  >>> form.errors.get(form.prefix) == form.formErrors[0] 
+  >>> form.errors.get(form.prefix) == form.formErrors[0]
   True
 
 

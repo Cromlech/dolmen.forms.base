@@ -22,10 +22,12 @@ install_requires = [
     ]
 
 tests_require = [
+    'zope.app.schema',
     'zope.component',
     'zope.testing',
     'zope.publisher',
-    'zeam.form.base [test]'
+    'zeam.form.base [test]',
+    'zeam.form.ztk [test]',
     ]
 
 setup(name=name,
