@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.4.2 (2012-11-15)
+------------------
+
+* Fixed widget extraction boolean test.
+  see: http://trac.dolmen-project.org/ticket/5
+
+
 2.4.1 (2012-06-25)
 ------------------
 
