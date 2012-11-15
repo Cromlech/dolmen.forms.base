@@ -217,7 +217,7 @@ class FieldWidget(Widget):
                 self.component, self.form, self.request)
             if extractor is not None:
                 value = extractor.extractRaw()
-                if value is not None:
+                if value:
                     return self.prepareRequestValue(value)
 
         # After, the context
