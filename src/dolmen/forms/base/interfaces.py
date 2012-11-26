@@ -99,7 +99,7 @@ class IFormData(IFieldExtractionValueSetting, IForm):
         """Sets the content that will be used as the form processing context.
         """
 
-    def validateData(fields, data, errors):
+    def validateData(fields, data):
         """Validates the form in a global way and returns a collection
         of errors (if any occured) or None.
         """

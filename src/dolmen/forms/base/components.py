@@ -31,6 +31,24 @@ default_template = TALTemplate(path.join(PATH, "formtemplate.pt"))
 _marker = object()
 
 
+class cached(object):
+
+    def __init__(self, key):
+        self.key = key
+
+    def __call__(self, func):
+        def cached_or_not(component, value):
+            cache = getattr(component, self.key)
+            cached = cache.get(value, _marker)
+            if cached is not _marker:
+                return cached
+
+            computed = func(component, value)
+            cache[value] = computed
+            return computed
+        return cached_or_not
+
+
 class Object(object):
     """Python object that takes argument to its __init__, in order to
     use super. This is required by Python 2.6.
@@ -100,7 +118,7 @@ class FormData(Object):
         self.context = context
         self.request = request
         self.errors = Errors()  # This should move to FormCanvas
-        self.__extracted = {}
+        self._extracted = {}
         self.__content = None
         if content is _marker:
             content = context
@@ -109,7 +127,9 @@ class FormData(Object):
     @property
     def formErrors(self):
         error = self.errors.get(self.prefix, None)
-        if error is None or ICollection.providedBy(error):
+        if error is None:
+            return []
+        if ICollection.providedBy(error):
             return error
         return [error]
 
@@ -129,7 +149,8 @@ class FormData(Object):
             content = self.dataManager(content)
         self.__content = content
 
-    def validateData(self, fields, data, errors):
+    def validateData(self, fields, data):
+        errors = Errors()
         for factory in self.dataValidators:
             validator = factory(fields, self)
             for error in validator.validate(data):
@@ -139,14 +160,10 @@ class FormData(Object):
                 errors.append(Error(_(u"There were errors."), self.prefix))
         return errors
 
+    @cached('_extracted')
     def extractData(self, fields):
-        # XXX to review this
-        cached = self.__extracted.get(fields)
-        if cached is not None:
-            return cached
         data = FieldsValues(self, fields)
         errors = Errors()
-        self.__extracted[fields] = (data, errors)
 
         for field in fields:
             if not field.available(self):
@@ -159,11 +176,14 @@ class FormData(Object):
                 if error is None:
                     error = field.validate(value, self.context)
                 if error is not None:
-                    errors.append(Error(error, field.identifier))
+                    if not interfaces.IError.providedBy(error):
+                        error = Error(error, extractor.identifier)
+                    errors.append(error)
                 data[field.identifier] = value
 
         # Generic form validation
-        errors = self.validateData(fields, data, errors)
+        validation_errors = self.validateData(fields, data)
+        errors.extend(validation_errors)
         self.errors = errors
         return (data, errors)
 

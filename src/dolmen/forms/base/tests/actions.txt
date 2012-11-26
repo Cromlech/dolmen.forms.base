@@ -240,7 +240,7 @@ Errors can be read from the submission::
 
    >>> list(failing_form.errors)
    []
-   >>> failing_form.formErrors
+   >>> assert not failing_form.formErrors
 
 So the action doesn't work, and the error will be reported in the
 submission::
@@ -314,7 +314,7 @@ If you switch the flag ``postOnly`` to False on the form, it will work::
    Execute 'Make it nicer'
    (<MyAction Make it nicer>, <Marker SUCCESS>)
 
-   >>> working_get_form.formErrors
+   >>> assert not working_get_form.formErrors
 
 A other solution is to set the flag ``postOnly`` only on the action::
 
@@ -328,7 +328,7 @@ A other solution is to set the flag ``postOnly`` only on the action::
    Execute 'Make it nicer'
    (<MyAction Make it nicer>, <Marker SUCCESS>)
 
-   >>> working_get_form.formErrors
+   >>> assert not working_get_form.formErrors
 
 Interface
 ~~~~~~~~~
