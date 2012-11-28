@@ -63,15 +63,22 @@ def cloneFormData(original, content=_marker, prefix=None):
     clone = FormData(original.context, original.request, content)
     clone.ignoreRequest = original.ignoreRequest
     clone.ignoreContent = original.ignoreContent
-    clone.postOnly = original.postOnly
-    clone.formMethod = original.formMethod
-    clone.enctype = original.enctype
     clone.mode = original.mode
     clone.parent = original
     if prefix is None:
         clone.prefix = original.prefix
     else:
         clone.prefix = prefix
+
+    # form submission related attributes
+    clone.postOnly = original.postOnly
+    clone.formMethod = original.formMethod
+    clone.enctype = original.enctype
+
+    # Unpiling the error stack
+    errors = original.errors.get(clone.prefix, None)
+    if errors is not None:
+        clone.errors = errors
     return clone
 
 

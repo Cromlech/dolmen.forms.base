@@ -1,6 +1,15 @@
 Changelog
 =========
 
+2.4.4 (2012-11-28)
+------------------
+
+* `CloneFormData` is now error-aware, meaning it will unpile the errors
+  of the cloned form, ensuring it gets the right contextual errors.
+
+* The form error handling has been improved to handle the `Errors` collection.
+ 
+
 2.4.3 (2012-11-15)
 ------------------
 
