@@ -134,11 +134,21 @@ class FormData(Object):
     @property
     def formErrors(self):
         error = self.errors.get(self.prefix, None)
-        if error is None:
-            return []
-        if ICollection.providedBy(error):
-            return error
-        return [error]
+
+        if self.errors and error is None:
+            # If the form has errors but no form specific ones
+            # we have to add it. This could be overridable.
+            error = Error(_(u"There were errors."), self.prefix)
+
+        if error is not None:
+            # If there's a form error, we need to make sure it's iterable.
+            # Doing this, we can handle both Error and Errors.
+            # Some forms can trigger more than one error, on failure.
+            if ICollection.providedBy(error):
+                return error
+            else:
+                return [error]
+        return []
 
     def htmlId(self):
         return self.prefix.replace('.', '-')
@@ -162,9 +172,6 @@ class FormData(Object):
             validator = factory(fields, self)
             for error in validator.validate(data):
                 errors.append(Error(error.args[0], self.prefix))
-        if len(errors):
-            if self.prefix not in errors:
-                errors.append(Error(_(u"There were errors."), self.prefix))
         return errors
 
     @cached('_extracted')

@@ -4,7 +4,7 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '2.4.4'
+version = '2.4.5-dev'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
