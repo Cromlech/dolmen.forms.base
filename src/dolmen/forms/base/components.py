@@ -177,7 +177,14 @@ class FormData(Object):
                     error = field.validate(value, self.context)
                 if error is not None:
                     if not interfaces.IError.providedBy(error):
-                        error = Error(error, extractor.identifier)
+                        if interfaces.IErrors.providedBy(error):
+                            # this is an Errors, not implementing IError
+                            # "Make it so, number one !"
+                            error = Errors(
+                                *error, identifier=extractor.identifier)
+                        else:
+                            error = Error(
+                                error, identifier=extractor.identifier)
                     errors.append(error)
                 data[field.identifier] = value
 
