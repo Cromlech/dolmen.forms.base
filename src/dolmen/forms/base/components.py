@@ -9,7 +9,6 @@ from cromlech.browser.utils import redirect_exception_response
 from cromlech.i18n import ILanguage
 
 from dolmen.template import TALTemplate
-from dolmen.view import View
 from dolmen.forms.base import _
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.actions import Actions
@@ -20,9 +19,8 @@ from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
 from dolmen.forms.base.interfaces import ICollection, ISuccessMarker
 
-from grokcore import component as grok
 from zope import interface
-from zope.component import queryMultiAdapter
+from zope.interface import implementer
 
 
 PATH = path.join(path.dirname(__file__), 'default_templates')
@@ -100,12 +98,11 @@ class FieldsValues(dict):
         return value
 
 
+@implementer(interfaces.IFormData)
 class FormData(Object):
     """This represent a submission of a form. It can be used to update
     widgets and run actions.
     """
-    grok.implements(interfaces.IFormData)
-
     prefix = 'form'
     parent = None
     mode = INPUT
@@ -209,13 +206,11 @@ class FormData(Object):
         return (data, errors)
 
 
+@implementer(IRenderable, interfaces.ISimpleFormCanvas)
 class FormCanvas(FormData):
     """This represent a simple form setup: setup some fields and
     actions, prepare widgets for it.
     """
-    grok.baseclass()
-    grok.implements(IRenderable, interfaces.ISimpleFormCanvas)
-
     label = u''
     description = u''
 
@@ -227,7 +222,7 @@ class FormCanvas(FormData):
 
     @property
     def action_url(self):
-        url = queryMultiAdapter((self.context, self.request), IURL)
+        url = IURL(self.context, self.request, default=None)
         if url is not None:
             return u"%s/%s" % (url, self.__component_name__)
         return u""
@@ -240,7 +235,7 @@ class FormCanvas(FormData):
 
     @property
     def target_language(self):
-        return ILanguage(self.request, None)
+        return ILanguage(self.request, default=None)
 
     def update(self, *args, **kwargs):
         pass
@@ -288,12 +283,56 @@ class FormCanvas(FormData):
             self, target_language=self.target_language, **self.namespace())
 
 
-class StandaloneForm(View):
+class StandaloneForm(object):
     """This is a base for a standalone form, process the form.
     """
-    grok.baseclass()
     template = default_template
+    responseFactory = None  # subclass has to provide one.
 
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
+    def namespace(self):
+        """Returns a dictionary of namespaces that the template
+        implementation expects to always be available.
+        """
+        return {
+            'view': self,
+            'form': self,
+            'context': self.context,
+            'request': self.request,
+            }
+
+    @property
+    def target_language(self):
+        """Returns the prefered language using the thread cache.
+        Please note that the cache might be 'None' if nothing was set up.
+        None will, most of the time, mean 'no translation'.
+        """
+        return getLanguage()
+
+    def make_response(self, result, *args, **kwargs):
+        response = self.responseFactory()
+        response.write(result or u'')
+        return response
+
+    def render(self):
+        """This is the default render method.
+        Not providing a template will make it fails.
+        Override this method, if needed (eg: return a string)
+        """
+        if self.template is None:
+            raise NotImplementedError("Template is not defined.")
+        return self.template.render(
+            self, target_language=self.target_language, **self.namespace())
+
+    def update(self):
+        """Update is called prior to any rendering. This method is left
+        empty on purpose, so it can be overriden easily.
+        """
+        pass
+    
     def updateActions(self):
         return None, None
 
@@ -316,12 +355,10 @@ class StandaloneForm(View):
             return redirect_exception_response(self.responseFactory, exc)
 
 
+@implementer(interfaces.ISimpleForm)
 class Form(FormCanvas, StandaloneForm):
     """A full simple standalone form.
     """
-    grok.baseclass()
-    grok.implements(interfaces.ISimpleForm)
-
     def update(self, *args, **kwargs):
         FormCanvas.update(self, *args, **kwargs)
         StandaloneForm.update(self, *args, **kwargs)

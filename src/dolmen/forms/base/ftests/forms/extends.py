@@ -1,23 +1,22 @@
 """
 Test the extends directive
 
-Let's grok our example:
+Let's configure our example:
 
-  >>> from dolmen.forms.base.testing import grok
-  >>> grok('dolmen.forms.base.ftests.forms.extends')
+  >>> from . import extends as module
+  >>> from crom import configure
+  >>> configure(module)
 
 We can look for the extended form, it will contains fields and action
 of the original one:
 
   >>> from cromlech.browser.testing import TestRequest
   >>> request = TestRequest()
+  >>> context = object()
 
-  >>> from dolmen.forms.base.ftests.forms.extends import Context
-  >>> context = Context()
+  >>> from cromlech.browser import IForm
+  >>> form = IForm(context, request, name='othernameform')
 
-  >>> from zope import component
-  >>> form = component.getMultiAdapter(
-  ...     (context, request), name='othernameform')
   >>> form
   <dolmen.forms.base.ftests.forms.extends.OtherNameForm object at ...>
 
@@ -31,27 +30,22 @@ of the original one:
   >>> list(form.actions)
   [<DecoratedAction Register>, <DecoratedAction Kill>]
 
-
-
 """
 
-from dolmen.forms import base
-from grokcore import component as grok
+from dolmen.forms.base import Form, Field, Fields
+from dolmen.forms.base import form_component, extends, action
 
 
-class Context(grok.Context):
-    pass
-
-
-class NameForm(base.Form):
+@form_component
+class NameForm(Form):
 
     label = u"Name"
     description = u"Name form"
-    fields = base.Fields(base.Field("Name"))
+    fields = Fields(Field("Name"))
     fields['name'].description = 'Name of the candidate'
     fields['name'].required = True
 
-    @base.action(u"Register")
+    @action(u"Register")
     def register(self):
         data, errors = self.extractData()
         if errors:
@@ -61,10 +55,11 @@ class NameForm(base.Form):
         self.status = u"Registered %(name)s" % data
 
 
+@form_component
 class OtherNameForm(NameForm):
-    base.extends(NameForm)
+    extends(NameForm)
 
-    @base.action(u"Kill")
+    @action(u"Kill")
     def kill(self):
         data, errors = self.extractData()
         if errors:

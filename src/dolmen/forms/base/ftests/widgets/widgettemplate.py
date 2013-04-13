@@ -2,10 +2,11 @@
 We are going to define a custom widget here which define its rendering
 HTML using a template associated with Grok.
 
-Let's grok our example:
+Let's configure our example:
 
-  >>> from dolmen.forms.base.testing import grok
-  >>> grok('dolmen.forms.base.ftests.widgets.widgettemplate')
+  >>> from . import widgettemplate as module
+  >>> from crom import configure
+  >>> configure(module)
 
 So now should be to lookup our widget:
 
@@ -19,9 +20,7 @@ So now should be to lookup our widget:
   >>> from dolmen.forms.base import Form
   >>> form = Form(None, request)
 
-  >>> from zope import component
-  >>> widget = component.getMultiAdapter(
-  ...     (field, form, request), interfaces.IWidget)
+  >>> widget = interfaces.IWidget(field, form, request)
   >>> widget
   <MyWidget Cool Template Test>
 
@@ -32,6 +31,8 @@ And we are able now to call its render method:
 
 
 """
+
+import crom
 import os.path
 from cromlech.browser import ITemplate
 from dolmen.forms.base.fields import Field
@@ -39,7 +40,6 @@ from dolmen.forms.base.widgets import Widget
 from dolmen.forms.base import interfaces
 from dolmen.template import TALTemplate
 from zope.interface import Interface
-from grokcore import component as grok
 
 
 class MyField(Field):
@@ -47,15 +47,18 @@ class MyField(Field):
     """
 
 
+@crom.adapter
+@crom.target(interfaces.IWidget)
+@crom.sources(MyField, interfaces.IFormCanvas, Interface)
 class MyWidget(Widget):
     """Custom widget to render my field.
     """
-    grok.adapts(MyField, interfaces.IFormCanvas, Interface)
 
 
 # TODO we shall provide a simpler decorator in the future
-@grok.adapter(MyWidget, Interface)
-@grok.implementer(ITemplate)
+@crom.adapter
+@crom.target(ITemplate)
+@crom.sources(MyWidget, Interface)
 def mywidget_template(view, request):
     return TALTemplate(filename=os.path.join(os.path.dirname(__file__),
                                     "widgettemplate_templates",

@@ -1,16 +1,26 @@
 # -*- coding: utf-8 -*-
 
+import crom
 import cromlech.webob.request
 import doctest
 import dolmen.forms.base
 import unittest
 import webob.dec
+
+from crom import testing
 from cromlech.browser.interfaces import IPublicationRoot
 from pkg_resources import resource_listdir
-from zope.component import getMultiAdapter
-from zope.component.testlayer import LayerBase
 from zope.interface import Interface, directlyProvides
 from zope.location import Location
+
+
+def setUp(test):
+    testing.setup()
+    crom.configure(dolmen.forms.base)
+
+
+def tearDown(test):
+    testing.teardown()
 
 
 class WSGIApplication(object):
@@ -22,21 +32,8 @@ class WSGIApplication(object):
     def __call__(self, req):
         context = Location()
         directlyProvides(context, IPublicationRoot)
-        form = getMultiAdapter((context, req), Interface, self.formname)
+        form = Interface(context, req, name=self.formname)
         return form()
-
-
-class BrowserLayer(LayerBase):
-
-    def testSetUp(self):
-        LayerBase.testSetUp(self)
-        self.application = WSGIApplication
-
-    def makeApplication(self, formname):
-        return self.application(formname)
-
-
-FunctionalLayer = BrowserLayer(dolmen.forms.base)
 
 
 def suiteFromPackage(name):
@@ -54,9 +51,9 @@ def suiteFromPackage(name):
         dottedname = 'dolmen.forms.base.ftests.%s.%s' % (name, filename[:-3])
         test = doctest.DocTestSuite(dottedname,
             optionflags=optionflags,
-            extraglobs=dict
-                (makeApplication=FunctionalLayer.makeApplication), )
-        test.layer = FunctionalLayer
+            setUp=setUp,
+            tearDown=tearDown,
+            extraglobs=dict(makeApplication=WSGIApplication))
         suite.addTest(test)
     return suite
 

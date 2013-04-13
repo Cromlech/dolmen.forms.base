@@ -2,10 +2,11 @@
 We define here a simple form with two fields and one action registered
 with a decorator.
 
-Let's grok our example::
+Let's configure our example::
 
-  >>> from dolmen.forms.base.testing import grok
-  >>> grok('dolmen.forms.base.ftests.forms.inputform')
+  >>> from . import inputform as module
+  >>> from crom import configure
+  >>> configure(module)
 
 We can now lookup our form by the name of its class::
 
@@ -15,9 +16,8 @@ We can now lookup our form by the name of its class::
   >>> from zope.location import Location
   >>> context = Location()
 
-  >>> from zope import component
-  >>> form = component.getMultiAdapter(
-  ...     (context, request), name='registration')
+  >>> from cromlech.browser import IForm
+  >>> form = IForm(context, request, name='registration')
   >>> form
   <dolmen.forms.base.ftests.forms.inputform.Registration object at ...>
 
@@ -29,7 +29,6 @@ We can now lookup our form by the name of its class::
 
 Integration tests
 -----------------
-
 
   >>> app = makeApplication("registration")
   >>> from infrae.testbrowser.browser import Browser
@@ -197,16 +196,13 @@ and get requests succeeds::
 """
 
 
+from cromlech.webob.response import Response
 from dolmen.forms import base
 from dolmen.forms.base import markers
-from grokcore import component as grok
-from zope.interface import Interface
-from cromlech.webob.response import Response
 
 
+@base.form_component
 class Registration(base.Form):
-
-    grok.context(Interface)
 
     responseFactory = Response
 
@@ -228,9 +224,8 @@ class Registration(base.Form):
         self.status = u"Registered %(name)s as %(job)s" % data
 
 
+@base.form_component
 class Search(base.Form):
-
-    grok.context(Interface)
 
     responseFactory = Response
     label = u"Search form"

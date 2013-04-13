@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import crom
 import os.path
 from cromlech.browser import ITemplate
 from cromlech.i18n import ILanguage
@@ -8,9 +9,7 @@ from dolmen.forms.base import interfaces
 from dolmen.forms.base.interfaces import IModeMarker
 from dolmen.forms.base.markers import NO_VALUE, HIDDEN, getValue
 from dolmen.template import TALTemplate
-from grokcore import component as grok
-from zope.component import getMultiAdapter, queryMultiAdapter
-from zope.interface import Interface, moduleProvides
+from zope.interface import Interface, moduleProvides, implementer, provider
 
 
 here = os.path.dirname(__file__)
@@ -26,10 +25,9 @@ def widget_id(form, component):
          if iditem))
 
 
-class Widget(Component, grok.MultiAdapter):
-    grok.baseclass()
-    grok.implements(interfaces.IWidget)
-    grok.provides(interfaces.IWidget)
+@implementer(interfaces.IWidget)
+@provider(interfaces.IWidget)
+class Widget(Component):
 
     template = None
 
@@ -60,7 +58,7 @@ class Widget(Component, grok.MultiAdapter):
 
     @property
     def target_language(self):
-        return ILanguage(self.request, None)
+        return ILanguage(self.request, default=None)
 
     def update(self):
         pass
@@ -68,18 +66,18 @@ class Widget(Component, grok.MultiAdapter):
     def render(self):
         template = getattr(self, 'template', None)
         if template is None:
-            template = getMultiAdapter((self, self.request), ITemplate)
+            template = ITemplate(self, self.request)
         return template.render(
             self, target_language=self.target_language, **self.namespace())
 
 
-class WidgetExtractor(grok.MultiAdapter):
-    grok.implements(interfaces.IWidgetExtractor)
-    grok.provides(interfaces.IWidgetExtractor)
-    grok.adapts(
-        interfaces.IRenderableComponent,
-        interfaces.IFieldExtractionValueSetting,
-        Interface)
+@crom.adapter
+@crom.target(interfaces.IWidgetExtractor)
+@crom.sources(interfaces.IRenderableComponent,
+              interfaces.IFieldExtractionValueSetting,
+              Interface)
+@implementer(interfaces.IWidgetExtractor)
+class WidgetExtractor(object):
 
     def __init__(self, component, form, request):
         self.identifier = widget_id(form, component)
@@ -101,12 +99,26 @@ class WidgetExtractor(grok.MultiAdapter):
         return entries
 
 
+@crom.adapter
+@crom.name('hidden')
+@crom.target(interfaces.IWidgetExtractor)
+@crom.sources(interfaces.IRenderableComponent,
+              interfaces.IFieldExtractionValueSetting,
+              Interface)
+@implementer(interfaces.IWidgetExtractor)
 class HiddenWidgetExtractor(WidgetExtractor):
-    grok.name('hidden')
+    pass
 
 
+@crom.adapter
+@crom.name('readonly')
+@crom.target(interfaces.IWidgetExtractor)
+@crom.sources(interfaces.IRenderableComponent,
+              interfaces.IFieldExtractionValueSetting,
+              Interface)
+@implementer(interfaces.IWidgetExtractor)
 class ReadOnlyWidgetExtractor(WidgetExtractor):
-    grok.name('readonly')
+    pass
 
 
 def createWidget(field, form, request):
@@ -116,12 +128,11 @@ def createWidget(field, form, request):
     if not field.available(form):
         return None
     mode = str(getValue(field, 'mode', form))
-    return getMultiAdapter(
-        (field, form, request), interfaces.IWidget, name=mode)
+    return interfaces.IWidget(field, form, request, name=mode)
 
 
+@implementer(interfaces.IWidgets)
 class Widgets(Collection):
-    grok.implements(interfaces.IWidgets)
 
     type = interfaces.IWidget
 
@@ -159,12 +170,13 @@ class Widgets(Collection):
 # After follow the implementation of some really generic default
 # widgets
 
-class ActionWidget(Widget):
-    grok.name('input')
-    grok.adapts(
-        interfaces.IAction,
+@crom.adapter
+@crom.name('input')
+@crom.target(interfaces.IWidget)
+@crom.sources(interfaces.IAction,
         interfaces.IFieldExtractionValueSetting,
         Interface)
+class ActionWidget(Widget):
 
     template = TALTemplate(os.path.join(WIDGETS, 'action.pt'))
 
@@ -185,17 +197,20 @@ def getWidgetExtractor(field, form, request):
         field.mode.extractable is False):
         return None
 
-    extractor = queryMultiAdapter(
-        (field, form, request), interfaces.IWidgetExtractor, name=mode)
+    extractor = interfaces.IWidgetExtractor(
+        field, form, request, name=mode, default=None)
     if extractor is not None:
         return extractor
-    return getMultiAdapter((field, form, request), interfaces.IWidgetExtractor)
+
+    return interfaces.IWidgetExtractor(field, form, request)
 
 
+@crom.adapter
+@crom.name('input')
+@crom.target(interfaces.IWidget)
+@crom.sources(interfaces.IField, interfaces.IFormData, Interface)
+@implementer(interfaces.IFieldWidget)
 class FieldWidget(Widget):
-    grok.name('input')
-    grok.implements(interfaces.IFieldWidget)
-    grok.adapts(interfaces.IField, interfaces.IFormData, Interface)
 
     template = TALTemplate(os.path.join(WIDGETS, 'fieldwidget.pt'))
 
@@ -261,18 +276,30 @@ class FieldWidget(Widget):
         self.value = self.computeValue()
 
 
+@crom.adapter
+@crom.name('display')
+@crom.target(interfaces.IWidget)
+@crom.sources(interfaces.IField, interfaces.IFormData, Interface)
+@implementer(interfaces.IFieldWidget)
 class DisplayFieldWidget(FieldWidget):
-    grok.name('display')
     template = TALTemplate(os.path.join(WIDGETS, 'display.pt'))
 
 
+@crom.adapter
+@crom.name('hidden')
+@crom.target(interfaces.IWidget)
+@crom.sources(interfaces.IField, interfaces.IFormData, Interface)
+@implementer(interfaces.IFieldWidget)
 class HiddenFieldWidget(FieldWidget):
-    grok.name('hidden')
     template = TALTemplate(os.path.join(WIDGETS, 'hidden.pt'))
 
 
+@crom.adapter
+@crom.name('readonly')
+@crom.target(interfaces.IWidget)
+@crom.sources(interfaces.IField, interfaces.IFormData, Interface)
+@implementer(interfaces.IFieldWidget)
 class ReadOnlyFieldWidget(FieldWidget):
-    grok.name('readonly')
     template = TALTemplate(os.path.join(WIDGETS, 'readonly.pt'))
 
 

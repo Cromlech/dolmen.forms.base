@@ -1,10 +1,11 @@
 """
 We are going to define a simple form with an action.
 
-Let's grok our example::
+Let's configure our example::
 
-  >>> from dolmen.forms.base.testing import grok
-  >>> grok('dolmen.forms.base.ftests.forms.simpleform')
+  >>> from . import simpleform as module
+  >>> from crom import configure
+  >>> configure(module)
 
 We can now lookup our form by the name of its class::
 
@@ -17,9 +18,8 @@ We can now lookup our form by the name of its class::
   >>> from cromlech.browser.interfaces import IPublicationRoot
   >>> directlyProvides(context, IPublicationRoot)
 
-  >>> from zope import component
-  >>> form = component.getMultiAdapter(
-  ...     (context, request), name='change')
+  >>> from cromlech.browser import IForm
+  >>> form = IForm(context, request, name='change')
   >>> form
   <dolmen.forms.base.ftests.forms.simpleform.Change object at ...>
 
@@ -37,7 +37,7 @@ And we can render it::
   ...   <head>
   ...   </head>
   ...   <body>
-  ...     <form action="http://localhost/change"
+  ...     <form action=""
   ...           id="form"
   ...           method="post"
   ...           enctype="multipart/form-data">
@@ -84,8 +84,6 @@ Let's try to take a browser and submit that form::
 
 from cromlech.webob.response import Response
 from dolmen.forms import base
-from grokcore import component as grok
-from zope.interface import Interface
 
 
 class ChangeAction(base.Action):
@@ -94,8 +92,8 @@ class ChangeAction(base.Action):
         submission.status = u"I completely changed everything"
 
 
+@base.form_component
 class Change(base.Form):
-    grok.context(Interface)
 
     responseFactory = Response
 

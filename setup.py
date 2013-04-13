@@ -4,19 +4,18 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '2.4.5-dev'
+version = '3.0-crom'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
+    'crom',
+    'grokker',
     'cromlech.browser >= 0.5',
     'cromlech.i18n',
     'dolmen.collection >= 0.3',
     'dolmen.template',
-    'dolmen.view >= 0.6',
-    'grokcore.component',
     'setuptools',
-    'zope.component',
     'zope.configuration',
     'zope.event',
     'zope.i18n',
@@ -28,9 +27,8 @@ install_requires = [
 
 tests_require = [
     'cromlech.browser [test]',
-    'WebOb',
+    'WebOb >= 1.2.1',
     'cromlech.webob >= 0.6',
-    'dolmen.location >= 0.2',
     'infrae.testbrowser',
     'zope.location',
     ]

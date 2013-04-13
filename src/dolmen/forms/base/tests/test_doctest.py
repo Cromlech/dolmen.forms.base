@@ -1,13 +1,20 @@
 # -*- coding: utf-8 -*-
 
+import crom
 import doctest
 import unittest
-from grokcore.component import testing
+import dolmen.forms.base
+from crom import testing
 
 
 def setUp(test):
-    testing.grok('dolmen.forms.base')
+    testing.setup()
+    crom.configure(dolmen.forms.base)
 
+
+def tearDown(test):
+    testing.teardown()
+    
 
 def test_suite():
     optionflags = doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS
@@ -19,6 +26,7 @@ def test_suite():
         test = doctest.DocFileSuite(
             filename,
             setUp=setUp,
+            tearDown=tearDown,
             optionflags=optionflags,
             globs=globs)
         suite.addTest(test)

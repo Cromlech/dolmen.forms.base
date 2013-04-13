@@ -3,6 +3,10 @@
 from zope.i18nmessageid import MessageFactory
 _ = MessageFactory('dolmen.forms.base')
 
+
+# Foreign API
+from cromlech.browser import name, context
+
 # Interfaces
 from dolmen.forms.base import interfaces, markers, errors
 
@@ -16,10 +20,11 @@ from dolmen.forms.base.datamanagers import *
 from dolmen.forms.base.interfaces import ActionError
 
 # Exposing package API
-from dolmen.forms.base.interfaces import IFieldUpdate
+from dolmen.forms.base.interfaces import IFieldUpdate, IForm
 from dolmen.forms.base.components import cloneFormData
 from dolmen.forms.base.utils import (
     extends, set_fields_data, notify_changes, apply_data_event)
+from dolmen.forms.base.meta import form_component
 
 # All
-from dolmen.view import request, context, name
+from cromlech.browser import request, context, name

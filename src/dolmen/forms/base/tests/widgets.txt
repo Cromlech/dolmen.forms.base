@@ -24,9 +24,7 @@ a given form, and request. So we need all that::
 So now we can get a widget for an action for instance::
 
    >>> from dolmen.forms.base import interfaces
-   >>> from zope import component
-   >>> widget1 = component.getMultiAdapter(
-   ...         (action1, form1, request), interfaces.IWidget, name='input')
+   >>> widget1 = interfaces.IWidget(action1, form1, request, name='input')
    >>> widget1
    <ActionWidget Do Something>
 
@@ -76,8 +74,7 @@ more advanced::
    >>> field1.required = True
    >>> form1.fields += field1
 
-   >>> widget2 = component.getMultiAdapter(
-   ...         (field1, form1, request), interfaces.IWidget, name='input')
+   >>> widget2 = interfaces.IWidget(field1, form1, request,  name='input')
    >>> widget2
    <FieldWidget Title>
 
@@ -105,8 +102,7 @@ Prefixes of the form and the component will alter the identifier::
    >>> action2.prefix = u"else"
    >>> form2.actions += action2
 
-   >>> widget3 = component.getMultiAdapter(
-   ...         (action2, form2, request), interfaces.IWidget, name='input')
+   >>> widget3 = interfaces.IWidget(action2, form2, request, name='input')
 
    >>> widget3.identifier
    'something.else.some-action'
@@ -114,15 +110,13 @@ Prefixes of the form and the component will alter the identifier::
 If the prefixes are empty::
 
    >>> form2.prefix = u""
-   >>> widget3 = component.getMultiAdapter(
-   ...         (action2, form2, request), interfaces.IWidget, name='input')
+   >>> widget3 = interfaces.IWidget(action2, form2, request, name='input')
 
    >>> widget3.identifier
    'else.some-action'
 
    >>> action2.prefix = u""
-   >>> widget3 = component.getMultiAdapter(
-   ...         (action2, form2, request), interfaces.IWidget, name='input')
+   >>> widget3 = interfaces.IWidget(action2, form2, request, name='input')
 
    >>> widget3.identifier
    'some-action'
@@ -160,8 +154,7 @@ Widget are views that can be renderered::
 If field is read only then field widget is read only as well::
 
    >>> field1.readonly = True
-   >>> widget2 =component.getMultiAdapter(
-   ...         (field1, form1, request), interfaces.IWidget, name='input')
+   >>> widget2 = interfaces.IWidget(field1, form1, request, name='input')
    >>> widget2.readonly
    True
    >>> widget2.update()
@@ -286,8 +279,7 @@ value to render, they are all executed before any widget is created
 So WidgetExtractor are multiadapters, adapting the component, form and
 request, like a Widget does::
 
-   >>> e1 = component.getMultiAdapter(
-   ...         (action1, form1, request), interfaces.IWidgetExtractor)
+   >>> e1 = interfaces.IWidgetExtractor(action1, form1, request)
    >>> e1
    <dolmen.forms.base.widgets.WidgetExtractor object at ...>
 
@@ -301,9 +293,7 @@ But our request was empty here. Let's try with a non-empty one::
    >>> submitted_request = TestRequest(
    ...         form={'form.action.do-something': u'Do Something',
    ...                'otherfield': 42})
-   >>> e2 = component.getMultiAdapter(
-   ...         (action1, form1, submitted_request),
-   ...         interfaces.IWidgetExtractor)
+   >>> e2 = interfaces.IWidgetExtractor(action1, form1, submitted_request)
    >>> e2.extract()
    (u'Do Something', None)
 

@@ -4,15 +4,13 @@ import sys
 
 from dolmen.forms.base import interfaces, markers, errors
 from dolmen.collection import Component, Collection
-from zope.interface import implements, alsoProvides, moduleProvides
-from zope import component
+from zope.interface import implementer, alsoProvides, moduleProvides
 
 
+@implementer(interfaces.IAction)
 class Action(Component):
     """A form action.
     """
-    implements(interfaces.IAction)
-
     prefix = 'action'
     # By default an action is always in input mode (there is not much
     # sense otherwise).
@@ -31,17 +29,15 @@ class Action(Component):
         raise NotImplementedError
 
 
+@implementer(interfaces.IActions)
 class Actions(Collection):
     """A list of form action.
     """
-    implements(interfaces.IActions)
-
     type = interfaces.IAction
 
     def process(self, form, request):
         for action in self:
-            extractor = component.getMultiAdapter(
-                (action, form, request), interfaces.IWidgetExtractor)
+            extractor = interfaces.IWidgetExtractor(action, form, request)
 
             value, error = extractor.extract()
             if value is not markers.NO_VALUE:
