@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import crom
-import cromlech.webob.request
 import doctest
 import dolmen.forms.base
 import unittest
 import webob.dec
 
 from crom import testing
+from cromlech.webob import Request
 from cromlech.browser.interfaces import IPublicationRoot
 from pkg_resources import resource_listdir
 from zope.interface import Interface, directlyProvides
@@ -28,7 +28,7 @@ class WSGIApplication(object):
     def __init__(self, formname):
         self.formname = formname
 
-    @webob.dec.wsgify(RequestClass=cromlech.webob.request.Request)
+    @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
         context = Location()
         directlyProvides(context, IPublicationRoot)

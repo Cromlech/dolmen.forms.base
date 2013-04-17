@@ -10,25 +10,24 @@ history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
     'crom',
-    'grokker',
     'cromlech.browser >= 0.5',
+    'cromlech.events',
     'cromlech.i18n',
     'dolmen.collection >= 0.3',
     'dolmen.template',
+    'grokker',
     'setuptools',
     'zope.configuration',
     'zope.event',
-    'zope.i18n',
     'zope.i18nmessageid',
     'zope.interface',
-    'zope.lifecycleevent',
     'zope.schema',
     ]
 
 tests_require = [
     'cromlech.browser [test]',
     'WebOb >= 1.2.1',
-    'cromlech.webob >= 0.6',
+    'cromlech.webob',
     'infrae.testbrowser',
     'zope.location',
     ]
@@ -52,11 +51,11 @@ setup(name=name,
       extras_require={'test': tests_require},
       test_suite="dolmen.forms.base",
       classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
-        'Intended Audience :: Other Audience',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
+          'Development Status :: 4 - Beta',
+          'Environment :: Web Environment',
+          'Intended Audience :: Other Audience',
+          'License :: OSI Approved :: GNU General Public License (GPL)',
+          'Operating System :: OS Independent',
+          'Programming Language :: Python',
           ],
       )

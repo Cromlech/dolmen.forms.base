@@ -3,10 +3,6 @@
 from zope.i18nmessageid import MessageFactory
 _ = MessageFactory('dolmen.forms.base')
 
-
-# Foreign API
-from cromlech.browser import name, context
-
 # Interfaces
 from dolmen.forms.base import interfaces, markers, errors
 
@@ -27,4 +23,5 @@ from dolmen.forms.base.utils import (
 from dolmen.forms.base.meta import form_component
 
 # All
-from cromlech.browser import request, context, name
+from crom.directives import name
+from cromlech.browser import request, context
