@@ -6,7 +6,7 @@ from os import path
 from cromlech.browser.interfaces import IRenderable, IURL
 from cromlech.browser.exceptions import HTTPRedirect, REDIRECTIONS
 from cromlech.browser.utils import redirect_exception_response
-from cromlech.i18n import ILanguage
+from cromlech.i18n import getLocale
 
 from dolmen.template import TALTemplate
 from dolmen.forms.base import _
@@ -17,7 +17,7 @@ from dolmen.forms.base.errors import Errors, Error
 from dolmen.forms.base.fields import Fields
 from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
-from dolmen.forms.base.interfaces import ICollection, ISuccessMarker
+from dolmen.forms.base.interfaces import IFormView, ICollection, ISuccessMarker
 
 from zope import interface
 from zope.interface import implementer
@@ -235,7 +235,7 @@ class FormCanvas(FormData):
 
     @property
     def target_language(self):
-        return ILanguage(self.request, default=None)
+        return getLocale()
 
     def update(self, *args, **kwargs):
         pass
@@ -283,6 +283,7 @@ class FormCanvas(FormData):
             self, target_language=self.target_language, **self.namespace())
 
 
+@implementer(IFormView)
 class StandaloneForm(object):
     """This is a base for a standalone form, process the form.
     """
@@ -310,7 +311,7 @@ class StandaloneForm(object):
         Please note that the cache might be 'None' if nothing was set up.
         None will, most of the time, mean 'no translation'.
         """
-        return getLanguage()
+        return getLocale()
 
     def make_response(self, result, *args, **kwargs):
         response = self.responseFactory()

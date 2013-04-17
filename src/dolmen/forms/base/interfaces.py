@@ -3,7 +3,7 @@
 from zope import schema
 from zope.interface import Interface, Attribute
 from zope.configuration.fields import GlobalObject
-from cromlech.browser.interfaces import IRenderable, IView, IForm
+from cromlech.browser.interfaces import IResponseFactory, IRenderable, IView, IForm
 from dolmen.collection import (
     ICollection, IComponent, IComponentFactory, IMutableCollection)
 
@@ -262,7 +262,7 @@ class ISimpleFormCanvas(IFormCanvas, IFormData):
     fieldWidgets = Attribute(u"Form widgets")
 
 
-class IForm(IView, IFormCanvas):
+class IFormView(IResponseFactory, IView, IFormCanvas):
     """Regular form containing fields and actions, that you can call,
     and will be updated and rendered.
     """
