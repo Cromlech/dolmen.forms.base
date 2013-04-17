@@ -3,6 +3,17 @@
 from zope.i18nmessageid import MessageFactory
 _ = MessageFactory('dolmen.forms.base')
 
+# translations
+from os.path import join, dirname
+
+from cromlech.i18n.translations import register_translations_directory
+
+TRANSLATIONS_PATH = join(dirname(__file__), "i18n")
+
+def register_translations(*args):
+    register_translations_directory(TRANSLATIONS_PATH, *args)
+
+
 # Interfaces
 from dolmen.forms.base import interfaces, markers, errors
 

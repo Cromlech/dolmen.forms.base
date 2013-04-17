@@ -58,4 +58,9 @@ setup(name=name,
           'Operating System :: OS Independent',
           'Programming Language :: Python',
           ],
+      entry_points="""
+      # -*- Entry points: -*-
+      [cromlech.i18n.translation_directory]
+      dolmen.forms.base = dolmen.forms.base:register_translations
+      """,
       )
