@@ -3,10 +3,10 @@
 import operator
 from os import path
 
-from cromlech.browser.interfaces import IRenderable, IURL
+from cromlech.browser.interfaces import ILayout, IRenderable, IURL
 from cromlech.browser.exceptions import HTTPRedirect, REDIRECTIONS
 from cromlech.browser.utils import redirect_exception_response
-from cromlech.i18n import getLocale
+from cromlech.i18n import getLocalizer
 
 from dolmen.template import TALTemplate
 from dolmen.forms.base import _
@@ -19,14 +19,40 @@ from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
 from dolmen.forms.base.interfaces import IFormView, ICollection, ISuccessMarker
 
-from zope import interface
-from zope.interface import implementer
+from zope.interface import implementer, moduleProvides
 
 
 PATH = path.join(path.dirname(__file__), 'default_templates')
 default_template = TALTemplate(path.join(PATH, "formtemplate.pt"))
 
 _marker = object()
+
+
+def query_form_layout(form, interface=ILayout, name=""):
+    """Returns a layout associated to the form's request and context.
+    """
+    assert IFormView.providedBy(form)
+    assert interface.isOrExtends(ILayout)
+    return interface(form.request, form.context, name=name)
+
+
+def make_form_response(form, result, *args, **kwargs):
+    response = form.responseFactory()
+    response.write(result or u'')
+    return response
+
+
+def make_layout_response(form, result, name=None):
+    if name is None:
+        name = getattr(form, 'layoutName', "")
+    layout = query_form_layout(form, name=name)
+    if layout is not None:
+        wrapped = layout(result, **{'form': form})
+        response = form.responseFactory()
+        response.write(wrapped or u'')
+        return response
+    raise RuntimeError(
+        'Unable to resolve the layout (name: %r) for %r' % (name, form))
 
 
 class cached(object):
@@ -234,8 +260,11 @@ class FormCanvas(FormData):
         self._updated = False
 
     @property
-    def target_language(self):
-        return getLocale()
+    def translate(self):
+        localizer = getLocalizer()
+        if localizer is not None:
+            return localizer.translate
+        return None
 
     def update(self, *args, **kwargs):
         pass
@@ -244,7 +273,7 @@ class FormCanvas(FormData):
         namespace = {}
         namespace['context'] = self.context
         namespace['request'] = self.request
-        namespace['view'] = self
+        namespace['form'] = self
         return namespace
 
     def extractData(self, fields=None):
@@ -280,7 +309,7 @@ class FormCanvas(FormData):
         if self.template is None:
             raise NotImplementedError("Template is not defined.")
         return self.template.render(
-            self, target_language=self.target_language, **self.namespace())
+            self, translate=self.translate, **self.namespace())
 
 
 @implementer(IFormView)
@@ -289,7 +318,8 @@ class StandaloneForm(object):
     """
     template = default_template
     responseFactory = None  # subclass has to provide one.
-
+    make_response = make_form_response
+    
     def __init__(self, context, request):
         self.context = context
         self.request = request
@@ -306,17 +336,11 @@ class StandaloneForm(object):
             }
 
     @property
-    def target_language(self):
-        """Returns the prefered language using the thread cache.
-        Please note that the cache might be 'None' if nothing was set up.
-        None will, most of the time, mean 'no translation'.
-        """
-        return getLocale()
-
-    def make_response(self, result, *args, **kwargs):
-        response = self.responseFactory()
-        response.write(result or u'')
-        return response
+    def translate(self):
+        localizer = getLocalizer()
+        if localizer is not None:
+            return localizer.translate
+        return None
 
     def render(self):
         """This is the default render method.
@@ -326,14 +350,14 @@ class StandaloneForm(object):
         if self.template is None:
             raise NotImplementedError("Template is not defined.")
         return self.template.render(
-            self, target_language=self.target_language, **self.namespace())
+            self, translate=self.translate, **self.namespace())
 
     def update(self):
         """Update is called prior to any rendering. This method is left
         empty on purpose, so it can be overriden easily.
         """
         pass
-    
+
     def updateActions(self):
         return None, None
 
@@ -365,5 +389,5 @@ class Form(FormCanvas, StandaloneForm):
         StandaloneForm.update(self, *args, **kwargs)
 
 
-interface.moduleProvides(interfaces.IFormComponents)
+moduleProvides(interfaces.IFormComponents)
 __all__ = list(interfaces.IFormComponents)
