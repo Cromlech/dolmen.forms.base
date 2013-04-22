@@ -274,6 +274,7 @@ class FormCanvas(FormData):
         namespace['context'] = self.context
         namespace['request'] = self.request
         namespace['form'] = self
+        namespace['view'] = self
         return namespace
 
     def extractData(self, fields=None):
@@ -319,7 +320,7 @@ class StandaloneForm(object):
     template = default_template
     responseFactory = None  # subclass has to provide one.
     make_response = make_form_response
-    
+
     def __init__(self, context, request):
         self.context = context
         self.request = request
