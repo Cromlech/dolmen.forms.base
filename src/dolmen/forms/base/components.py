@@ -78,6 +78,10 @@ def cloneFormData(original, content=_marker, prefix=None):
     # Unpiling the error stack
     errors = original.errors.get(clone.prefix, None)
     if errors is not None:
+        # errors must be a dict-like iterable.
+        # we use the convenient "Errors"
+        if not ICollection.providedBy(errors):
+            errors = Errors(errors)
         clone.errors = errors
     return clone
 
