@@ -134,6 +134,21 @@ class WidgetExtractor(grok.MultiAdapter):
         return entries
 
 
+class FieldWidgetExtractor(WidgetExtractor):
+    grok.adapts(
+        interfaces.IField,
+        interfaces.IFieldExtractionValueSetting,
+        Interface)
+
+    def extract(self):
+        value = self.request.form.get(self.identifier)
+        # The value is empty only if the field is required.
+        if (value is None or
+            (not len(value) and self.component.isRequired(self.form))):
+            value = NO_VALUE
+        return (value, None)
+
+
 class HiddenWidgetExtractor(WidgetExtractor):
     grok.name('hidden')
 
