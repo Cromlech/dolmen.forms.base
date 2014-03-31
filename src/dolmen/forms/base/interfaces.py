@@ -196,9 +196,9 @@ class IWidget(IComponent):
         """Return an HTML class to mark the widget with.
         """
 
-     def htmlAttribute(name):
-         """Return the value of the given extra HTML attribute.
-         """
+    def htmlAttribute(name):
+        """Return the value of the given extra HTML attribute.
+        """
 
     def htmlAttributes():
         """Return a dictionary with all authorized extra HTML attributes.
