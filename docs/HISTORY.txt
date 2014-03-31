@@ -1,13 +1,15 @@
 Changelog
 =========
 
-2.4.5 (unreleased)
+2.5 (unreleased)
 ------------------
 
 * `formErrors` now returns a default error if there are errors on the form,
   but none defined with the form prefix.
 
-...
+* Back-ported htmlAttributes and alternateLayout `from zeam.form`
+
+* ...
 
 
 2.4.4 (2012-11-28)

@@ -179,13 +179,29 @@ class IWidget(IComponent):
     """Display a form component on the page.
     """
 
+    defaultHtmlClass = Attribute(
+        u"List of default html class to apply to the widget")
+
+    defaultHtmlAttributes = Attribute(
+        u"Set of default authorized html attributes (no data-*)")
+
+    alternateLayout = Attribute(
+        u"Boolean indicating if the widget can be rendered in a compact way")
+    
     def htmlId():
-        """Return the HTML id of the HTML component representing the
-        widget.
+        """Return the HTML id of the HTML component representing the widget.
         """
 
     def htmlClass():
         """Return an HTML class to mark the widget with.
+        """
+
+     def htmlAttribute(name):
+         """Return the value of the given extra HTML attribute.
+         """
+
+    def htmlAttributes():
+        """Return a dictionary with all authorized extra HTML attributes.
         """
 
     def render():

@@ -33,6 +33,15 @@ class Widget(Component, grok.MultiAdapter):
 
     template = None
 
+    defaultHtmlAttributes = set([
+        'required', 'readonly', 'placeholder',
+        'autocomplete', 'size', 'maxlength',
+        'pattern', 'style'])
+
+    defaultHtmlClass = ['field']
+
+    alternateLayout = False
+    
     def __init__(self, component, form, request):
         identifier = widget_id(form, component)
         super(Widget, self).__init__(component.title, identifier)
@@ -48,8 +57,31 @@ class Widget(Component, grok.MultiAdapter):
         return self.identifier.replace('.', '-')
 
     def htmlClass(self):
-        return 'field'
+        result = self.defaultHtmlClass
+        if self.required:
+            result = result + ['field-required',]
+        return ' '.join(result)
+    
+    def htmlAttribute(self, name=None):
+        value = self._htmlAttributes.get(name)
+        if value:
+            # Boolean return as value the name of the property
+            if isinstance(value, bool):
+                return name
+            return value
+        return None
 
+    def htmlAttributes(self):
+        attributes = {}
+        for key, value in self._htmlAttributes.items():
+            if (value and
+                (key.startswith('data-') or key in self.defaultHtmlAttributes)):
+                if isinstance(value, bool):
+                    attributes[key] = key
+                else:
+                    attributes[key] = str(value)
+        return attributes
+    
     @property
     def visible(self):
         return self.component.mode != HIDDEN
@@ -168,11 +200,16 @@ class ActionWidget(Widget):
 
     template = TALTemplate(os.path.join(WIDGETS, 'action.pt'))
 
+    defaultHtmlAttributes = set(['accesskey', 'formnovalidate', 'style'])
+    defaultHtmlClass = ['action']
+    
     def __init__(self, component, form, request):
         super(ActionWidget, self).__init__(component, form, request)
         self.description = component.description
-        self.accesskey = component.accesskey
-
+        self._htmlAttributes.update({
+            'accesskey': component.accesskey,
+            'formnovalidate': not component.html5Validation})
+        
     def htmlClass(self):
         return 'action'
 
