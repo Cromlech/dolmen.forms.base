@@ -48,7 +48,8 @@ class Widget(Component, grok.MultiAdapter):
         self.component = component
         self.form = form
         self.request = request
-
+        self._htmlAttributes = {}
+        
     def copy(self):
         raise NotImplementedError
 
