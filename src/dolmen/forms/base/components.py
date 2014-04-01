@@ -217,7 +217,9 @@ class FormData(Object):
         if len(errors):
             # Add a form level error if not already present
             if self.prefix not in errors:
-                errors.append(Error(_(u"There were errors."), self.prefix))
+                errors.append(
+                    Error(_(u"There were errors.", default=u"There were errors."),
+                          self.prefix))
         self.errors = errors
         return (data, errors)
 

@@ -75,15 +75,18 @@ class Field(Component):
     def validate(self, value, form):
         if self.isEmpty(value):
             if self.isRequired(form):
-                return _(u"Missing required value.")
+                return _(u"Missing required value.",
+                         default=u"Missing required value.")
         elif not isinstance(value, Marker):
             try:
                 if not self.constrainValue(value):
-                    return _(u"The constraint failed.")
+                    return _(u"The constraint failed.",
+                             default=u"The constraint failed.")
             except Exception as error:
                 if hasattr(error, 'doc'):
                     return error.doc()
-                return _(u"The constraint failed.")
+                return _(u"The constraint failed.",
+                         default=u"The constraint failed.")
         return None
 
 
