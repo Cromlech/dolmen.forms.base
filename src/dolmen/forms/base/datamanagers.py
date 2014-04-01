@@ -21,6 +21,9 @@ class BaseDataManager(object):
     def set(self, identifier, value):
         raise NotImplementedError
 
+    def delete(self, identifier):
+        raise NotImplementedError
+
     def __repr__(self):
         return '<%s used for %r>' % (self.__class__.__name__, self.content)
 
@@ -39,6 +42,12 @@ class ObjectDataManager(BaseDataManager):
     def set(self, identifier, value):
         setattr(self.content, identifier, value)
 
+    def delete(self, identifier):
+        try:
+            delattr(self.content, identifier)
+        except AttributeError:
+            raise KeyError(identifier)
+
 
 class DictDataManager(BaseDataManager):
     """A dictionary data manager, which look up data as keys in the
@@ -50,6 +59,9 @@ class DictDataManager(BaseDataManager):
 
     def set(self, identifier, value):
         self.content[identifier] = value
+
+    def delete(self, identifier):
+        del self.content[identifier]
 
 
 class NoneDataManager(BaseDataManager):

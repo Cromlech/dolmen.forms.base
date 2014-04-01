@@ -98,12 +98,21 @@ class FieldsValues(dict):
         self.fields = fields
 
     def getWithDefault(self, key, default=None):
-        value = super(FieldsValues, self).get(key, NO_VALUE)
+        value = super(FieldsValues, self).get(key, default)
         if value is NO_VALUE:
             value = self.fields[key].getDefaultValue(self.form)
             if value is NO_VALUE:
                 return default
         return value
+
+    def getDictWithDefault(self, default=None):
+        result = {}
+        for key in self.keys():
+            result[key] = self.getWithDefault(key, default=default)
+        return result
+
+    # BBB
+    getDefault = getWithDefault
 
 
 class FormData(Object):
@@ -138,28 +147,18 @@ class FormData(Object):
             content = context
         self.setContentData(content)
 
-    @property
-    def formErrors(self):
-        error = self.errors.get(self.prefix, None)
-
-        if self.errors and error is None:
-            # If the form has errors but no form specific ones
-            # we have to add it. This could be overridable.
-            error = Error(_(u"There were errors."), self.prefix)
-
-        if error is not None:
-            # If there's a form error, we need to make sure it's iterable.
-            # Doing this, we can handle both Error and Errors.
-            # Some forms can trigger more than one error, on failure.
-            if ICollection.providedBy(error):
-                return error
-            else:
-                return [error]
-        return []
-
     @Lazy
     def widgetFactory(self):
         return self.widgetFactoryFactory(self, self.request)
+
+    @property
+    def formErrors(self):
+        error = self.errors.get(self.prefix, None)
+        if error is None:
+            return []
+        if ICollection.providedBy(error):
+            return error
+        return [error]
 
     def htmlId(self):
         return self.prefix.replace('.', '-')
@@ -194,7 +193,7 @@ class FormData(Object):
         if cached is not None:
             return cached
         data = FieldsValues(self, fields)
-        self.errors = errors = Errors()
+        errors = Errors()
         self._extracted[fields] = (data, errors)
 
         for field in fields:
@@ -309,16 +308,14 @@ class StandaloneForm(View):
     template = default_template
 
     def updateActions(self):
-        return None, None
+        return self, None, None
 
     def updateWidgets(self):
         pass
 
     def updateForm(self):
-        if self._updated is False:
-            self.updateActions()
-            self.updateWidgets()
-            self._updated = True
+        self.updateActions()
+        self.updateWidgets()
 
     def __call__(self, *args, **kwargs):
         try:
@@ -336,10 +333,25 @@ class Form(FormCanvas, StandaloneForm):
     grok.baseclass()
     grok.implements(interfaces.ISimpleForm)
 
-    def update(self, *args, **kwargs):
-        FormCanvas.update(self, *args, **kwargs)
-        StandaloneForm.update(self, *args, **kwargs)
 
+def extends(*forms, **opts):
+    # Extend a class with parents components
+    field_type = opts.get('fields', 'all')
+
+    def extendComponent(field_type):
+        factory = {'actions': Actions, 'fields': Fields}.get(field_type)
+        if factory is None:
+            raise ValueError(u"Invalid parameter fields to extends")
+        frame = sys._getframe(2)
+        f_locals = frame.f_locals
+        components = f_locals.setdefault(field_type, factory())
+        components.extend(*map(operator.attrgetter(field_type), forms))
+
+    if field_type == 'all':
+        extendComponent('actions')
+        extendComponent('fields')
+    else:
+        extendComponent(field_type)
 
 interface.moduleProvides(interfaces.IFormComponents)
 __all__ = list(interfaces.IFormComponents)

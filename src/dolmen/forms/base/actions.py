@@ -3,7 +3,7 @@
 import sys
 
 from dolmen.forms.base import interfaces, markers, errors
-from dolmen.collection import Component, Collection
+from dolmen.collection import Component, Collection, ICollection
 from zope.interface import implements, alsoProvides, moduleProvides
 from zope import component
 
@@ -23,10 +23,11 @@ class Action(Component):
     htmlAttributes = {}
     postOnly = markers.DEFAULT
 
-    def __init__(self, title=None, identifier=None):
+    def __init__(self, title=None, identifier=None, **htmlAttributes):
         super(Action, self).__init__(title, identifier)
         self.htmlAttributes = self.htmlAttributes.copy()
-    
+        self.htmlAttributes.update(htmlAttributes)
+
     def available(self, form):
         return True
 
@@ -67,6 +68,72 @@ class Actions(Collection):
         return None, markers.NOTHING_DONE
 
 
+class CompoundActions(object):
+    """Compound different types of actions together.
+    """
+    implements(ICollection)
+
+    def __init__(self, *new_actions):
+        self.__actions = []
+        self.extend(new_actions)
+
+    def extend(self, new_actions):
+        for actions in new_actions:
+            self.append(actions)
+
+    def append(self, actions):
+        assert interfaces.IActions.providedBy(actions), u"Invalid actions"
+        self.__actions.append(actions)
+
+    def copy(self):
+        copy = self.__class__()
+        copy.extend(self.__actions)
+        return copy
+
+    def process(self, form, request):
+        for actions in self.__actions:
+            action, status = actions.process(form, request)
+            if status != markers.NOTHING_DONE:
+                break
+        return action, status
+
+    def __add__(self, actions):
+        copy = self.copy()
+        copy.extend(actions)
+        return copy
+
+    def __iter__(self):
+        return itertools.chain(*self.__actions)
+
+    def extend(self, new_actions):
+        for actions in new_actions:
+            self.append(actions)
+
+    def append(self, actions):
+        assert interfaces.IActions.providedBy(actions), u"Invalid actions"
+        self.__actions.append(actions)
+
+    def copy(self):
+        copy = self.__class__()
+        copy.extend(self.__actions)
+        return copy
+
+    def process(self, form, request):
+        for actions in self.__actions:
+            action, status = actions.process(form, request)
+            if status != NOTHING_DONE:
+                break
+        return action, status
+
+    def __add__(self, actions):
+        copy = self.copy()
+        copy.extend(actions)
+        return copy
+
+    def __iter__(self):
+        return itertools.chain(*self.__actions)
+
+
 # Convience API, decorator to add action
 
 class DecoratedAction(Action):
@@ -76,14 +143,14 @@ class DecoratedAction(Action):
     def __init__(self, title, callback,
                  identifier=None, description=None, accesskey=None,
                  validator=None, available=None, **htmlAttributes):
-        super(Action, self).__init__(title, identifier)
+        super(DecoratedAction, self).__init__(
+            title, identifier, **htmlAttributes)
         self._callback = callback
         self._validator = validator
         self._available = available
         self.accesskey = accesskey
         self.description = description
-        self.htmlAttributes.update(htmlAttributes)
-        
+
     def validate(self, form):
         if self._validator is not None:
             return self._validator(form)

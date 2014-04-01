@@ -79,8 +79,12 @@ class IDataManager(Interface):
         """Modifiy content value associated to the given identifier.
         """
 
+    def delete(identifier):
+        """Return the content value associated with the given identifier.
+        """
 
-class IFormData(IFieldExtractionValueSetting, IForm):
+
+class IFormData(IFieldExtractionValueSetting):
     """Form data processing facilities.
     """
     dataManager = Attribute(u"Data manager class used to access content.")
@@ -90,6 +94,13 @@ class IFormData(IFieldExtractionValueSetting, IForm):
         u"Iterable of the errors that occured during the form processing.")
     formErrors = Attribute(
         u"Main errors that occurred during the form processing.")
+    widgetFactory = Attribute(
+        u"Callable used to create new widgets."
+        u"Called with the form, field and request.")
+
+    def getContent():
+        """Return the content that is used by the form.
+        """
 
     def getContentData():
         """Returns the content that will be used for the form processing.
@@ -118,6 +129,10 @@ class IAction(IRenderableComponent):
     """A form action.
     """
     description = Attribute(u"Describe the action")
+
+    accesskey = Attribute(u"Accesskey for the action")
+
+    html5Validation = Attribute(u"Enable HTML5 validation for this action")
 
     def validate(form):
         """Self validation of values in order to run.
@@ -180,6 +195,11 @@ class IError(IComponent):
     """A error.
     """
 
+    def get(prefix, default=None):
+        """Return a sub error identified by the given prefix if
+        available.
+        """
+
 
 class IErrors(IMutableCollection):
     """A collection of errors.
@@ -213,6 +233,15 @@ class IWidget(IComponent):
 
     def htmlAttributes():
         """Return a dictionary with all authorized extra HTML attributes.
+        """
+
+    def isVisible():
+        """Return True if the widget will render something visible in
+        the rendered HTML.
+        """
+
+    def update():
+        """Update the widget. This must be called before render.
         """
 
     def render():
