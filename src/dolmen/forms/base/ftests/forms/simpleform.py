@@ -35,6 +35,7 @@ And we can render it::
   >>> print XMLDiff(response.body, '''
   ... <html>
   ...   <head>
+  ...     <title>My form</title>
   ...   </head>
   ...   <body>
   ...     <form action="http://localhost/change"

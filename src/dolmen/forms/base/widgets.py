@@ -5,19 +5,20 @@ from cromlech.browser import ITemplate
 from cromlech.i18n import ILanguage
 from dolmen.collection import Component, Collection
 from dolmen.forms.base import interfaces
-from dolmen.forms.base.interfaces import IModeMarker
+from dolmen.forms.base.interfaces import IModeMarker, IWidgetFactory
 from dolmen.forms.base.markers import NO_VALUE, HIDDEN, getValue
 from dolmen.template import TALTemplate
 from grokcore import component as grok
 from zope.component import getMultiAdapter, queryMultiAdapter
 from zope.interface import Interface, moduleProvides
+from dolmen.collection import ICollection
 
 
 here = os.path.dirname(__file__)
 WIDGETS = os.path.join(here, 'widgets_templates')
 
 
-def widget_id(form, component):
+def widgetId(form, component):
     """Create an unique ID for a widget.
     """
     return '.'.join(
@@ -26,31 +27,110 @@ def widget_id(form, component):
          if iditem))
 
 
+def getWidgetExtractor(field, form, request):
+    warnings.warn(
+        u"getWidgetExtractor is deprecated in favor of "
+        u"form.widgetFactory.extractor", DeprecationWarning)
+    return form.widgetFactory.extractor(field)
+
+
+class WidgetFactory(object):
+    """Generic API to create widgets and extractors.
+    """
+    grok.implements(IWidgetFactory)
+
+    def __init__(self, form, request):
+        self.form = form
+        self.request = request
+
+    def widget(self, field):
+        """Create a widget for the given field.
+        """
+        if not field.available(self.form):
+            return None
+        mode = str(getValue(field, 'mode', self.form))
+        return getMultiAdapter(
+            (field, self.form, self.request),
+            interfaces.IWidget,
+            name=mode)
+
+    def extractor(self, field):
+        """Create a widget extractor for the given field.
+        """
+        mode = getValue(field, 'mode', self.form)
+
+        # The field mode should be extractable or we skip it.
+        if (IModeMarker.providedBy(mode) and mode.extractable is False):
+            return None
+
+        extractor = queryMultiAdapter(
+            (field, self.form, self.request),
+            interfaces.IWidgetExtractor,
+            name=str(mode))
+        if extractor is not None:
+            return extractor
+        # Default to the default extractor
+        return getMultiAdapter(
+            (field, self.form, self.request),
+            interfaces.IWidgetExtractor)
+
+
+class Widgets(Collection):
+    grok.implements(interfaces.IWidgets)
+
+    type = interfaces.IWidget
+
+    def extend(self, *args):
+        if not args:
+            return
+
+        # Ensure the user created us with the right options
+        assert self.__dict__.get('form', None) is not None
+        factory = self.form.widgetFactory.widget
+
+        for arg in args:
+            if interfaces.IWidgets.providedBy(arg):
+                for widget in arg:
+                    self.append(widget)
+            elif interfaces.ICollection.providedBy(arg):
+                for field in arg:
+                    widget = factory(field)
+                    if widget is not None:
+                        self.append(widget)
+            elif interfaces.IWidget.providedBy(arg):
+                self.append(arg)
+            elif interfaces.IRenderableComponent.providedBy(arg):
+                widget = factory(arg)
+                if widget is not None:
+                    self.append(widget)
+            else:
+                raise TypeError(u'Invalid type', arg)
+
+    def update(self):
+        for widget in self:
+            widget.update()
+
+
 class Widget(Component, grok.MultiAdapter):
     grok.baseclass()
     grok.implements(interfaces.IWidget)
     grok.provides(interfaces.IWidget)
 
-    template = None
-
-    defaultHtmlAttributes = set([
-        'required', 'readonly', 'placeholder',
-        'autocomplete', 'size', 'maxlength',
-        'pattern', 'style'])
-
+    defaultHtmlAttributes = set(['required', 'readonly', 'placeholder',
+                                 'autocomplete', 'size', 'maxlength',
+                                 'pattern', 'style'])
     defaultHtmlClass = ['field']
-
     alternateLayout = False
-    
+
     def __init__(self, component, form, request):
-        identifier = widget_id(form, component)
+        identifier = widgetId(form, component)
         super(Widget, self).__init__(component.title, identifier)
         self.component = component
         self.form = form
         self.request = request
         self._htmlAttributes = {}
-        
-    def copy(self):
+
+    def clone(self, new_identifier=None):
         raise NotImplementedError
 
     def htmlId(self):
@@ -62,7 +142,7 @@ class Widget(Component, grok.MultiAdapter):
         if self.required:
             result = result + ['field-required',]
         return ' '.join(result)
-    
+
     def htmlAttribute(self, name=None):
         value = self._htmlAttributes.get(name)
         if value:
@@ -82,22 +162,26 @@ class Widget(Component, grok.MultiAdapter):
                 else:
                     attributes[key] = str(value)
         return attributes
-    
-    @property
-    def visible(self):
-        return self.component.mode != HIDDEN
+
+    def isVisible(self):
+        return not self.component.mode == HIDDEN
 
     def namespace(self):
-        namespace = {'widget': self, 'request': self.request}
+        namespace = {'widget': self,
+                     'request': self.request}
         return namespace
-
-    @property
-    def target_language(self):
-        return ILanguage(self.request, None)
 
     def update(self):
         pass
 
+    @property
+    def target_language(self):
+        """Returns the prefered language by adapting the request.
+        If no adapter thus no language is found, None is returned.
+        None will, most of the time, mean 'no translation'.
+        """
+        return ILanguage(self.request, None)
+    
     def render(self):
         template = getattr(self, 'template', None)
         if template is None:
@@ -115,14 +199,15 @@ class WidgetExtractor(grok.MultiAdapter):
         Interface)
 
     def __init__(self, component, form, request):
-        self.identifier = widget_id(form, component)
+        self.identifier = widgetId(form, component)
         self.component = component
         self.form = form
         self.request = request
 
     def extract(self):
-        # default behaviour is NO_VALUE means value not even mentionned
-        value = self.request.form.get(self.identifier, NO_VALUE)
+        value = self.request.form.get(self.identifier)
+        if value is None:
+            value = NO_VALUE
         return (value, None)
 
     def extractRaw(self):
@@ -157,106 +242,48 @@ class ReadOnlyWidgetExtractor(WidgetExtractor):
     grok.name('readonly')
 
 
-def createWidget(field, form, request):
-    """Create a widget (or return None) for the given form and
-    request.
-    """
-    if not field.available(form):
-        return None
-    mode = str(getValue(field, 'mode', form))
-    return getMultiAdapter(
-        (field, form, request), interfaces.IWidget, name=mode)
-
-
-class Widgets(Collection):
-    grok.implements(interfaces.IWidgets)
-
-    type = interfaces.IWidget
-
-    def extend(self, *args):
-        if not args:
-            return
-
-        # Ensure the user created us with the right options
-        assert self.__dict__.get('form', None) is not None
-        assert self.__dict__.get('request', None) is not None
-
-        for arg in args:
-            if interfaces.IWidgets.providedBy(arg):
-                for widget in arg:
-                    self.append(widget)
-            elif interfaces.ICollection.providedBy(arg):
-                for field in arg:
-                    widget = createWidget(field, self.form, self.request)
-                    if widget is not None:
-                        self.append(widget)
-            elif interfaces.IWidget.providedBy(arg):
-                self.append(arg)
-            elif interfaces.IRenderableComponent.providedBy(arg):
-                widget = createWidget(arg, self.form, self.request)
-                if widget is not None:
-                    self.append(widget)
-            else:
-                raise TypeError(u'Invalid type', arg)
-
-    def update(self):
-        for widget in self:
-            widget.update()
-
-
 # After follow the implementation of some really generic default
 # widgets
 
 class ActionWidget(Widget):
-    grok.name('input')
     grok.adapts(
         interfaces.IAction,
         interfaces.IFieldExtractionValueSetting,
         Interface)
-
+    grok.name('input')
     template = TALTemplate(os.path.join(WIDGETS, 'action.pt'))
-
     defaultHtmlAttributes = set(['accesskey', 'formnovalidate', 'style'])
     defaultHtmlClass = ['action']
-    
+
     def __init__(self, component, form, request):
         super(ActionWidget, self).__init__(component, form, request)
         self.description = component.description
         self._htmlAttributes.update({
-            'accesskey': component.accesskey,
-            'formnovalidate': not component.html5Validation})
-        
+                'accesskey': component.accesskey,
+                'formnovalidate': not component.html5Validation})
+        self._htmlAttributes.update(component.htmlAttributes)
+
     def htmlClass(self):
         return 'action'
 
 
-def getWidgetExtractor(field, form, request):
-    mode = str(getValue(field, 'mode', form))
-
-    # The field mode should be extractable or we skip it.
-    if (IModeMarker.providedBy(field.mode) and
-        field.mode.extractable is False):
-        return None
-
-    extractor = queryMultiAdapter(
-        (field, form, request), interfaces.IWidgetExtractor, name=mode)
-    if extractor is not None:
-        return extractor
-    return getMultiAdapter((field, form, request), interfaces.IWidgetExtractor)
-
-
 class FieldWidget(Widget):
-    grok.name('input')
     grok.implements(interfaces.IFieldWidget)
-    grok.adapts(interfaces.IField, interfaces.IFormData, Interface)
-
+    grok.adapts(
+        interfaces.IField,
+        interfaces.IFormData,
+        Interface)
+    grok.name('input')
     template = TALTemplate(os.path.join(WIDGETS, 'fieldwidget.pt'))
-
+    
     def __init__(self, component, form, request):
         super(FieldWidget, self).__init__(component, form, request)
         self.description = component.description
-        self.required = component.required
-        self.readonly = component.readonly
+        self.required = component.isRequired(form)
+        self._htmlAttributes.update(component.htmlAttributes)
+        self._htmlAttributes.update({
+                'readonly': component.readonly,
+                'required': self.required})
 
     @property
     def error(self):
@@ -266,12 +293,11 @@ class FieldWidget(Widget):
         # First lookup the request
         ignoreRequest = getValue(self.component, 'ignoreRequest', self.form)
         if not ignoreRequest:
-            extractor = getWidgetExtractor(
-                self.component, self.form, self.request)
+            extractor = self.form.widgetFactory.extractor(self.component)
             if extractor is not None:
                 value = extractor.extractRaw()
                 if value:
-                    return self.prepareRequestValue(value)
+                    return self.prepareRequestValue(value, extractor)
 
         # After, the context
         ignoreContent = getValue(self.component, 'ignoreContent', self.form)
@@ -294,7 +320,7 @@ class FieldWidget(Widget):
     def valueToUnicode(self, value):
         return unicode(value)
 
-    def prepareRequestValue(self, value):
+    def prepareRequestValue(self, value, extractor):
         return value
 
     def prepareContentValue(self, value):

@@ -140,15 +140,26 @@ class IActions(ICollection):
 class IField(IRenderableComponent, IFieldExtractionValueSetting):
     """A form field.
     """
-    description = Attribute(u"Field description")
-    required = Attribute(u"Boolean indicating if the field is required")
-    readonly = Attribute(u"Boolean indicating if the field is read-only")
+    description = Attribute(
+        u"Field description")
+
+    required = Attribute(
+        u"Boolean indicating if the field is required")
+
+    readonly = Attribute(
+        u"Boolean indicating if the field is read-only")
+
+    htmlAttributes = Attribute(
+        u"Dictionnary with extra html attributes to add to the field")
+
+    interface = Attribute(
+        u"Optional Zope interface associated to the field")
 
     def getDefaultValue(form):
         """Return the default value.
         """
 
-    def validate(value, context=None):
+    def validate(value, form):
         """Validate that the given value fullfil the field
         requirement.
         """
@@ -215,7 +226,6 @@ class IFieldWidget(IWidget):
     description = Attribute(u"Description of the field")
     error = Attribute(u"Field error, or None")
     required = Attribute(u"Boolean indicating if the field is required")
-    readonly = Attribute(u"Boolean indicating if field is read-only")
 
 
 class IWidgetExtractor(Interface):
@@ -238,6 +248,23 @@ class IWidgets(ICollection):
     """A collection of widgets.
     """
 
+    
+class IWidgetFactory(Interface):
+    """Adapt a form to create widgets.
+    """
+
+    def __init__(form, request):
+        """Create a factory.
+        """
+
+    def widget(field):
+        """Create a widget for the given field.
+        """
+
+    def extractor(field):
+        """Create a widget extractor for the given field.
+        """
+    
 
 class IFormCanvas(IPrefixable, IFieldExtractionValueSetting, IRenderable):
     """Definition of a form structure.

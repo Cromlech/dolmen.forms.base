@@ -17,12 +17,13 @@ from dolmen.forms.base.datamanagers import ObjectDataManager
 from dolmen.forms.base.errors import Errors, Error
 from dolmen.forms.base.fields import Fields
 from dolmen.forms.base.markers import NO_VALUE, INPUT
-from dolmen.forms.base.widgets import Widgets, getWidgetExtractor
-from dolmen.forms.base.interfaces import ICollection, ISuccessMarker
+from dolmen.forms.base.widgets import Widgets, WidgetFactory
+from dolmen.forms.base.interfaces import IError, ICollection, ISuccessMarker
 
 from grokcore import component as grok
 from zope import interface
 from zope.component import queryMultiAdapter
+from zope.cachedescriptors.property import Lazy
 
 
 PATH = path.join(path.dirname(__file__), 'default_templates')
@@ -74,7 +75,8 @@ def cloneFormData(original, content=_marker, prefix=None):
     clone.postOnly = original.postOnly
     clone.formMethod = original.formMethod
     clone.enctype = original.enctype
-
+    clone.widgetFactoryFactory = original.widgetFactoryFactory
+    
     # Unpiling the error stack
     errors = original.errors.get(clone.prefix, None)
     if errors is not None:
@@ -114,6 +116,7 @@ class FormData(Object):
     parent = None
     mode = INPUT
     dataManager = ObjectDataManager
+    widgetFactoryFactory = WidgetFactory
     dataValidators = []
     postOnly = True
     formMethod = 'post'
@@ -154,6 +157,10 @@ class FormData(Object):
                 return [error]
         return []
 
+    @Lazy
+    def widgetFactory(self):
+        return self.widgetFactoryFactory(self, self.request)
+
     def htmlId(self):
         return self.prefix.replace('.', '-')
 
@@ -173,42 +180,45 @@ class FormData(Object):
     def validateData(self, fields, data):
         errors = Errors()
         for factory in self.dataValidators:
-            validator = factory(fields, self)
+            validator = factory(self, fields)
             for error in validator.validate(data):
-                errors.append(Error(error.args[0], self.prefix))
+                if not IError.providedBy(error):
+                    error = Error(error, self.prefix)
+                errors.append(error)
         return errors
 
     @cached('_extracted')
     def extractData(self, fields):
+        # XXX to review this
+        cached = self._extracted.get(fields)
+        if cached is not None:
+            return cached
         data = FieldsValues(self, fields)
-        errors = Errors()
+        self.errors = errors = Errors()
+        self._extracted[fields] = (data, errors)
 
         for field in fields:
             if not field.available(self):
                 continue
 
             # Widget extraction and validation
-            extractor = getWidgetExtractor(field, self, self.request)
+            extractor = self.widgetFactory.extractor(field)
             if extractor is not None:
                 value, error = extractor.extract()
                 if error is None:
-                    error = field.validate(value, self.context)
+                    error = field.validate(value, self)
                 if error is not None:
-                    if not interfaces.IError.providedBy(error):
-                        if interfaces.IErrors.providedBy(error):
-                            # this is an Errors, not implementing IError
-                            # "Make it so, number one !"
-                            error = Errors(
-                                *error, identifier=extractor.identifier)
-                        else:
-                            error = Error(
-                                error, identifier=extractor.identifier)
+                    if not IError.providedBy(error):
+                        error = Error(error, extractor.identifier)
                     errors.append(error)
                 data[field.identifier] = value
 
         # Generic form validation
-        validation_errors = self.validateData(fields, data)
-        errors.extend(validation_errors)
+        errors.extend(self.validateData(fields, data))
+        if len(errors):
+            # Add a form level error if not already present
+            if self.prefix not in errors:
+                errors.append(Error(_(u"There were errors."), self.prefix))
         self.errors = errors
         return (data, errors)
 

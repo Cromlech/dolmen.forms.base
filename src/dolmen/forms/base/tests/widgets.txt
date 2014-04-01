@@ -4,170 +4,212 @@ dolmen.forms.base
 Widgets are responsible to render component (like actions and fields)
 as HTML code for the user.
 
-
 Widget
 ------
 
 Widgets are multiadapters, which adapts the component they render, for
-a given form, and request. So we need all that::
+a given form, and request. So we need all that:
 
    >>> from cromlech.browser.testing import TestRequest
    >>> request = TestRequest()
 
-   >>> from dolmen.forms.base import Form
-   >>> form1 = Form(None, request)
+   >>> from dolmen.forms.base.components import Form
+   >>> form = Form(None, request)
 
    >>> from dolmen.forms.base.actions import Action
-   >>> action1 = Action(u"Do Something")
-   >>> form1.actions += action1
+   >>> action = Action(u"Do Something")
+   >>> form.actions += action
 
-So now we can get a widget for an action for instance::
+So now we can get a widget for an action for instance:
 
    >>> from dolmen.forms.base import interfaces
    >>> from zope import component
-   >>> widget1 = component.getMultiAdapter(
-   ...         (action1, form1, request), interfaces.IWidget, name='input')
-   >>> widget1
+   >>> action_widget = component.getMultiAdapter(
+   ... (action, form, request), interfaces.IWidget, name='input')
+   >>> action_widget
    <ActionWidget Do Something>
 
 By default our widget will the same title than the component, and its
-identifier will be composed with the component on and the form prefix::
+identifier will be composed with the component on and the form prefix:
 
-   >>> action1.identifier
+   >>> action.identifier
    'do-something'
-   >>> widget1.identifier
+   >>> action_widget.identifier
    'form.action.do-something'
-   >>> action1.title
+   >>> action.title
    u'Do Something'
-   >>> widget1.title
+   >>> action_widget.title
    u'Do Something'
 
 The method render gives you the HTML to display. Our widget is an
-action, so by default you get a button::
+action, so by default you get a button:
 
-   >>> print widget1.render()
+   >>> print action_widget.render() #doctest: +NORMALIZE_WHITESPACE
    <input type="submit" id="form-action-do-something"
           name="form.action.do-something" value="Do Something" class="action" />
-   <BLANKLINE>
 
-You can get its HTML id as well (to render any label for instance)::
+You can get its HTML id as well (to render any label for instance),
+class, or retrieve random attributes, like access key (if set):
 
-   >>> widget1.htmlId()
+   >>> action_widget.htmlId()
    'form-action-do-something'
+   >>> action_widget.htmlClass()
+   'action'
+   >>> action_widget.htmlAttribute('accesskey')
+   >>> action_widget.htmlAttribute('formnovalidate')
 
-Our widget implements IWidget, and IComponent::
+You can set an access key and disable the HTML 5 validation and set other
+html attributes :
+
+   >>> action.accesskey = 'e'
+   >>> action.html5Validation = False
+   >>> action.htmlAttributes['data-confirmation'] = 'Are you sure ?'
+
+   >>> action_widget = component.getMultiAdapter(
+   ... (action, form, request), interfaces.IWidget, name='input')
+   >>> action_widget.htmlAttribute('accesskey')
+   'e'
+   >>> action_widget.htmlAttribute('formnovalidate')
+   'formnovalidate'
+   >>> action_widget.htmlAttribute('data-confirmation')
+   'Are you sure ?'
+   >>> print action_widget.render() #doctest: +NORMALIZE_WHITESPACE
+   <input type="submit" id="form-action-do-something"
+          name="form.action.do-something" value="Do Something" class="action"
+          accesskey="e" formnovalidate="formnovalidate"
+          data-confirmation="Are you sure ?" />
+
+Our widget implements IWidget, and IComponent:
 
    >>> from zope.interface.verify import verifyObject
-   >>> verifyObject(interfaces.IWidget, widget1)
+   >>> verifyObject(interfaces.IWidget, action_widget)
    True
    >>> interfaces.IWidget.extends(interfaces.IComponent)
    True
-
 
 Field widget
 ~~~~~~~~~~~~
 
 Like for actions, fields have widgets to be rendered. They are a bit
-more advanced::
+more advanced:
 
    >>> from dolmen.forms.base.fields import Field
-   >>> field1 = Field(u"Title")
-   >>> field1.description = u"Nice name for your field"
-   >>> field1.required = True
-   >>> form1.fields += field1
+   >>> field = Field(u"Title")
+   >>> field.description = u"Nice name for your field"
+   >>> field.required = True
+   >>> form.fields += field
 
-   >>> widget2 = component.getMultiAdapter(
-   ...         (field1, form1, request), interfaces.IWidget, name='input')
-   >>> widget2
+   >>> field_widget = component.getMultiAdapter(
+   ... (field, form, request), interfaces.IWidget, name='input')
+   >>> field_widget
    <FieldWidget Title>
 
-Like for an action, all identifier and title are set correctly::
+Like for an action, all identifier and title are set correctly:
 
-   >>> field1.identifier
+   >>> field.identifier
    'title'
-   >>> widget2.identifier
+   >>> field_widget.identifier
    'form.field.title'
-   >>> field1.title
+   >>> field.title
    u'Title'
-   >>> widget2.title
+   >>> field_widget.title
    u'Title'
 
+Prefixes of the form and the component will alter the identifier:
 
-Prefixes
-~~~~~~~~~~~~
-
-Prefixes of the form and the component will alter the identifier::
-
-   >>> form2 = Form(None, request)
-   >>> form2.prefix = u"something"
+   >>> form_prefix = Form(None, request)
+   >>> form_prefix.prefix = u"something"
 
    >>> action2 = Action(u"Some action")
    >>> action2.prefix = u"else"
-   >>> form2.actions += action2
+   >>> form_prefix.actions += action2
 
    >>> widget3 = component.getMultiAdapter(
-   ...         (action2, form2, request), interfaces.IWidget, name='input')
+   ... (action2, form_prefix, request), interfaces.IWidget, name='input')
 
    >>> widget3.identifier
    'something.else.some-action'
 
-If the prefixes are empty::
+If the prefixes are empty:
 
-   >>> form2.prefix = u""
+   >>> form_prefix.prefix = u""
    >>> widget3 = component.getMultiAdapter(
-   ...         (action2, form2, request), interfaces.IWidget, name='input')
+   ... (action2, form_prefix, request), interfaces.IWidget, name='input')
 
    >>> widget3.identifier
    'else.some-action'
 
    >>> action2.prefix = u""
    >>> widget3 = component.getMultiAdapter(
-   ...         (action2, form2, request), interfaces.IWidget, name='input')
+   ... (action2, form_prefix, request), interfaces.IWidget, name='input')
 
    >>> widget3.identifier
    'some-action'
 
-Shortcuts
-~~~~~~~~~~~~
-
 For convinience, the description and required is also available on the
-widget (to be used while rendering that last one)::
+widget (to be used while rendering that last one):
 
-   >>> widget2.description
+   >>> field_widget.description
    u'Nice name for your field'
-   >>> widget2.required
+   >>> field_widget.required
    True
 
 As well, any error reported for the field on the form is accessible
-via the widget::
+via the widget:
 
-   >>> widget2.error
+   >>> field_widget.error
 
    >>> from dolmen.forms.base.errors import Error
-   >>> form1.errors.append(Error('Not Happy', 'form.field.someone'))
-   >>> widget2.error
-   >>> form1.errors.append(Error('Missing value', 'form.field.title'))
-   >>> widget2.error
+   >>> form.errors.append(Error('Not Happy', 'form.field.someone'))
+   >>> field_widget.error
+   >>> form.errors.append(Error('Missing value', 'form.field.title'))
+   >>> field_widget.error
    <Error Missing value>
 
-Widget are views that can be renderered::
+Widget are views that can be that can be renderered:
 
-   >>> widget2.update()
-   >>> print widget2.render() #doctest: +NORMALIZE_WHITESPACE
+   >>> field_widget.update()
+   >>> print field_widget.render() #doctest: +NORMALIZE_WHITESPACE
    <input type="text" id="form-field-title" name="form.field.title"
-   class="field" value="" />
+          class="field field-required" value="" required="required" />
 
-If field is read only then field widget is read only as well::
+If field is read only then field widget is read only as well:
 
-   >>> field1.readonly = True
-   >>> widget2 =component.getMultiAdapter(
-   ...         (field1, form1, request), interfaces.IWidget, name='input')
-   >>> widget2.readonly
-   True
-   >>> widget2.update()
-   >>> print widget2.render() #doctest: +NORMALIZE_WHITESPACE
+   >>> field.readonly
+   False
+   >>> field_widget.htmlAttribute('readonly')
+
+Switch the readonly flag on:
+
+   >>> field.readonly = True
+   >>> field_widget =component.getMultiAdapter(
+   ... (field, form, request), interfaces.IWidget, name='input')
+   >>> field_widget.htmlAttribute('readonly')
+   'readonly'
+   >>> field_widget.update()
+   >>> print field_widget.render() #doctest: +NORMALIZE_WHITESPACE
    <input type="text" id="form-field-title" name="form.field.title"
-   class="field" value="" readonly="readonly" />
+          class="field field-required" value="" readonly="readonly"
+          required="required" />
+
+The field can provide some valid extra html attributes:
+
+   >>> field.htmlAttributes['size'] = '40'
+   >>> field.htmlAttributes['autocomplete'] = True
+   >>> field.htmlAttributes['placeholder'] = 'Name ...'
+
+   >>> field_widget =component.getMultiAdapter(
+   ... (field, form, request), interfaces.IWidget, name='input')
+
+   >>> field_widget.htmlAttribute('size')
+   '40'
+   >>> field_widget.htmlAttribute('autocomplete')
+   'autocomplete'
+   >>> field_widget.update()
+   >>> print field_widget.render() #doctest: +NORMALIZE_WHITESPACE
+   <input type="text" id="form-field-title" name="form.field.title"
+          class="field field-required" value="" autocomplete="autocomplete"
+          readonly="readonly" required="required" placeholder="Name ..." size="40" />
 
 
 Field widget value
@@ -181,13 +223,13 @@ depending of the settings.
 Field widget interface
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Our widget implement IFieldWidget, which extend the default widget interface::
+Our widget implement IFieldWidget, which extend the default widget interface:
 
-   >>> verifyObject(interfaces.IFieldWidget, widget1)
+   >>> verifyObject(interfaces.IFieldWidget, action_widget)
    Traceback (most recent call last):
      ...
    DoesNotImplement: An object does not implement interface <InterfaceClass dolmen.forms.base.interfaces.IFieldWidget>
-   >>> verifyObject(interfaces.IFieldWidget, widget2)
+   >>> verifyObject(interfaces.IFieldWidget, field_widget)
    True
    >>> interfaces.IFieldWidget.extends(interfaces.IWidget)
    True
@@ -197,74 +239,73 @@ Widgets
 -------
 
 As you can guess, you are not going to build your widgets one by one
-to render them. You can use a Widgets collection to create and manage your
+to render them. You can a Widgets collection to create and manage your
 widgets.
 
-Let's add another action to our form, and let's create widgets for
-them::
+Let's add an another action to our form, and let's create widgets for
+them:
 
-   >>> form1.actions += Action("Do Nothing")
-   >>> list(form1.actions)
+   >>> form.actions += Action("Do Nothing")
+   >>> list(form.actions)
    [<Action Do Something>, <Action Do Nothing>]
 
    >>> from dolmen.forms.base.widgets import Widgets
-   >>> widgets1 = Widgets(form1.actions, form=form1, request=request)
-   >>> widgets1
+   >>> widgets = Widgets(form.actions, form=form, request=request)
+   >>> widgets
    <Widgets>
-   >>> list(widgets1)
+   >>> list(widgets)
    [<ActionWidget Do Something>, <ActionWidget Do Nothing>]
-   >>> widgets1.keys()
+   >>> widgets.keys()
    ['form.action.do-something', 'form.action.do-nothing']
 
 There is an update method on a Widgets collection, which is going to
-call update on each Widget of the collection::
+call update on each Widget of the collection:
 
-   >>> widgets1.update()
+   >>> widgets.update()
 
-Widgets implements IWidgets and ICollection::
+Widgets implements IWidgets and ICollection:
 
-   >>> verifyObject(interfaces.IWidgets, widgets1)
+   >>> verifyObject(interfaces.IWidgets, widgets)
    True
    >>> interfaces.IWidgets.extends(interfaces.ICollection)
    True
 
 Since Widgets are collection, you can of course use ``copy``,
-``select`` or ``omit`` on your widget the selection::
+``select`` or ``omit`` on your widget the selection:
 
-   >>> widgets1copy = widgets1.copy()
-   >>> widgets1copy
+   >>> widgets_copy = widgets.copy()
+   >>> widgets_copy
    <Widgets>
-   >>> widgets1copy.form is widgets1.form
+   >>> widgets_copy.form is widgets.form
    True
-   >>> widgets1copy.request is widgets1.request
+   >>> widgets_copy.request is widgets.request
    True
-   >>> list(widgets1copy) == list(widgets1)
+   >>> list(widgets_copy) == list(widgets)
    True
-   >>> widgets1copy is widgets1
+   >>> widgets_copy is widgets
    False
 
-   >>> list(widgets1.omit('form.action.do-something'))
+   >>> list(widgets.omit('form.action.do-something'))
    [<ActionWidget Do Nothing>]
 
-   >>> list(widgets1.select('form.action.do-something'))
+   >>> list(widgets.select('form.action.do-something'))
    [<ActionWidget Do Something>]
 
-Of course you cannot extend it with anything else than components::
+Of course you cannot extend it with anything else than components:
 
-   >>> widgets1.extend(42)
+   >>> widgets.extend(42)
    Traceback (most recent call last):
      ...
    TypeError: (u'Invalid type', 42)
 
-But you can directly add an already created widget::
+But you can directly add an already created widget:
 
-   >>> widgets2 = Widgets(form=form1, request=request)
-   >>> widgets2.extend(widgets1['form.action.do-nothing'])
-   >>> list(widgets2)
+   >>> widgets_extended = Widgets(form=form, request=request)
+   >>> widgets_extended.extend(widgets['form.action.do-nothing'])
+   >>> list(widgets_extended)
    [<ActionWidget Do Nothing>]
-   >>> widgets2.keys()
+   >>> widgets_extended.keys()
    ['form.action.do-nothing']
-
 
 WidgetExtractor
 ---------------
@@ -284,42 +325,90 @@ value to render, they are all executed before any widget is created
 (even in the case of subforms).
 
 So WidgetExtractor are multiadapters, adapting the component, form and
-request, like a Widget does::
+request, like a Widget does:
 
-   >>> e1 = component.getMultiAdapter(
-   ...         (action1, form1, request), interfaces.IWidgetExtractor)
-   >>> e1
+   >>> empty_extractor = component.getMultiAdapter(
+   ... (action, form, request), interfaces.IWidgetExtractor)
+   >>> empty_extractor
    <dolmen.forms.base.widgets.WidgetExtractor object at ...>
 
-And you can extract the widget value, and errors from the request::
+And you can extract the widget value, and errors from the request:
 
-   >>> e1.extract()
+   >>> empty_extractor.extract()
    (<Marker NO_VALUE>, None)
 
-But our request was empty here. Let's try with a non-empty one::
+But our request was empty here. Let's try with a non-empty one:
 
    >>> submitted_request = TestRequest(
-   ...         form={'form.action.do-something': u'Do Something',
-   ...                'otherfield': 42})
-   >>> e2 = component.getMultiAdapter(
-   ...         (action1, form1, submitted_request),
-   ...         interfaces.IWidgetExtractor)
-   >>> e2.extract()
+   ... form={'form.action.do-something': u'Do Something',
+   ... 'otherfield': 42})
+   >>> action_extractor = component.getMultiAdapter(
+   ... (action, form, submitted_request),
+   ... interfaces.IWidgetExtractor)
+   >>> action_extractor.extract()
    (u'Do Something', None)
 
-Another role of the extractor is to gives the request fields used for
-the extraction::
+An another of the extractor is to gives the request fields used for
+the extraction:
 
-   >>> e2.extractRaw()
+   >>> action_extractor.extractRaw()
    {'form.action.do-something': u'Do Something'}
 
 This can be used by widgets to display again any non-validated data.
 
-WidgetExtractor implements IWidgetExtractor, but unlike Widgets, not
-IComponent::
+WidgetExtractor implements IWidgetExtractor, but inlike Widgets, not
+IComponent:
 
-   >>> verifyObject(interfaces.IWidgetExtractor, e1, e2)
+   >>> verifyObject(interfaces.IWidgetExtractor, empty_extractor, action_extractor)
    True
-   >>> interfaces.IComponent.providedBy(e1)
+   >>> interfaces.IComponent.providedBy(empty_extractor)
    False
 
+
+Field extractor and required
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If a field is required, and you extract the value out of an empty
+request, you will have NO_VALUE marker. If the value is an empty
+string, you will also get NO_VALUE:
+
+   >>> field.required = True
+   >>> field.required
+   True
+   >>> required_extractor = component.getMultiAdapter(
+   ... (field, form, request), interfaces.IWidgetExtractor)
+   >>> required_extractor
+   <dolmen.forms.base.widgets.FieldWidgetExtractor object at ...>
+   >>> required_extractor.extract()
+   (<Marker NO_VALUE>, None)
+
+   >>> submitted_request = TestRequest(form={'form.field.title': u''})
+   >>> required_extractor = component.getMultiAdapter(
+   ... (field, form, submitted_request), interfaces.IWidgetExtractor)
+   >>> required_extractor
+   <dolmen.forms.base.widgets.FieldWidgetExtractor object at ...>
+   >>> required_extractor.extract()
+   (<Marker NO_VALUE>, None)
+
+
+If a field is not required, and you extract the value out of an empty
+request, you will get NO_VALUE. If the value is an empty string, you
+will an empty string:
+
+   >>> field.required = False
+   >>> field.required
+   False
+   >>> required_extractor = component.getMultiAdapter(
+   ... (field, form, request), interfaces.IWidgetExtractor)
+   >>> required_extractor
+   <dolmen.forms.base.widgets.FieldWidgetExtractor object at ...>
+   >>> required_extractor.extract()
+   (<Marker NO_VALUE>, None)
+
+   >>> submitted_request = TestRequest(form={'form.field.title': u''})
+   >>> required_extractor = component.getMultiAdapter(
+   ... (field, form, submitted_request), interfaces.IWidgetExtractor)
+   >>> required_extractor
+   <dolmen.forms.base.widgets.FieldWidgetExtractor object at ...>
+   >>> required_extractor.extract()
+   (u'', None)
