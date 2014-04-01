@@ -98,6 +98,8 @@ class FieldsValues(dict):
         self.fields = fields
 
     def getWithDefault(self, key, default=None):
+        if not key in self:
+            raise KeyError(key)
         value = super(FieldsValues, self).get(key, default)
         if value is NO_VALUE:
             value = self.fields[key].getDefaultValue(self.form)

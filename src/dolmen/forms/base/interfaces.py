@@ -88,18 +88,21 @@ class IFormData(IFieldExtractionValueSetting):
     """Form data processing facilities.
     """
     dataManager = Attribute(u"Data manager class used to access content.")
+
     status = Attribute(u"Form status message.")
 
     errors = Attribute(
         u"Iterable of the errors that occured during the form processing.")
+
     formErrors = Attribute(
         u"Main errors that occurred during the form processing.")
+
     widgetFactory = Attribute(
-        u"Callable used to create new widgets."
+        u"Callable used to create new widgets. "
         u"Called with the form, field and request.")
 
     def getContent():
-        """Return the content that is used by the form.
+        """Returns the content that is used by the form.
         """
 
     def getContentData():
