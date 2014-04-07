@@ -27,7 +27,7 @@ def set_fields_data(fields, content, data):
             continue
 
         content.set(identifier, value)
-        changes.setdefault(field._field.interface, []).append(identifier)
+        changes.setdefault(field.interface, []).append(identifier)
 
     return changes
 
