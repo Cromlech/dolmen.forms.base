@@ -234,14 +234,6 @@ class FieldWidgetExtractor(WidgetExtractor):
         return (value, None)
 
 
-class HiddenWidgetExtractor(WidgetExtractor):
-    grok.name('hidden')
-
-
-class ReadOnlyWidgetExtractor(WidgetExtractor):
-    grok.name('readonly')
-
-
 # After follow the implementation of some really generic default
 # widgets
 

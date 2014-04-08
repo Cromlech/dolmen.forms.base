@@ -181,7 +181,7 @@ class FormData(Object):
     def validateData(self, fields, data):
         errors = Errors()
         for factory in self.dataValidators:
-            validator = factory(self, fields)
+            validator = factory(fields, self)
             for error in validator.validate(data):
                 if not IError.providedBy(error):
                     error = Error(error, self.prefix)

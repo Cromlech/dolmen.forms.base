@@ -51,6 +51,12 @@ class SuccessMarker(Marker):
         return bool(self.success)
 
 
+class HiddenMarker(ModeMarker):
+    """A marker that hides a field.
+    """
+    pass
+
+
 # Data extraction markers
 DEFAULT = Marker('DEFAULT')
 NO_VALUE = Marker('NO_VALUE')
@@ -64,7 +70,7 @@ NOTHING_DONE = SuccessMarker('NOTHING_DONE', True)
 # Mode markers
 DISPLAY = ModeMarker('DISPLAY', extractable=False)
 INPUT = ModeMarker('INPUT')
-HIDDEN = ModeMarker('HIDDEN')
+HIDDEN = HiddenMarker('HIDDEN')
 
 
 def getValue(object, attr, default_object):
