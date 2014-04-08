@@ -31,6 +31,7 @@ class Field(Component):
                  description=u"",
                  required=False,
                  readonly=False,
+                 defaultFactory=None,
                  defaultValue=NO_VALUE,
                  constrainValue=None,
                  interface=None,
@@ -39,6 +40,7 @@ class Field(Component):
         self.description = description
         self.required = required
         self.readonly = readonly
+        self.defaultFactory = defaultFactory
         self.defaultValue = defaultValue
         self.interface = interface
         if constrainValue is not None:
