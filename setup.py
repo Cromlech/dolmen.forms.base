@@ -4,7 +4,7 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '2.5-dev'
+version = '2.5'
 readme = open('README.txt').read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
@@ -24,6 +24,7 @@ install_requires = [
     'zope.interface',
     'zope.lifecycleevent',
     'zope.schema',
+    'zope.cachedescriptors',
     ]
 
 tests_require = [
