@@ -196,7 +196,7 @@ to given sources. It's also layout aware::
 
   >>> for interface in implementedBy(ApplicationForm):
   ...     print interface
-  <InterfaceClass megrok.layout.interfaces.IPage>
+  <InterfaceClass grokcore.layout.interfaces.IPage>
   <InterfaceClass zeam.form.base.interfaces.ISimpleForm>
   <InterfaceClass zeam.form.base.interfaces.ISimpleFormCanvas>
   <InterfaceClass zeam.form.base.interfaces.IGrokViewSupport>

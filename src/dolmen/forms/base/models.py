@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from grokcore.component import baseclass
-from megrok.layout.components import UtilityView
+from grokcore.layout.components import LayoutAware
 from zeam.form.base.errors import Errors, Error
 from zeam.form.base.interfaces import ICollection
 from zeam.form.layout import Form
@@ -11,9 +11,7 @@ from zope.i18n.interfaces import IUserPreferredLanguages
 from zope.schema import interfaces
 
 
-
-
-class ApplicationForm(Form, UtilityView):
+class ApplicationForm(Form, LayoutAware):
     baseclass()
 
     dataValidators = [InvariantsValidation]
