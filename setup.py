@@ -2,12 +2,13 @@ from os.path import join
 from setuptools import setup, find_packages
 
 name = 'dolmen.forms.base'
-version = '1.1'
+version = '1.2'
 readme = open(join('src', 'dolmen', 'forms', 'base', 'README.txt')).read()
 history = open(join('docs', 'HISTORY.txt')).read()
 
 install_requires = [
     'grokcore.component',
+    'grokcore.message',
     'grokcore.layout',
     'setuptools',
     'zeam.form.base >= 1.0',
