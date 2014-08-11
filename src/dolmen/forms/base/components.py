@@ -253,8 +253,8 @@ class FormCanvas(FormData):
             return u"%s/%s" % (url, self.__component_name__)
         return u""
 
-    def __init__(self, context, request):
-        super(FormCanvas, self).__init__(context, request)
+    def __init__(self, context, request, **kwargs):
+        super(FormCanvas, self).__init__(context, request, **kwargs)
         self.actionWidgets = Widgets(form=self, request=self.request)
         self.fieldWidgets = Widgets(form=self, request=self.request)
         self._updated = False
@@ -385,6 +385,10 @@ class StandaloneForm(object):
 class Form(FormCanvas, StandaloneForm):
     """A full simple standalone form.
     """
+    def __init__(self, context, request, **kwargs):
+        content = kwargs.get('content', context)
+        FormCanvas.__init__(self, context, request, content=content)
+
     def update(self, *args, **kwargs):
         FormCanvas.update(self, *args, **kwargs)
         StandaloneForm.update(self, *args, **kwargs)
