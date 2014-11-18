@@ -1,6 +1,13 @@
 Changelog
 =========
 
+1.2 (2014-11-18)
+----------------
+
+* Added the `application_url` and `flash` methods to forms.
+  This implied the use of ``grokcore.site``, now a dependency.
+
+
 1.1 (2014-06-18)
 ----------------
 

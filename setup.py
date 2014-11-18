@@ -10,6 +10,7 @@ install_requires = [
     'grokcore.component',
     'grokcore.message',
     'grokcore.layout',
+    'grokcore.site',
     'setuptools',
     'zeam.form.base >= 1.0',
     'zeam.form.ztk >= 1.0',
