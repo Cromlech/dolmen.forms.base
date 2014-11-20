@@ -23,7 +23,7 @@ class ApplicationForm(Form, LayoutAware):
     def application_url(self, name=None, data={}):
         """Return the URL of the nearest enclosing `grok.Application`.
         """
-        return url(self.request, getApplication(), name, data)
+        return url(self.request, getApplication(), name=name, data=data)
 
     
     def flash(self, message, type='message'):

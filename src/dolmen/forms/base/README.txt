@@ -209,11 +209,21 @@ As ``zeam.form`` uses Chameleon as a template engine, it is import we
 are able to compute the current request locale, in order to get the
 right translation environment::
 
-  >>> from grokcore.component import Context
   >>> from zope.publisher.browser import TestRequest
-
-  >>> item = Context()
   >>> request = TestRequest()
+
+  >>> from zope import site
+  >>> from zope.location import Location
+  >>> from zope.location.interfaces import IRoot
+  >>> from zope.interface import implements
+
+  >>> class MyApp(Location, site.SiteManagerContainer):
+  ...     implements(IRoot)
+  ...     __name__ = ''
+
+  >>> item = MyApp()
+  >>> sm = site.LocalSiteManager(item)
+  >>> item.setSiteManager(sm)
 
   >>> form = ApplicationForm(item, request)
   >>> print form.i18nLanguage
@@ -227,6 +237,15 @@ right translation environment::
 Further more, the `ApplicationForm` overrides the ``extractData``
 method from the ``zeam.form`` Form in order to compute the interfaces
 invariants.
+
+  >>> from grokcore.site.interfaces import IApplication
+  >>> from zope.interface import alsoProvides
+  >>> from zope.component.hooks import setSite
+
+  >>> setSite(item)
+  >>> alsoProvides(item, IApplication)
+  >>> form.application_url()
+  'http://127.0.0.1'
 
 
 Declaring the invariants
