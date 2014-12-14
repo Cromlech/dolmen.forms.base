@@ -50,7 +50,7 @@ class Actions(Collection):
                 try:
                     if action.validate(form):
                         return action, action(form)
-                except interfaces.ActionError, error:
+                except interfaces.ActionError as error:
                     form.errors.append(errors.Error(
                         error.args[0], form.prefix))
                     return action, markers.FAILURE

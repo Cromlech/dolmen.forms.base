@@ -2,7 +2,7 @@
 
 from dolmen.forms.base.interfaces import IMarkersAPI
 from dolmen.forms.base.interfaces import IModeMarker, ISuccessMarker
-from zope.interface import implements, moduleProvides
+from zope.interface import implementer, moduleProvides
 
 
 class Marker(object):
@@ -20,22 +20,22 @@ class Marker(object):
         return '<Marker %s>' % (self.name.upper())
 
 
+@implementer(IModeMarker)
 class ModeMarker(Marker):
     """A Marker defining a form mode. It has a specific attribute,
     extractable, that defines if the mode allows the data extraction
     """
-    implements(IModeMarker)
 
     def __init__(self, name, extractable=True):
         Marker.__init__(self, name)
         self.extractable = extractable
 
 
+@implementer(ISuccessMarker)
 class SuccessMarker(Marker):
     """A marker defining an action result. It can be True or False,
     meaning Success or Failure.
     """
-    implements(ISuccessMarker)
 
     def __init__(self, name, success, url=None, code=None):
         Marker.__init__(self, name)

@@ -3,7 +3,7 @@
 from dolmen.collection import Component, Collection
 from dolmen.collection.components import IGNORE
 from dolmen.forms.base import markers, interfaces, _
-from zope.interface import implements, moduleProvides
+from zope.interface import implementer, moduleProvides
 
 
 def test_len(value):
@@ -17,8 +17,8 @@ def test_len(value):
     return True
 
 
+@implementer(interfaces.IField)
 class Field(Component):
-    implements(interfaces.IField)
 
     description = u''
     required = False
@@ -48,8 +48,8 @@ class Field(Component):
         return None
 
 
+@implementer(interfaces.IFields)
 class Fields(Collection):
-    implements(interfaces.IFields)
 
     type = interfaces.IField
     factory = interfaces.IFieldFactory

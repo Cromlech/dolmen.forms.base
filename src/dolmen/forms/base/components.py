@@ -377,7 +377,7 @@ class StandaloneForm(object):
             self.updateForm()
             result = self.render(*args, **kwargs)
             return self.make_response(result, *args, **kwargs)
-        except HTTPRedirect, exc:
+        except HTTPRedirect as exc:
             return redirect_exception_response(self.responseFactory, exc)
 
 
