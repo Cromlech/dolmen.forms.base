@@ -4,7 +4,7 @@ from dolmen.collection import Component, Collection
 from dolmen.collection.components import IGNORE
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.markers import NO_VALUE, DEFAULT, Marker
-
+from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.interface import implements, moduleProvides
 from zope.i18nmessageid import MessageFactory
 
@@ -67,7 +67,12 @@ class Field(Component):
         return value is NO_VALUE
 
     def getDefaultValue(self, form):
-        if callable(self.defaultValue):
+        if self.defaultValue is NO_VALUE:
+            if self.defaultFactory is not None:
+                if IContextAwareDefaultFactory.providedBy(self.defaultFactory):
+                    return self.defaultFactory(form)
+                return self.defaultFactory()
+        elif callable(self.defaultValue):
             return self.defaultValue(form)
         return self.defaultValue
 
