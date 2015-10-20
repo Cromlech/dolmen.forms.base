@@ -47,7 +47,7 @@ def make_layout_response(form, result, name=None):
         name = getattr(form, 'layoutName', "")
     layout = query_form_layout(form, name=name)
     if layout is not None:
-        wrapped = layout(result, **{'form': form})
+        wrapped = layout(result, **{'form': form, 'view': form})
         response = form.responseFactory()
         response.write(wrapped or u'')
         return response
