@@ -58,7 +58,7 @@ msgid "month must be in 1..12"
 msgstr "Der Wert für Monat muss zwischen 1 und 12 liegen."
 
 msgid "hour must be in 0..23"
-msgstr "Der Wert für die Stunde muss zwischen 0 und 23 liegen."
+msgstr "Der Wert für die Stunde muss zwischen 0 und 23:59 liegen."
 
 msgid "The datetime string did not match the pattern u'HH:mm'."
 msgstr "Der Wert ist ungültig."
