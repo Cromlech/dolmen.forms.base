@@ -1,6 +1,14 @@
 Changelog
 =========
 
+2.6 (2015-12-01)
+----------------
+
+* Added german translations for datetimeparseerrors
+
+* Corrected the use of defaultFactory
+
+
 2.5 (2014-04-11)
 ----------------
 
