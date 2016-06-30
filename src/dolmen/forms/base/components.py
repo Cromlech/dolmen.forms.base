@@ -2,6 +2,7 @@
 
 import operator
 from os import path
+import binascii
 
 from cromlech.browser.interfaces import IRenderable, IURL
 from cromlech.browser.exceptions import HTTPRedirect, REDIRECTIONS
@@ -18,7 +19,8 @@ from dolmen.forms.base.errors import Errors, Error
 from dolmen.forms.base.fields import Fields
 from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, WidgetFactory
-from dolmen.forms.base.interfaces import IError, ICollection, ISuccessMarker
+from dolmen.forms.base.interfaces import ICollection, ISuccessMarker
+from dolmen.forms.base.interfaces import IError, InvalidCSRFToken
 
 from grokcore import component as grok
 from zope import interface
@@ -226,6 +228,22 @@ class FormData(Object):
         return (data, errors)
 
 
+from webob.cookies import Cookie
+from webob.compat import text_type
+
+def get_cookie(response, name):
+    existing = response.headers.getall('Set-Cookie')
+    if not existing:
+        return
+    cookies = Cookie()
+    for header in existing:
+        cookies.load(header)
+    if isinstance(name, text_type):
+        name = name.encode('utf8')
+    if name in cookies:
+        return cookies[name]
+
+
 @interface.implementer(IRenderable, interfaces.ISimpleFormCanvas)
 class FormCanvas(FormData):
     """This represent a simple form setup: setup some fields and
@@ -239,6 +257,9 @@ class FormCanvas(FormData):
     actions = Actions()
     fields = Fields()
 
+    protected = False
+    csrftoken = None
+    
     __component_name__ = ''
     template = default_template
 
@@ -254,6 +275,41 @@ class FormCanvas(FormData):
         self.actionWidgets = Widgets(form=self, request=self.request)
         self.fieldWidgets = Widgets(form=self, request=self.request)
         self._updated = False
+
+    def setUpToken(self, response):
+        self.csrftoken = self.request.cookies.get('__csrftoken__')
+        if self.csrftoken is None:
+            # It is possible another form, that is rendered as part of
+            # this request, already set a csrftoken. In that case we
+            # should find it in the response cookie and use that.
+            existing = get_cookie(response, name)
+            if setcookie is not None:
+                self.csrftoken = existing['value']
+            else:
+                # Ok, nothing found, we should generate one and set
+                # it in the cookie ourselves. Note how we ``str()``
+                # the hex value of the ``os.urandom`` call here, as
+                # Python-3 will return bytes and the cookie roundtrip
+                # of a bytes values gets messed up.
+                self.csrftoken = str(binascii.hexlify(os.urandom(32)))
+                response.set_cookie(
+                    '__csrftoken__',
+                    self.csrftoken,
+                    path='/',
+                    expires=None,  # equivalent to "remove on browser quit"
+                    httpOnly=True,  # no javascript access please.
+                    )
+        
+    def checkToken(self):
+        cookietoken = self.request.cookies.get('__csrftoken__')
+        if cookietoken is None:
+            # CSRF is enabled, so we really should get a token from the
+            # cookie. We didn't get it, so this submit is invalid!
+            raise InvalidCSRFToken(_('Invalid CSRF token'))
+        if cookietoken != self.request.form.get('__csrftoken__', None):
+            # The token in the cookie is different from the one in the
+            # form data. This submit is invalid!
+            raise InvalidCSRFToken(_('Invalid CSRF token'))
 
     @property
     def target_language(self):

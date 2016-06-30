@@ -1,11 +1,26 @@
 # -*- coding: utf-8 -*-
 
 from zope import schema
-from zope.interface import Interface, Attribute
+from zope.interface import Interface, Attribute, implementer
 from zope.configuration.fields import GlobalObject
 from cromlech.browser.interfaces import IRenderable, IView, IForm
 from dolmen.collection import (
     ICollection, IComponent, IComponentFactory, IMutableCollection)
+
+
+class IInvalidCSRFToken(Interface):
+
+    def doc():
+        """The form submit could not be handled as the CSRF token is missing
+        or incorrect.
+        """
+
+
+@implementer(IInvalidCSRFToken)
+class InvalidCSRFToken(Exception):
+    """The form submit could not be handled as the CSRF token is missing
+    or incorrect.
+    """
 
 
 class IModeMarker(Interface):
