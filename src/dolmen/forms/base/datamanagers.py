@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from dolmen.forms.base import interfaces
-from zope.interface import implements, moduleProvides
+from zope.interface import implementer, moduleProvides
 
 
+@implementer(interfaces.IDataManager)
 class BaseDataManager(object):
     """Base class for a data manager.
     """
-    implements(interfaces.IDataManager)
 
     def __init__(self, content):
         self.content = content

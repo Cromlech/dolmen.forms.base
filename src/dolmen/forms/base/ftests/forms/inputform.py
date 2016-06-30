@@ -209,7 +209,8 @@ class Registration(base.Form):
     grok.context(Interface)
 
     responseFactory = Response
-
+    methods = ('POST',)
+    
     label = u"My form"
     description = u"The description of my form"
     fields = base.Fields(
@@ -237,7 +238,6 @@ class Search(base.Form):
 
     fields = base.Fields(
                 base.Field("Query"))
-    postOnly = False
     formMethod = 'GET'
 
     @base.action(u"Search")

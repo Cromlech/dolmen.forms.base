@@ -72,7 +72,7 @@ def cloneFormData(original, content=_marker, prefix=None):
         clone.prefix = prefix
 
     # form submission related attributes
-    clone.postOnly = original.postOnly
+    clone.methods = original.methods
     clone.formMethod = original.formMethod
     clone.enctype = original.enctype
     clone.widgetFactoryFactory = original.widgetFactoryFactory
@@ -117,22 +117,22 @@ class FieldsValues(dict):
     getDefault = getWithDefault
 
 
+@interface.implementer(interfaces.IFormData)
 class FormData(Object):
     """This represent a submission of a form. It can be used to update
     widgets and run actions.
     """
-    grok.implements(interfaces.IFormData)
-
     prefix = 'form'
     parent = None
     mode = INPUT
     dataManager = ObjectDataManager
     widgetFactoryFactory = WidgetFactory
     dataValidators = []
-    postOnly = True
-    formMethod = 'post'
-    enctype = 'multipart/form-data'
 
+    formMethod = 'POST'
+    enctype = 'multipart/form-data'
+    methods = frozenset(('POST', 'GET'))
+    
     ignoreRequest = False
     ignoreContent = True
 
@@ -226,12 +226,12 @@ class FormData(Object):
         return (data, errors)
 
 
+@interface.implementer(IRenderable, interfaces.ISimpleFormCanvas)
 class FormCanvas(FormData):
     """This represent a simple form setup: setup some fields and
     actions, prepare widgets for it.
     """
     grok.baseclass()
-    grok.implements(IRenderable, interfaces.ISimpleFormCanvas)
 
     label = u''
     description = u''
@@ -331,11 +331,11 @@ class StandaloneForm(View):
             return redirect_exception_response(self.responseFactory, exc)
 
 
+@interface.implementer(interfaces.ISimpleForm)
 class Form(FormCanvas, StandaloneForm):
     """A full simple standalone form.
     """
     grok.baseclass()
-    grok.implements(interfaces.ISimpleForm)
 
 
 def extends(*forms, **opts):
@@ -356,6 +356,7 @@ def extends(*forms, **opts):
         extendComponent('fields')
     else:
         extendComponent(field_type)
+
 
 interface.moduleProvides(interfaces.IFormComponents)
 __all__ = list(interfaces.IFormComponents)

@@ -5,14 +5,14 @@ from dolmen.collection.components import IGNORE
 from dolmen.forms.base import interfaces
 from dolmen.forms.base.markers import NO_VALUE, DEFAULT, Marker
 from zope.schema.interfaces import IContextAwareDefaultFactory
-from zope.interface import implements, moduleProvides
+from zope.interface import implementer, moduleProvides
 from zope.i18nmessageid import MessageFactory
 
 _ = MessageFactory('dolmen.forms.base')
 
 
+@implementer(interfaces.IField)
 class Field(Component):
-    implements(interfaces.IField)
 
     description = u''
     required = False
@@ -97,8 +97,8 @@ class Field(Component):
         return None
 
 
+@implementer(interfaces.IFields)
 class Fields(Collection):
-    implements(interfaces.IFields)
 
     type = interfaces.IField
     factory = interfaces.IFieldFactory

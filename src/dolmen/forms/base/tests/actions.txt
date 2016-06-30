@@ -71,9 +71,9 @@ You have an helper function to clone them::
    >>> verifyObject(interfaces.IFormData, first_clone)
    True
    >>> first_clone.formMethod
-   'post'
-   >>> first_clone.postOnly
-   True
+   'POST'
+   >>> first_clone.methods
+   frozenset(['POST', 'GET'])
    >>> first_clone.enctype
    'multipart/form-data'
 
@@ -106,8 +106,8 @@ However you can specify a different prefix::
    'form.clone'
    >>> first_clone.formMethod
    'get'
-   >>> second_clone.postOnly
-   False
+   >>> second_clone.methods
+   frozenset(['POST', 'GET'])
    >>> first_clone.enctype
    'application/x-www-form-urlencoded'
    >>> verifyObject(interfaces.IFormData, second_clone)
@@ -287,8 +287,7 @@ identifier instead of a custom identifier.
    >>> [error.title for error in error_form.errors]
    ['Field Error', 'Main Error']
 
-By default, actions only work in the request was a POST request. If it
-was not a POST request, a main error will be created reporting this incident::
+By default, actions work with the GET and POST method::
 
    >>> get_request = TestRequest(
    ...          method='GET',
@@ -298,37 +297,32 @@ was not a POST request, a main error will be created reporting this incident::
    >>> get_form = FormData(object(), get_request)
 
    >>> nice_actions.process(get_form, get_request)
+   Execute 'Make it nicer'
+   (<MyAction Make it nicer>, <Marker SUCCESS>)
+
+By altering the allowed methods on the form, you can restrict the type of submission::
+
+   >>> get_form.methods = ('POST',)
+   >>> nice_actions.process(get_form, get_request)
    (None, <Marker FAILURE>)
 
    >>> get_form.formErrors
    [<Error This form was not submitted properly>]
 
-If you switch the flag ``postOnly`` to False on the form, it will work::
 
-   >>> working_get_form = FormData(object(), get_request)
-   >>> working_get_form.postOnly
-   True
-   >>> working_get_form.postOnly = False
+If an action has a defined 'methods' attribute, it will take precedence::
 
-   >>> nice_actions.process(working_get_form, get_request)
+   >>> form = FormData(object(), get_request)
+   >>> form.methods
+   frozenset(['POST', 'GET'])
+
+   >>> nice_action.methods = ('GET',)
+
+   >>> nice_actions.process(form, get_request)
    Execute 'Make it nicer'
    (<MyAction Make it nicer>, <Marker SUCCESS>)
 
-   >>> assert not working_get_form.formErrors
-
-A other solution is to set the flag ``postOnly`` only on the action::
-
-   >>> working_post_form = FormData(object(), get_request)
-   >>> working_post_form.postOnly
-   True
-
-   >>> nice_action.postOnly = False
-
-   >>> nice_actions.process(working_get_form, get_request)
-   Execute 'Make it nicer'
-   (<MyAction Make it nicer>, <Marker SUCCESS>)
-
-   >>> assert not working_get_form.formErrors
+   >>> assert not form.formErrors
 
 Interface
 ~~~~~~~~~

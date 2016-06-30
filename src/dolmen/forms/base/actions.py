@@ -4,15 +4,14 @@ import sys
 
 from dolmen.forms.base import interfaces, markers, errors
 from dolmen.collection import Component, Collection, ICollection
-from zope.interface import implements, alsoProvides, moduleProvides
+from zope.interface import implementer, alsoProvides, moduleProvides
 from zope import component
 
 
+@implementer(interfaces.IAction)
 class Action(Component):
     """A form action.
     """
-    implements(interfaces.IAction)
-
     prefix = 'action'
     # By default an action is always in input mode (there is not much
     # sense otherwise).
@@ -21,7 +20,7 @@ class Action(Component):
     accesskey = None
     html5Validation = True
     htmlAttributes = {}
-    postOnly = markers.DEFAULT
+    methods = None
 
     def __init__(self, title=None, identifier=None, **htmlAttributes):
         super(Action, self).__init__(title, identifier)
@@ -38,11 +37,10 @@ class Action(Component):
         raise NotImplementedError
 
 
+@implementer(interfaces.IActions)
 class Actions(Collection):
     """A list of form action.
     """
-    implements(interfaces.IActions)
-
     type = interfaces.IAction
 
     def process(self, form, request):
@@ -52,8 +50,8 @@ class Actions(Collection):
 
             value, error = extractor.extract()
             if value is not markers.NO_VALUE:
-                isPostOnly = markers.getValue(action, 'postOnly', form)
-                if isPostOnly and request.method != 'POST':
+                methods = action.methods or form.methods
+                if methods and request.method.upper() not in methods:
                     form.errors.append(
                         errors.Error('This form was not submitted properly',
                                      form.prefix))
@@ -68,10 +66,10 @@ class Actions(Collection):
         return None, markers.NOTHING_DONE
 
 
+@implementer(ICollection)
 class CompoundActions(object):
     """Compound different types of actions together.
     """
-    implements(ICollection)
 
     def __init__(self, *new_actions):
         self.__actions = []

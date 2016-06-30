@@ -2,15 +2,15 @@
 
 from dolmen.forms.base import interfaces
 from dolmen.collection.components import Component, Collection, _marker
-from zope.interface import implements, directlyProvides
+from zope.interface import implementer, directlyProvides
 from zope.i18nmessageid import MessageFactory
 
 
 _ = MessageFactory('dolmen.forms.base')
 
 
+@implementer(interfaces.IError)
 class Error(Component):
-    implements(interfaces.IError)
 
     def get(self, prefix, default=_marker):
         # We implements get to be compatible with the sub-error protocol.
@@ -21,8 +21,8 @@ class Error(Component):
         return default
 
 
+@implementer(interfaces.IErrors)
 class Errors(Collection):
-    implements(interfaces.IErrors)
 
     type = interfaces.IError
     order = 0

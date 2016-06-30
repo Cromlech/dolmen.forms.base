@@ -10,7 +10,7 @@ from dolmen.forms.base.markers import NO_VALUE, HIDDEN, getValue
 from dolmen.template import TALTemplate
 from grokcore import component as grok
 from zope.component import getMultiAdapter, queryMultiAdapter
-from zope.interface import Interface, moduleProvides
+from zope.interface import Interface, moduleProvides, implementer
 from dolmen.collection import ICollection
 
 
@@ -34,10 +34,10 @@ def getWidgetExtractor(field, form, request):
     return form.widgetFactory.extractor(field)
 
 
+@implementer(IWidgetFactory)
 class WidgetFactory(object):
     """Generic API to create widgets and extractors.
     """
-    grok.implements(IWidgetFactory)
 
     def __init__(self, form, request):
         self.form = form
@@ -75,8 +75,8 @@ class WidgetFactory(object):
             interfaces.IWidgetExtractor)
 
 
+@implementer(interfaces.IWidgets)
 class Widgets(Collection):
-    grok.implements(interfaces.IWidgets)
 
     type = interfaces.IWidget
 
@@ -111,9 +111,9 @@ class Widgets(Collection):
             widget.update()
 
 
+@implementer(interfaces.IWidget)
 class Widget(Component, grok.MultiAdapter):
     grok.baseclass()
-    grok.implements(interfaces.IWidget)
     grok.provides(interfaces.IWidget)
 
     defaultHtmlAttributes = set(['required', 'readonly', 'placeholder',
@@ -190,8 +190,8 @@ class Widget(Component, grok.MultiAdapter):
             self, target_language=self.target_language, **self.namespace())
 
 
+@implementer(interfaces.IWidgetExtractor)
 class WidgetExtractor(grok.MultiAdapter):
-    grok.implements(interfaces.IWidgetExtractor)
     grok.provides(interfaces.IWidgetExtractor)
     grok.adapts(
         interfaces.IRenderableComponent,
@@ -238,11 +238,12 @@ class FieldWidgetExtractor(WidgetExtractor):
 # widgets
 
 class ActionWidget(Widget):
+    grok.name('input')
     grok.adapts(
         interfaces.IAction,
         interfaces.IFieldExtractionValueSetting,
         Interface)
-    grok.name('input')
+
     template = TALTemplate(os.path.join(WIDGETS, 'action.pt'))
     defaultHtmlAttributes = set(['accesskey', 'formnovalidate', 'style'])
     defaultHtmlClass = ['action']
@@ -259,13 +260,14 @@ class ActionWidget(Widget):
         return 'action'
 
 
+@implementer(interfaces.IFieldWidget)
 class FieldWidget(Widget):
-    grok.implements(interfaces.IFieldWidget)
+    grok.name('input')
     grok.adapts(
         interfaces.IField,
         interfaces.IFormData,
         Interface)
-    grok.name('input')
+
     template = TALTemplate(os.path.join(WIDGETS, 'fieldwidget.pt'))
     
     def __init__(self, component, form, request):

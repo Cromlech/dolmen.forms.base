@@ -40,7 +40,7 @@ And we can render it::
   ...   <body>
   ...     <form action="http://localhost/change"
   ...           id="form"
-  ...           method="post"
+  ...           method="POST"
   ...           enctype="multipart/form-data">
   ...       <h1>My form</h1>
   ...       <p>The description of my form</p>
