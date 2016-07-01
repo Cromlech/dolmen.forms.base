@@ -23,6 +23,11 @@ class InvalidCSRFToken(Exception):
     """
 
 
+class CSRFTokenGenerationError(Exception):
+    """The form submit could not be save or load the CSRF token.
+    """
+
+
 class IModeMarker(Interface):
     """This interface identifies a form mode and defines if it allows
     data extraction.

@@ -8,6 +8,7 @@ from cromlech.browser.interfaces import IRenderable, IURL
 from cromlech.browser.exceptions import HTTPRedirect, REDIRECTIONS
 from cromlech.browser.utils import redirect_exception_response
 from cromlech.i18n import ILanguage
+from cromlech.browser import getSession
 
 from dolmen.template import TALTemplate
 from dolmen.view import View
@@ -21,6 +22,7 @@ from dolmen.forms.base.markers import NO_VALUE, INPUT
 from dolmen.forms.base.widgets import Widgets, WidgetFactory
 from dolmen.forms.base.interfaces import ICollection, ISuccessMarker
 from dolmen.forms.base.interfaces import IError, InvalidCSRFToken
+from dolmen.forms.base.interfaces import CSRFTokenGenerationError
 
 from grokcore import component as grok
 from zope import interface
@@ -32,6 +34,9 @@ PATH = path.join(path.dirname(__file__), 'default_templates')
 default_template = TALTemplate(path.join(PATH, "formtemplate.pt"))
 
 _marker = object()
+
+
+
 
 
 class cached(object):
@@ -228,22 +233,6 @@ class FormData(Object):
         return (data, errors)
 
 
-from webob.cookies import Cookie
-from webob.compat import text_type
-
-def get_cookie(response, name):
-    existing = response.headers.getall('Set-Cookie')
-    if not existing:
-        return
-    cookies = Cookie()
-    for header in existing:
-        cookies.load(header)
-    if isinstance(name, text_type):
-        name = name.encode('utf8')
-    if name in cookies:
-        return cookies[name]
-
-
 @interface.implementer(IRenderable, interfaces.ISimpleFormCanvas)
 class FormCanvas(FormData):
     """This represent a simple form setup: setup some fields and
@@ -277,38 +266,22 @@ class FormCanvas(FormData):
         self._updated = False
 
     def setUpToken(self, response):
-        self.csrftoken = self.request.cookies.get('__csrftoken__')
+        session = getSession()
+        if session is None:
+            raise CSRFTokenGenerationError("No session.")
+        self.csrftoken = session.get('__csrftoken__')
         if self.csrftoken is None:
-            # It is possible another form, that is rendered as part of
-            # this request, already set a csrftoken. In that case we
-            # should find it in the response cookie and use that.
-            existing = get_cookie(response, name)
-            if setcookie is not None:
-                self.csrftoken = existing['value']
-            else:
-                # Ok, nothing found, we should generate one and set
-                # it in the cookie ourselves. Note how we ``str()``
-                # the hex value of the ``os.urandom`` call here, as
-                # Python-3 will return bytes and the cookie roundtrip
-                # of a bytes values gets messed up.
-                self.csrftoken = str(binascii.hexlify(os.urandom(32)))
-                response.set_cookie(
-                    '__csrftoken__',
-                    self.csrftoken,
-                    path='/',
-                    expires=None,  # equivalent to "remove on browser quit"
-                    httpOnly=True,  # no javascript access please.
-                    )
+            self.csrftoken = str(binascii.hexlify(os.urandom(32)))
+            session['__csrftoken__'] = self.csrftoken
         
     def checkToken(self):
-        cookietoken = self.request.cookies.get('__csrftoken__')
+        session = getSession()
+        if session is None:
+            raise CSRFTokenGenerationError("No session.")
+        cookietoken = session.get('__csrftoken__')
         if cookietoken is None:
-            # CSRF is enabled, so we really should get a token from the
-            # cookie. We didn't get it, so this submit is invalid!
             raise InvalidCSRFToken(_('Invalid CSRF token'))
         if cookietoken != self.request.form.get('__csrftoken__', None):
-            # The token in the cookie is different from the one in the
-            # form data. This submit is invalid!
             raise InvalidCSRFToken(_('Invalid CSRF token'))
 
     @property
@@ -316,7 +289,8 @@ class FormCanvas(FormData):
         return ILanguage(self.request, None)
 
     def update(self, *args, **kwargs):
-        pass
+        if self.protected:
+            self.setUpToken()
 
     def namespace(self):
         namespace = {}
@@ -337,6 +311,10 @@ class FormCanvas(FormData):
 
     def updateActions(self):
         action, result = self.actions.process(self, self.request)
+        if action is not None and self.protected:
+            # This form has CSRF protection enabled.
+            self.checkToken()
+
         if ISuccessMarker.providedBy(result) and result.url is not None:
             code = result.code or 302
             exception = REDIRECTIONS[code]
