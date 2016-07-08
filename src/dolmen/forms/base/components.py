@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import operator
-from os import path
+from os import path, urandom
 import binascii
 
 from cromlech.browser.interfaces import IRenderable, IURL
@@ -265,13 +265,13 @@ class FormCanvas(FormData):
         self.fieldWidgets = Widgets(form=self, request=self.request)
         self._updated = False
 
-    def setUpToken(self, response):
+    def setUpToken(self):
         session = getSession()
         if session is None:
             raise CSRFTokenGenerationError("No session.")
         self.csrftoken = session.get('__csrftoken__')
         if self.csrftoken is None:
-            self.csrftoken = str(binascii.hexlify(os.urandom(32)))
+            self.csrftoken = str(binascii.hexlify(urandom(32)))
             session['__csrftoken__'] = self.csrftoken
         
     def checkToken(self):
@@ -281,16 +281,25 @@ class FormCanvas(FormData):
         cookietoken = session.get('__csrftoken__')
         if cookietoken is None:
             raise InvalidCSRFToken(_('Invalid CSRF token'))
-        if cookietoken != self.request.form.get('__csrftoken__', None):
+        if cookietoken != self.request.form.get('form.field.__csrftoken__', None):
             raise InvalidCSRFToken(_('Invalid CSRF token'))
 
     @property
     def target_language(self):
         return ILanguage(self.request, None)
 
+    def get_csrftoken(self):
+        return unicode(self.csrftoken)
+
     def update(self, *args, **kwargs):
         if self.protected:
+            from dolmen.forms.base.fields import Field
+            from zope import schema, interface
+            class ICSRF(interface.Interface):
+                __csrftoken__ = schema.TextLine(title=u'csrf', defaultFactory=self.get_csrftoken)
             self.setUpToken()
+            self.fields.extend(Fields(ICSRF))
+            self.fields['__csrftoken__'].mode = 'hidden'
 
     def namespace(self):
         namespace = {}
