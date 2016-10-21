@@ -2,8 +2,7 @@
 
 from grokker import grokker, directive
 from crom import target, name, registry
-from cromlech.browser import IRequest, request, context
-from .interfaces import IFormView
+from cromlech.browser import IView, IRequest, request, context
 from zope.interface import Interface
 
 
@@ -15,14 +14,14 @@ from zope.interface import Interface
 @directive(registry)
 def form_component(scanner, pyname,
          obj, registry,
-         target=IFormView, context=Interface, request=IRequest, name=None):
+         target=IView, context=Interface, request=IRequest, name=None):
 
     if name is None:
         name = obj.__name__.lower()
 
     obj.__component_name__ = name
 
-    assert target.isOrExtends(IFormView)
+    assert target.isOrExtends(IView)
 
     def register():
         registry.register((context, request), target, name, obj)

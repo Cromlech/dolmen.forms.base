@@ -93,7 +93,7 @@ class WidgetExtractor(object):
     def extractRaw(self):
         entries = {}
         sub_identifier = self.identifier + '.'
-        for key, value in self.request.form.iteritems():
+        for key, value in self.request.form.items():
             if key.startswith(sub_identifier) or key == self.identifier:
                 entries[key] = value
         return entries
