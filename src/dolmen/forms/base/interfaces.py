@@ -118,6 +118,7 @@ class IAction(IRenderableComponent):
     """A form action.
     """
     description = Attribute(u"Describe the action")
+    html5Validation = Attribute(u"Enable HTML5 validation for this action")
 
     def validate(form):
         """Self validation of values in order to run.

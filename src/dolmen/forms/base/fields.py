@@ -24,11 +24,18 @@ class Field(Component):
     required = False
     prefix = 'field'
     readonly = False
-
+    htmlAttributes = {}
+    
     ignoreContent = markers.DEFAULT
     ignoreRequest = markers.DEFAULT
     mode = markers.DEFAULT
     defaultValue = markers.NO_VALUE
+
+    def __init__(self, *args, **kwargs):
+        self.htmlAttributes = self.htmlAttributes.copy()
+        if 'htmlAttributes' in kwargs:
+            self.htmlAttributes.update(kwargs.pop('htmlAttributes'))
+        super(Field, self).__init__(*args, **kwargs)
 
     def available(self, form):
         return True
