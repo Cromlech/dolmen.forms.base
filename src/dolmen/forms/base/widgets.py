@@ -56,7 +56,10 @@ class Widget(Component):
         return self.identifier.replace('.', '-')
 
     def htmlClass(self):
-        return 'field'
+        result = self.defaultHtmlClass
+        if self.required:
+            result = result + ['field-required',]
+        return ' '.join(result)
 
     def htmlAttribute(self, name=None):
         value = self._htmlAttributes.get(name)
