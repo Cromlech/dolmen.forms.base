@@ -27,7 +27,7 @@ from dolmen.forms.base.datamanagers import *
 from dolmen.forms.base.interfaces import ActionError
 
 # Exposing package API
-from dolmen.forms.base.interfaces import IFieldUpdate, IForm
+from dolmen.forms.base.interfaces import IForm
 from dolmen.forms.base.components import cloneFormData
 from dolmen.forms.base.utils import (
     extends, set_fields_data, notify_changes, apply_data_event)
