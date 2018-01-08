@@ -18,7 +18,15 @@ class Action(Component):
     description = None
     accesskey = None
     postOnly = markers.DEFAULT
+    html5Validation = True
+    htmlAttributes = {}
 
+    def __init__(self, *args, **kwargs):
+        self.htmlAttributes = self.htmlAttributes.copy()
+        if 'htmlAttributes' in kwargs:
+            self.htmlAttributes.update(kwargs.pop('htmlAttributes'))
+        super(Action, self).__init__(*args, **kwargs)
+    
     def available(self, form):
         return True
 

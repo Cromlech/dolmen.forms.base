@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import crom
+import sys
+if sys.version > '3':
+    unicode = str
+
 import os.path
 from cromlech.browser import ITemplate
 from cromlech.i18n import ILanguage
@@ -31,12 +35,18 @@ class Widget(Component):
 
     template = None
 
+    defaultHtmlAttributes = set(['required', 'readonly', 'placeholder',
+                                 'autocomplete', 'size', 'maxlength',
+                                 'pattern', 'style'])
+    defaultHtmlClass = ['field']
+    
     def __init__(self, component, form, request):
         identifier = widget_id(form, component)
         super(Widget, self).__init__(component.title, identifier)
         self.component = component
         self.form = form
         self.request = request
+        self._htmlAttributes = {}
 
     def copy(self):
         raise NotImplementedError
@@ -46,8 +56,31 @@ class Widget(Component):
         return self.identifier.replace('.', '-')
 
     def htmlClass(self):
-        return 'field'
+        result = self.defaultHtmlClass
+        if self.required:
+            result = result + ['field-required',]
+        return ' '.join(result)
 
+    def htmlAttribute(self, name=None):
+        value = self._htmlAttributes.get(name)
+        if value:
+            # Boolean return as value the name of the property
+            if isinstance(value, bool):
+                return name
+            return value
+        return None
+
+    def htmlAttributes(self):
+        attributes = {}
+        for key, value in self._htmlAttributes.items():
+            if (value and
+                (key.startswith('data-') or key in self.defaultHtmlAttributes)):
+                if isinstance(value, bool):
+                    attributes[key] = key
+                else:
+                    attributes[key] = str(value)
+        return attributes
+    
     @property
     def visible(self):
         return self.component.mode != HIDDEN
@@ -93,7 +126,7 @@ class WidgetExtractor(object):
     def extractRaw(self):
         entries = {}
         sub_identifier = self.identifier + '.'
-        for key, value in self.request.form.iteritems():
+        for key, value in self.request.form.items():
             if key.startswith(sub_identifier) or key == self.identifier:
                 entries[key] = value
         return entries
@@ -178,12 +211,18 @@ class Widgets(Collection):
         Interface)
 class ActionWidget(Widget):
 
+    defaultHtmlAttributes = set(['accesskey', 'formnovalidate', 'style'])
+    defaultHtmlClass = ['action']
+    
     template = TALTemplate(os.path.join(WIDGETS, 'action.pt'))
-
+    
     def __init__(self, component, form, request):
         super(ActionWidget, self).__init__(component, form, request)
         self.description = component.description
-        self.accesskey = component.accesskey
+        self._htmlAttributes.update({
+                'accesskey': component.accesskey,
+                'formnovalidate': not component.html5Validation})
+        self._htmlAttributes.update(component.htmlAttributes)
 
     def htmlClass(self):
         return 'action'
@@ -218,7 +257,10 @@ class FieldWidget(Widget):
         super(FieldWidget, self).__init__(component, form, request)
         self.description = component.description
         self.required = component.required
-        self.readonly = component.readonly
+        self._htmlAttributes.update(component.htmlAttributes)
+        self._htmlAttributes.update({
+            'readonly': component.readonly,
+            'required': self.required})
 
     @property
     def error(self):
