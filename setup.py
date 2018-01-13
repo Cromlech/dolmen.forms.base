@@ -28,7 +28,6 @@ tests_require = [
     'cromlech.browser [test]',
     'WebOb >= 1.7',
     'cromlech.webob',
-    'infrae.testbrowser',
     'zope.location',
     'pytest',
     ]
