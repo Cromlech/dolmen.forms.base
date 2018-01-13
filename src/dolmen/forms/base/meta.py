@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .interfaces import IFormView
 from grokker import grokker, directive
 from crom import target, name, registry
 from cromlech.browser import IView, IRequest, request, context

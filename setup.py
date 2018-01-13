@@ -26,10 +26,11 @@ install_requires = [
 
 tests_require = [
     'cromlech.browser [test]',
-    'WebOb >= 1.2.1',
+    'WebOb >= 1.7',
     'cromlech.webob',
     'infrae.testbrowser',
     'zope.location',
+    'pytest',
     ]
 
 setup(name=name,
