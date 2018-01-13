@@ -1,0 +1,464 @@
+dolmen.forms.base
+=================
+
+Actions represent code which is executed when the user submit a form.
+
+Action
+------
+
+An action represent a single action of a form::
+
+   >>> from dolmen.forms.base.actions import Action
+
+   >>> action1 = Action("Apply")
+   >>> action1
+   <Action Apply>
+
+An action is callable with a submission to be execuded::
+
+   >>> from cromlech.browser.testing import TestRequest
+   >>> request = TestRequest(method='POST')
+
+   >>> from dolmen.forms.base import FormData
+   >>> submission = FormData(object(), request)
+
+   >>> action1(submission)
+   Traceback (most recent call last):
+     ...
+   NotImplementedError
+
+Of course you need to implement your own action::
+
+   >>> from dolmen.forms.base.markers import SUCCESS
+
+   >>> class MyAction(Action):
+   ...    def __call__(self, submission):
+   ...        print("Execute '%s'" % self.title)
+   ...        return SUCCESS
+
+   >>> myaction1 = MyAction("I like it")
+   >>> myaction1(submission)
+   Execute 'I like it'
+   <Marker SUCCESS>
+
+Action provide a validate method as well, which is called before the
+action is. If the validate method does not return True, the action will
+not be processed::
+
+   >>> myaction1.validate(submission)
+   True
+
+
+Submissions
+~~~~~~~~~~~
+
+This object contains information about the submitted form for the
+actions to be processed and the widgets to be rendered::
+
+   >>> from zope.interface.verify import verifyObject
+   >>> from dolmen.forms.base import interfaces
+   >>> verifyObject(interfaces.IFormData, submission)
+   True
+
+You have an helper function to clone them::
+
+   >>> from dolmen.forms.base import cloneFormData
+   >>> first_clone = cloneFormData(submission)
+   >>> submission.parent is None
+   True
+   >>> first_clone is submission
+   False
+   >>> verifyObject(interfaces.IFormData, first_clone)
+   True
+   >>> first_clone.formMethod
+   'post'
+   >>> first_clone.postOnly
+   True
+   >>> first_clone.enctype
+   'multipart/form-data'
+
+Settings are cloned as well::
+
+   >>> first_clone.ignoreRequest = True
+   >>> first_clone.ignoreContent = False
+   >>> first_clone.mode = 'carambar'
+   >>> first_clone.prefix = 'form.advanced'
+   >>> first_clone.formMethod = 'get'
+   >>> first_clone.enctype = 'application/x-www-form-urlencoded'
+   >>> first_clone.postOnly = False
+   >>> first_clone.parent is submission
+   True
+
+However you can specify a different prefix::
+
+   >>> second_clone = cloneFormData(first_clone, prefix='form.clone')
+   >>> second_clone is first_clone
+   False
+   >>> second_clone.parent is first_clone
+   True
+   >>> second_clone.ignoreRequest
+   True
+   >>> second_clone.ignoreContent
+   False
+   >>> second_clone.mode
+   'carambar'
+   >>> second_clone.prefix
+   'form.clone'
+   >>> first_clone.formMethod
+   'get'
+   >>> second_clone.postOnly
+   False
+   >>> first_clone.enctype
+   'application/x-www-form-urlencoded'
+   >>> verifyObject(interfaces.IFormData, second_clone)
+   True
+
+Interface
+~~~~~~~~~
+
+Action implements IAction, and IComponent::
+
+   >>> verifyObject(interfaces.IAction, action1)
+   True
+   >>> verifyObject(interfaces.IComponent, action1)
+   True
+
+Actions
+-------
+
+Action are added to an Actions collection::
+
+   >>> from dolmen.forms.base.actions import Actions
+   >>> as1 = Actions(action1, Action('Cancel'))
+   >>> as1
+   <Actions>
+   >>> list(as1)
+   [<Action Apply>, <Action Cancel>]
+
+That Actions is a collection, so all collection operation are
+available.
+
+Processing of actions
+~~~~~~~~~~~~~~~~~~~~~
+
+It add a ``process`` method, which takes a form and a request and
+execute actions that need to be. Let's create a set of actions::
+
+   >>> nice_action = MyAction("Make it nicer")
+   >>> nice_actions = Actions(myaction1, nice_action)
+   >>> list(nice_actions)
+   [<MyAction I like it>, <MyAction Make it nicer>]
+
+The result of processing actions is a tuple with the executed action
+and its status (``SUCCESS``, ``FAILURE``, ``NOTHING_DONE``). With no
+data in the request, nothing is done::
+
+   >>> nice_actions.process(submission, request)
+   (None, <Marker NOTHING_DONE>)
+
+
+With the corresponding input in the request the action is executed,
+and succeed::
+
+   >>> nice_request = TestRequest(
+   ...     form={'form.action.%s' % nice_action.identifier:
+   ...           nice_action.title}, method='POST')
+   >>> nice_form = FormData(object(), nice_request)
+
+   >>> nice_actions.process(nice_form, nice_request)
+   Execute 'Make it nicer'
+   (<MyAction Make it nicer>, <Marker SUCCESS>)
+
+Validation
+~~~~~~~~~~
+
+Like we said, an action have a validate method. Let's define an action
+which doesn't validate unless there is a key 'valid' in the request::
+
+   >>> class MyNeverHappyAction(MyAction):
+   ...     def validate(self, submission):
+   ...         return 'valid' in submission.request.form
+
+   >>> validated_action = MyNeverHappyAction("I am unhappy")
+   >>> validated_actions = Actions(validated_action)
+
+And a test submission for it, which validate the action::
+
+   >>> working_request = TestRequest(
+   ...          method='POST',
+   ...          form={'form.action.%s' % validated_action.identifier:
+   ...                 validated_action.title, 'valid': True})
+
+   >>> working_form = FormData(object(), working_request)
+
+The action works::
+
+   >>> validated_action(working_form)
+   Execute 'I am unhappy'
+   <Marker SUCCESS>
+   >>> validated_actions.process(working_form, working_request)
+   Execute 'I am unhappy'
+   (<MyNeverHappyAction I am unhappy>, <Marker SUCCESS>)
+
+However if the validation fail, the actions list still works and
+doesn't report any error::
+
+   >>> wrong_request = TestRequest(
+   ...          method = 'POST',
+   ...          POST={'form.action.%s' % validated_action.identifier:
+   ...                 validated_action.title})
+
+   >>> wrong_form = FormData(object(), wrong_request)
+
+   >>> validated_action(wrong_form)
+   Execute 'I am unhappy'
+   <Marker SUCCESS>
+   >>> validated_actions.process(wrong_form, wrong_request)
+   (None, <Marker NOTHING_DONE>)
+
+Errors
+~~~~~~
+
+Actions can trigger errors, by raising ActionError. Let's define an
+action like that::
+
+   >>> class MyFailingAction(Action):
+   ...     def __call__(self, submission):
+   ...         raise interfaces.ActionError("I can't take it anymore")
+
+   >>> failing_action = MyFailingAction("Do it")
+   >>> failing_actions = Actions(failing_action)
+
+Errors can be read from the submission::
+
+   >>> failing_request = TestRequest(
+   ...          method='POST',
+   ...          form={'form.action.%s' % failing_action.identifier:
+   ...                 failing_action.title})
+
+   >>> failing_form = FormData(object(), failing_request)
+
+   >>> list(failing_form.errors)
+   []
+   >>> assert not failing_form.formErrors
+
+So the action doesn't work, and the error will be reported in the
+submission::
+
+   >>> failing_action(failing_request)
+   Traceback (most recent call last):
+     ...
+   dolmen.forms.base.interfaces.ActionError: I can't take it anymore
+
+   >>> failing_actions.process(failing_form, failing_request)
+   (<MyFailingAction Do it>, <Marker FAILURE>)
+
+   >>> list(failing_form.errors)
+   [<Error I can't take it anymore>]
+   >>> failing_form.formErrors
+   [<Error I can't take it anymore>]
+
+Errors implement an interface as well, and are components contained
+in a collection::
+
+   >>> verifyObject(interfaces.IError, failing_form.errors.get('form'))
+   True
+   >>> interfaces.IError.extends(interfaces.IComponent)
+   True
+
+   >>> verifyObject(interfaces.IErrors, failing_form.errors)
+   True
+   >>> interfaces.IErrors.extends(interfaces.ICollection)
+   True
+
+formErrors is a special property which only returns the main error of
+a form.  A main error is a Error which has the prefix of the form as
+identifier instead of a custom identifier.
+
+   >>> from dolmen.forms.base.errors import Error
+   >>> error_form = FormData(object, failing_request)
+   >>> error_form.errors.append(
+   ...    Error('Field Error', identifier='field'))
+   >>> error_form.errors.append(
+   ...    Error('Main Error', identifier=error_form.prefix))
+
+   >>> error_form.formErrors
+   [<Error Main Error>]
+
+   >>> [error.title for error in error_form.errors]
+   ['Field Error', 'Main Error']
+
+By default, actions only work in the request was a POST request. If it
+was not a POST request, a main error will be created reporting this incident::
+
+   >>> get_request = TestRequest(
+   ...          method='GET',
+   ...          form={'form.action.%s' % nice_action.identifier:
+   ...                nice_action.title})
+
+   >>> get_form = FormData(object(), get_request)
+
+   >>> nice_actions.process(get_form, get_request)
+   (None, <Marker FAILURE>)
+
+   >>> get_form.formErrors
+   [<Error This form was not submitted properly>]
+
+If you switch the flag ``postOnly`` to False on the form, it will work::
+
+   >>> working_get_form = FormData(object(), get_request)
+   >>> working_get_form.postOnly
+   True
+   >>> working_get_form.postOnly = False
+
+   >>> nice_actions.process(working_get_form, get_request)
+   Execute 'Make it nicer'
+   (<MyAction Make it nicer>, <Marker SUCCESS>)
+
+   >>> assert not working_get_form.formErrors
+
+A other solution is to set the flag ``postOnly`` only on the action::
+
+   >>> working_post_form = FormData(object(), get_request)
+   >>> working_post_form.postOnly
+   True
+
+   >>> nice_action.postOnly = False
+
+   >>> nice_actions.process(working_get_form, get_request)
+   Execute 'Make it nicer'
+   (<MyAction Make it nicer>, <Marker SUCCESS>)
+
+   >>> assert not working_get_form.formErrors
+
+Interface
+~~~~~~~~~
+
+Those Actions implement IActions and ICollection::
+
+   >>> verifyObject(interfaces.IActions, as1)
+   True
+   >>> interfaces.IActions.extends(interfaces.ICollection)
+   True
+
+Defining actions on a form
+--------------------------
+
+You can define form methods as Action, using the action decorator. This
+will create an action that will executed the method, and register in
+the Actions list located on the form class::
+
+   >>> from dolmen.forms.base.actions import action
+   >>> from dolmen.forms.base import Form
+
+   >>> class MyForm(Form):
+   ...   @action("Change")
+   ...   def change(self):
+   ...       self.status = "Just kidding"
+   ...       return SUCCESS
+
+   >>> MyForm.actions
+   <Actions>
+   >>> list(MyForm.actions)
+   [<DecoratedAction Change>]
+
+This is like a regular action, but run the method when you call it::
+
+   >>> d1 = list(MyForm.actions)[0]
+   >>> d1
+   <DecoratedAction Change>
+
+   >>> verifyObject(interfaces.IAction, d1)
+   True
+
+   >>> f3 = MyForm(object(), request)
+   >>> d1.validate(f3)
+   True
+   >>> d1(f3)
+   <Marker SUCCESS>
+   >>> f3.status
+   'Just kidding'
+
+
+Joining a redirection info to a result
+--------------------------------------
+
+   >>> from dolmen.forms.base import SuccessMarker
+
+   >>> class MyRedirectionForm(Form):
+   ...   @action("Redirect")
+   ...   def redirect(self):
+   ...       self.status = "Done it!"
+   ...       return SuccessMarker('REDIRECT', True, '/test')
+   ...
+   ...   @action("TempRedirect")
+   ...   def redirect(self):
+   ...       self.status = "This is not here !"
+   ...       return SuccessMarker('REDIRECT', True, '/test', code=307)
+
+
+Base redirect
+~~~~~~~~~~~~~
+
+   >>> request = TestRequest(
+   ...     method='POST',
+   ...     form={'form.action.redirect': True})
+
+   >>> form = MyRedirectionForm(object(), request)
+   >>> form.updateForm()
+   Traceback (most recent call last):
+   ...
+   cromlech.browser.exceptions.HTTPFound: /test
+
+   >>> try:
+   ...   form.updateForm()
+   ... except Exception as e:
+   ...   print(e.code, e.location)
+   302 /test
+
+
+Custom redirect
+~~~~~~~~~~~~~~~
+
+   >>> request = TestRequest(
+   ...     method='POST',
+   ...     form={'form.action.tempredirect': True})
+
+   >>> form = MyRedirectionForm(object(), request)
+   >>> form.updateForm()
+   Traceback (most recent call last):
+   ...
+   cromlech.browser.exceptions.HTTPTemporaryRedirect: /test
+
+
+Wrong redirect
+~~~~~~~~~~~~~~
+
+   >>> class MyUselessForm(Form):
+   ...
+   ...   @action("Redirect")
+   ...   def redirect(self):
+   ...       self.status = "This is not here !"
+   ...       return SuccessMarker('THIS_WILL_FAIL', False, '/test', code=404)
+
+   >>> request = TestRequest(
+   ...     method='POST',
+   ...     form={'form.action.redirect': True})
+
+   >>> form = MyUselessForm(object(), request)
+   >>> form.updateForm()
+   Traceback (most recent call last):
+   ...
+   KeyError: 404
+
+
+SuccessMarker autopsy
+~~~~~~~~~~~~~~~~~~~~~
+
+  >>> from dolmen.forms.base import SuccessMarker
+  >>> from dolmen.forms.base import SUCCESS, FAILURE, NOTHING_DONE
+  >>> from dolmen.forms.base.interfaces import ISuccessMarker
+
+  >>> assert ISuccessMarker.providedBy(SUCCESS) and bool(SUCCESS)
+  >>> assert ISuccessMarker.providedBy(FAILURE) and not bool(FAILURE)
+  >>> assert ISuccessMarker.providedBy(NOTHING_DONE) and bool(NOTHING_DONE)

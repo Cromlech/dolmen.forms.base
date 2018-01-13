@@ -1,0 +1,5 @@
+{
+  "test_inputform.py::test_inputform": true,
+  "test_widget_render.py::test_widget_render": true,
+  "test_widget_template.py::test_widget_template": true
+}
