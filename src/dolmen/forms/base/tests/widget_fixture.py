@@ -51,6 +51,6 @@ class TemplateWidget(Widget):
 @crom.target(ITemplate)
 @crom.sources(TemplateWidget, Interface)
 def mywidget_template(view, request):
-    return TALTemplate(filename=os.path.join(os.path.dirname(__file__),
+    return TALTemplate(os.path.join(os.path.dirname(__file__),
                                     "widgettemplate_templates",
                                     "mywidget.pt", ))
