@@ -3,4 +3,5 @@
                        name widget.identifier;
                        id widget.htmlId();
                        class widget.htmlClass();
+		       widget.htmlAttributes();
                        value widget.inputValue()" />
